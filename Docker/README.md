@@ -45,3 +45,17 @@ export DB_USER='<Database user name>'
 docker run --name orainstcli -it --rm ghcr.io/oracle/oraclelinux8-instantclient:21 sqlplus $DB_USER'/'$DB_PASSWORD'@'$DB_HOST':'$DB_PORT'/'$DB_SERVICE
 ```
 
+### MYSQL Client
+
+[Official documentation about this image](https://hub.docker.com/_/mysql)
+
+If password is not provided it will be asked.
+
+```bash
+export DB_HOST='<database hostname or ip to connect>'
+export DB_PORT='<port to connect>' # usually 1521
+export DB_NAME='<Database name to connect>'
+export DB_PASSWORD='<Database password>'
+export DB_USER='<Database user name>'
+docker run --name mysqlcli -it --rm mysql mysql --host=$DB_HOST --port=$DB_PORT --database=$DB_NAME --user=$DB_PASSWORD --password=$DB_PASSWORD
+```
