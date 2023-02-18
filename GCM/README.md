@@ -157,13 +157,36 @@ cpass <path/credential>
 ## GitHub pass
 Use your git as usual, but the first time it will record your credentials for both proxy and github to avoid asking again
 
-[list credentials on passwordstore](images/passCredentialList.JPG)
-```
+```bash
 pass
+```
+
+[list credentials on passwordstore](images/passGithubCreds.jpg)
+
+## Docker pass
+Use your docker as usual, but the first time it will record your credentials on docker login to avoid asking again
+
+```bash
+pass
+```
+
+[list credentials on passwordstore](images/passDockerCreds.jpg)
+
+* just for undertanding
+
+your docker credential helper will record your registry as base64 encoded, you can see it using
+
+```bash
+echo 'aHR0cHM6Ly9pbmRleC5kb2NrZXIuaW8vdjEv' | base64 -d
+https://index.docker.io/v1/
 ```
 
 ## Relevant Links
 
-[Git Credential Manager (GCM)](https://github.com/GitCredentialManager/git-credential-manager) 
 [GNU Privacy Guard](https://gnupg.org/)
+
 [Password Store](https://www.passwordstore.org/)
+
+[Git Credential Manager (GCM)](https://github.com/GitCredentialManager/git-credential-manager) 
+
+[Docker Credential Helper](https://github.com/docker/docker-credential-helpers) 
