@@ -8,6 +8,8 @@ Using [docker](./Docker/README.md) to connecting in Databases or programming wit
 
 ## Using GNUPG + Password Store in Linux or WSL 2
 
+Using [Password Store](./GCM/README.md) to avoid keep secrets in clear text or just base64 encoded
+
 * Git Credential Manager (GCM)
 
 * Docker Credential Helper

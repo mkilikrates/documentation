@@ -49,21 +49,27 @@ sudo chown root:root /usr/local/bin/docker-credential-pass
 sed -i '0,/{/s/{/{\n\t"credsStore": "pass",/' ~/.docker/config.json
 ```
 
+Adjusting your docker config file (~/.docker/config.json)
+
+```bash
+sed -i '0,/{/s/{/{\n\t"credsStore": "pass",/' ~/.docker/config.json
+```
+
 ## Initialize / generate a key
 
 ```bash
 gpg --full-generate-key
 ```
 
-[Kind of Key Selection](images/gpgInitialKindKey.JPG)
+![Kind of Key Selection](./images/gpgInitialKindKey.jpg)
 
 Select '1' => RSA and RSA (default)
 
-[Key Size](images/gpgInitialKeySize.JPG)
+![Key Size](./images/gpgInitialKeySize.JPG)
 
 Type '4096' as key size
 
-[expiration](images/gpgInitialExpiration.JPG)
+![expiration](./images/gpgInitialExpiration.jpg)
 
 Define the expiration, eg.: 1 year or 0 to never expires
 
@@ -161,7 +167,7 @@ Use your git as usual, but the first time it will record your credentials for bo
 pass
 ```
 
-[list credentials on passwordstore](images/passGithubCreds.jpg)
+![list credentials on passwordstore](images/passGithubCreds.jpg)
 
 ## Docker pass
 Use your docker as usual, but the first time it will record your credentials on docker login to avoid asking again
@@ -170,7 +176,7 @@ Use your docker as usual, but the first time it will record your credentials on 
 pass
 ```
 
-[list credentials on passwordstore](images/passDockerCreds.jpg)
+![list credentials on passwordstore](images/passDockerCreds.jpg)
 
 * just for undertanding
 
