@@ -33,3 +33,13 @@ Executing a local script
 ```bash
 docker run --name groovy -it --rm -v "${PWD}":/home/groovy/scripts -w /home/groovy/scripts groovy groovy <script> <script-args>
 ```
+
+## NODEJS
+
+[Official documentation about this image](https://hub.docker.com/_/node)
+
+Using local path where you are developing your code
+
+```bash
+docker run --name node --user "$(id -u):$(id -g)" -t -i --rm -v "${PWD}":/usr/src -w /usr/src node:slim /bin/bash
+```
