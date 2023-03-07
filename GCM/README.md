@@ -12,10 +12,10 @@ Run the following command
 export gitcredversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/GitCredentialManager/git-credential-manager/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
 curl -L -o gcm-linux_amd64.deb https://github.com/GitCredentialManager/git-credential-manager/releases/download/v$gitcredversion/gcm-linux_amd64.$gitcredversion.deb
 ```
+
 ## install Git Credential Manager (GCM)
 
-
-Run the following command
+You can run the following command to install the package
 
 ```bash
 sudo dpkg -i gcm-linux_amd64.deb
@@ -80,19 +80,24 @@ Then you can confirm
 ```bash
 gpg --list-secret-keys --keyid-format LONG
 ```
+
 * `Pay attention to line uid` since you will use that info on your password store settings bellow
 
 ## Install passwordstore
-```
+
+```bash
 sudo apt-get install -y pass
 ```
 
 ## Initiate your passwordstore
+
 ```bash
 pass init "My name <myemail@email.com>" # Info from gpg --list-secret-keys above
 ```
+
 ## setup your github to use passwordstore
-```
+
+```bash
 git config --global credential.helper store
 git config --global credential.credentialStore gpg
 git config --global credential.helper $(whereis git-credential-manager | awk -F\: '{print $2}')
@@ -161,6 +166,7 @@ cpass <path/credential>
 ```
 
 ## GitHub pass
+
 Use your git as usual, but the first time it will record your credentials for both proxy and github to avoid asking again
 
 ```bash
@@ -170,6 +176,7 @@ pass
 ![list credentials on passwordstore](images/passGithubCreds.jpg)
 
 ## Docker pass
+
 Use your docker as usual, but the first time it will record your credentials on docker login to avoid asking again
 
 ```bash
@@ -193,6 +200,6 @@ https://index.docker.io/v1/
 
 [Password Store](https://www.passwordstore.org/)
 
-[Git Credential Manager (GCM)](https://github.com/GitCredentialManager/git-credential-manager) 
+[Git Credential Manager (GCM)](https://github.com/GitCredentialManager/git-credential-manager)
 
-[Docker Credential Helper](https://github.com/docker/docker-credential-helpers) 
+[Docker Credential Helper](https://github.com/docker/docker-credential-helpers)

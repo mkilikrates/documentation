@@ -34,7 +34,7 @@ You can use aliases with [password store](../../GCM/README.md)
 
 Add to your '~/.bash_aliases'
 
-```
+```bash
 alias plsql='f(){ CREDS=$(pass "$1"); IFS=$'\''\n'\'' read -r -d '\'''\'' -a array <<< "$CREDS"; docker run --name plsql -e PGPASSWORD="${array[0]}" -it --rm --user postgres:$(id -g) -v "/tmp":/tmp postgres psql -h "${array[2]}" -p "${array[3]}" -d "${array[4]}" -U "${array[1]}"; unset -f f; }; f'
 ```
 
@@ -48,6 +48,7 @@ Create your credentials using password store
 ![password store](./images/passAliasPostgres.jpg)
 
 the script will get the information in this order:
+
 ```
 <password>
 <username>
@@ -75,7 +76,7 @@ You can use aliases with [password store](../../GCM/README.md)
 
 Add to your '~/.bash_aliases'
 
-```
+```bash
 alias sqlplus='f(){ CREDS=$(pass "$1"); IFS=$'\''\n'\'' read -r -d '\'''\'' -a array <<< "$CREDS"; docker run --name oracli -it --rm --user $(id -u):$(id -g) -v "${PWD}":/tmp ghcr.io/oracle/oraclelinux8-instantclient:21 sqlplus "${array[1]}"/"${array[0]}"@"${array[2]}":"${array[3]}"/"${array[4]}"; unset -f f; }; f'
 ```
 
@@ -88,6 +89,7 @@ source ~/.bashrc
 Create your credentials using password store, similar to postgres
 
 the script will get the information in this order:
+
 ```
 <password>
 <username>
@@ -123,11 +125,12 @@ You can use aliases with [password store](../../GCM/README.md)
 
 Add to your '~/.bash_aliases'
 
-```
+```bash
 alias mysql='f(){ CREDS=$(pass "$1"); IFS=$'\''\n'\'' read -r -d '\'''\'' -a array <<< "$CREDS"; docker run --name mysqlcli -it --rm --user $(id -u):$(id -g) -v "${PWD}":/tmp mysql mysql --host="${array[2]}" --port="${array[3]}" --database="${array[4]}" --user="${array[1]}" --password="${array[0]}"; unset -f f; }; f'
 ```
 
 the script will get the information in this order:
+
 ```
 <password>
 <username>

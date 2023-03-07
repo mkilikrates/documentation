@@ -4,7 +4,7 @@ Documentation, Practices and Examples
 
 ## Docker
 
-Using [docker](./Docker/README.md) to connecting in Databases or programming without local installation
+Using [docker](./Docker/README.md) to connecting in Databases, tools like kubectl or programming without local installation
 
 ## Using GNUPG + Password Store in Linux or WSL 2
 
