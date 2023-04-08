@@ -42,6 +42,7 @@ source ~/.bashrc
 ## Install docker-credential-pass
 
 ```bash
+export dockercredversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/docker/docker-credential-helpers/releases/latest | awk -F "/" '{print $NF}')
 curl -L -o docker-credential-pass https://github.com/docker/docker-credential-helpers/releases/download/$dockercredversion/docker-credential-pass-$dockercredversion.linux-amd64
 chmod +x docker-credential-pass
 sudo mv docker-credential-pass /usr/local/bin/
