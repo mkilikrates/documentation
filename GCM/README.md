@@ -112,6 +112,22 @@ execute this command to add option to copy password on windows from WSL
 echo "alias cpass='f(){ pass \"\$1\" | clip.exe; unset -f f; }; f'" >>~/.bash_aliases
 ```
 
+## Export / Backup your keys
+
+```bash
+gpg --export-secret-keys $ID > my-private-key.asc
+cd ~/
+tar -cvzf ps.tgz ~/.password-store/
+```
+
+## Import / Restore your keys
+
+```bash
+gpg --import $ID < my-private-key.asc
+cd ~/
+tar -xvzf ps.tgz 
+```
+
 ## How to use
 
 ### to add credential
