@@ -24,7 +24,7 @@ e.g.:
 docker run --rm -ti -v ~/.aws:/root/.aws -v $(pwd):/aws amazon/aws-cli s3 ls
 ```
 
-* PS:
+**PS:**
 this docker will run using root inside of container, so if you configure your credentials using it, your local user if not root will not able to see files in `~/.aws/`
 
 Add this alias to your ~/.bash_aliases so you can use allways this docker instead of install anything local
