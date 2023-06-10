@@ -2,6 +2,32 @@
 
 It will create a local vault using pgp and pass to keep your credentials and avoid ask password every time.
 
+## Table of Contents
+
+- [Download GCM](#download-latest-git-credential-manager-gcm)
+- [Install GCM](#install-git-credential-manager-gcm)
+- [Install gpg](#install-gpg)
+- [Install docker-credential-pass](#install-docker-credential-pass)
+- [Initialize / generate a key](#initialize--generate-a-key)
+- [Install passwordstore](#install-passwordstore)
+- [Initiate your passwordstore](#initiate-your-passwordstore)
+- [setup your github to use passwordstore](#setup-your-github-to-use-passwordstore)
+- [using windows WSL clipboard to avoid show credentials on screen](#using-windows-wsl-clipboard-to-avoid-show-credentials-on-screen)
+- [Export / Backup your keys](#export--backup-your-keys)
+- [Import / Restore your keys](#import--restore-your-keys)
+- [How to use](#how-to-use)
+  - [to add credential](#to-add-credential)
+  - [to add multiline credential](#to-add-multiline-credential)
+  - [to generate credential](#to-generate-credential)
+  - [to remove credential](#to-remove-credential)
+  - [to see credential](#to-see-credential)
+  - [to copy a credential to clipboard](#to-copy-a-credential-to-clipboard)
+    - [Using Linux/Mac](#using-linuxmac)
+    - [Using windows/wlc](#using-windowswlc)
+- [GitHub pass](#github-pass)
+- [Docker pass](#docker-pass)
+- [Relevant Links](#relevant-links)
+
 ## Download latest Git Credential Manager (GCM)
 
 [Check for the latest Release](https://github.com/GitCredentialManager/git-credential-manager/releases)
@@ -82,7 +108,7 @@ Then you can confirm
 gpg --list-secret-keys --keyid-format LONG
 ```
 
-* `Pay attention to line uid` since you will use that info on your password store settings bellow
+- `Pay attention to line uid` since you will use that info on your password store settings bellow
 
 ## Install passwordstore
 
@@ -132,7 +158,7 @@ tar -xvzf ps.tgz
 
 ### to add credential
 
-* `it will ask for the credential`
+- `it will ask for the credential`
 
 ```bash
 pass insert <path/credential>
@@ -140,7 +166,7 @@ pass insert <path/credential>
 
 ### to add multiline credential
 
-* `you can add several lines until press CTRL+D`
+- `you can add several lines until press CTRL+D`
 
 ```bash
 pass insert -m <path/credential>
@@ -168,7 +194,7 @@ pass <path/credential>
 
 #### Using Linux/Mac
 
-* `it will keep for 45 seconds`
+- `it will keep for 45 seconds`
 
 ```bash
 pass -c <path/credential>
@@ -176,7 +202,7 @@ pass -c <path/credential>
 
 #### Using windows/wlc
 
-* `it will keep for 45 seconds`
+- `it will keep for 45 seconds`
 
 ```bash
 cpass <path/credential>
@@ -202,7 +228,7 @@ pass
 
 ![list credentials on passwordstore](images/passDockerCreds.jpg)
 
-* just for undertanding
+- just for undertanding
 
 your docker credential helper will record your registry as base64 encoded, you can see it using
 
