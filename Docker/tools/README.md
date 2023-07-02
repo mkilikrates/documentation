@@ -82,7 +82,7 @@ docker run --name cdk-alpine --user $(id -u):$(getent group docker | cut -d: -f3
 using local user `$USER`
 
 ```bash
-docker run --name cdk-alpine --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/app -t -i --rm cdk-alpine
+docker run --name cdk-alpine --user cdk:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/app -t -i --rm cdk-alpine
 ```
 
 After inside of docker, you can for instance follow the [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
