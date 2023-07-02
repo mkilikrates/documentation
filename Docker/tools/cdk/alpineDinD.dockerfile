@@ -14,7 +14,8 @@ RUN apk update && apk add --update --no-cache \
     bash \
     curl \
     openssh \
-    python3 \
+    gcc \
+    musl-dev \
     py3-pip \
     py-cryptography \
     wget \
@@ -22,17 +23,21 @@ RUN apk update && apk add --update --no-cache \
     nodejs \
     npm \
     docker-cli
-RUN apk --no-cache add --virtual builds-deps build-base python3
+RUN apk --no-cache add --virtual builds-deps build-base python3 python3-dev
 # Update NPM
 # RUN npm config set unsafe-perm true
 RUN npm update -g
-# Install AWSCLI
-RUN pip install --upgrade pip && \
-    pip install --upgrade awscli && \
-    pip install --upgrade virtualenv
+# Install AWSCLI & sam-cli
+RUN pip --no-cache-dir install --upgrade pip && \
+    pip --no-cache-dir install --upgrade virtualenv && \
+    pip --no-cache-dir install --upgrade awscli && \
+    pip --no-cache-dir install --upgrade aws-sam-cli
 # Install cdk
 RUN npm install -g aws-cdk
 RUN cdk --version
+# clean up
+RUN pip3 uninstall --yes pip \
+    && apk del python3-dev gcc musl-dev
 # create local user
 RUN addgroup -g $GROUP_ID $CDK_USER && \
     adduser --shell /home/$CDK_USER --disabled-password \
