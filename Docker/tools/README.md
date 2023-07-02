@@ -5,7 +5,7 @@ Some simple use tools
 ## Table of Contents
 
 - [AWS CLI](#aws-cli)
-- [AWS CDK](#aws-cdk)
+- [AWS CDK + SAM](#aws-cdk--sam)
 - [Kubectl](#kubectl)
 
 ## AWS CLI
