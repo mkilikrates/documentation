@@ -73,6 +73,14 @@ docker build -t cdk-alpine --build-arg USER_NAME="$USER" - < alpineDinD.dockerfi
 
 Using local path where your credentials are stored, current folder for your code and giving docker permission (D-in-D)
 
+using default user `cdk`
+
+```bash
+docker run --name cdk-alpine --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm cdk-alpine
+```
+
+using local user `$USER`
+
 ```bash
 docker run --name cdk-alpine --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/app -t -i --rm cdk-alpine
 ```
