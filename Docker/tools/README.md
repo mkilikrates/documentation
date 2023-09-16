@@ -225,38 +225,34 @@ kubectl version
 
 ## AWS EKS (kubectl + helm + iam-authenticator + kconnect)
 
-[Official documentation about sam](https://docs.aws.amazon.com/serverless-application-model/)
+There is no official image for these tools, in this case I sharing a [dockerfile](./Docker/eks.Dockerfile) and following instructions to build and run.
 
-There is no official image for these tools, in this case I sharing a [dockerfile](./Docker/sam-eks.Dockerfile) and following instructions to build and run.
+When build this image, you can pass your username as argument or leave as `eks`.
 
-This image rely on [Docker-in-Docker](https://hub.docker.com/_/docker)
-
-When build this image, you can pass your username as argument or leave as `cdk`.
-
-Building as default user `sam`:
+Building as default user `eks`:
 
 ```bash
-docker build -t sam-eks - < sam-eks.Dockerfile
+docker build -t eks - < eks.Dockerfile
 ```
 
 Building as your user, using OS variable `$USER` or change it for the user you want:
 
 ```bash
-docker build -t sam-eks --build-arg USER_NAME="$USER" - < sam-eks.Dockerfile
+docker build -t eks --build-arg USER_NAME="$USER" --build-arg GROUP_ID=$(id -g) - < eks.Dockerfile
 ```
 
 Using local path where your credentials are stored, current folder for your code and giving docker permission (D-in-D)
 
-using default user `sam`
+using default user `eks`
 
 ```bash
-docker run --user sam:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm cdk-py3
+docker run --user "1000:1000" -it --rm -v "$HOME/.aws:/home/eks/.aws/" -v "${PWD}":/opt/app -w /opt/app -v "$HOME"/.kube:/home/eks/.kube -v "$HOME"/.helm:/home/eks/.helm -v "$HOME"/.config/helm:/home/eks/.config/helm -v "$HOME"/.cache/helm:/home/eks/.cache/helm -v "$HOME/.kconnect:/home/eks/.kconnect/" eks:latest
 ```
 
 using local user `$USER`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v ~/. -v "$PWD":/opt/app -t -i --rm cdk-py3
+docker run --user "$(id -u)":"$(id -g)" -it --rm -v "$HOME/.aws:/home/$USER/.aws/" -v "${PWD}":/opt/app -w /opt/app -v "$HOME"/.kube:/home/$USER/.kube -v "$HOME"/.helm:/home/$USER/.helm -v "$HOME"/.config/helm:/home/$USER/.config/helm -v "$HOME"/.cache/helm:/home/$USER/.cache/helm -v "$HOME/.kconnect:/home/$USER/.kconnect/" eks:latest
 ```
 
 After inside of docker, you can for instance follow the [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
