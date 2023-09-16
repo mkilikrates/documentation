@@ -9,6 +9,7 @@ Some simple use tools
 - [AWS CDK](#aws-cdk-python)
 - [AWS CDK + SAM](#aws-cdk--sam)
 - [Kubectl](#kubectl)
+- [EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
 
 ## AWS CLI
 
