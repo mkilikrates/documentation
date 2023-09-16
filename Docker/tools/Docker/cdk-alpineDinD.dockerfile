@@ -27,11 +27,6 @@ RUN apk --no-cache add --virtual builds-deps build-base python3 python3-dev
 # Update NPM
 # RUN npm config set unsafe-perm true
 RUN npm update -g
-# Install AWSCLI & sam-cli
-RUN pip --no-cache-dir install --upgrade pip && \
-    pip --no-cache-dir install --upgrade virtualenv && \
-    pip --no-cache-dir install --upgrade awscli && \
-    pip --no-cache-dir install --upgrade aws-sam-cli
 # Install cdk
 RUN npm install -g aws-cdk
 RUN cdk --version
