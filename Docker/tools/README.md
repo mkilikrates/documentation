@@ -178,13 +178,75 @@ Using local path where your credentials are stored, current folder for your code
 using default user `cdk`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm cdk-py3
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk
 ```
 
 using local user `$USER`
 
 ```bash
-docker run --user cdk:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm cdk-py3
+docker run --user cdk:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk
+```
+
+After inside of docker, you can for instance follow the [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
+
+```bash
+cdk init app --language python
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+## AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF
+
+[Official documentation about cdk](https://aws.amazon.com/cdk/)
+
+[Official documentation about sam](https://docs.aws.amazon.com/serverless-application-model/)
+
+[Official documentation about CDK8S](https://cdk8s.io/)
+
+[Official documentation about TERRAFORM](https://www.terraform.io/)
+
+[Official documentation about CDKFT](https://developer.hashicorp.com/terraform/tutorials/cdktf)
+
+There is no official image for these tools, in this case I sharing a [dockerfile](./Docker/sam-cdk-pythonSlimDinD.dockerfile) and following instructions to build and run.
+
+**OBS:** Due [incompatibility issues with Alpine](https://github.com/aws/aws-sam-cli/issues/4221), I decide to base this image on python3-slim
+
+This image rely on [Docker-in-Docker](https://hub.docker.com/_/docker)
+
+When build this image, you can pass your username as argument or leave as `cdk`.
+
+Building as default user `cdk`:
+
+```bash
+docker build -t sam-cdk-tf - < sam-cdk-tf-pythonSlimDinD.dockerfile
+```
+
+Building as your user, using OS variable `$USER` or change it for the user you want:
+
+```bash
+docker build -t sam-cdk-tf --build-arg USER_NAME="$USER" --build-arg GROUP_ID=$(getent group docker | cut -d: -f3) - < sam-cdk-tf-pythonSlimDinD.dockerfile
+```
+
+There are other arguments that can be set using build-arg option to set the version of what is installing:
+
+- NVM_VERSION
+- AWS_SAM_VERSION
+- AWS_CDK_VERSION
+- AWS_CDK8S_VERSION
+- AWS_CDKTF_VERSION
+
+Using local path where your credentials are stored, current folder for your code and giving docker permission (D-in-D)
+
+using default user `cdk`
+
+```bash
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk-tf
+```
+
+using local user `$USER`
+
+```bash
+docker run --user cdk:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk-tf
 ```
 
 After inside of docker, you can for instance follow the [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)

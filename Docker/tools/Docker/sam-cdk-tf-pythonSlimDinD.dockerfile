@@ -5,6 +5,7 @@ ARG NVM_VERSION=latest
 ARG AWS_SAM_VERSION=latest
 ARG AWS_CDK_VERSION=latest
 ARG AWS_CDK8S_VERSION=latest
+ARG AWS_CDKTF_VERSION=latest
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG USER_NAME=cdk
@@ -13,6 +14,7 @@ ENV NVM_VERSION=${NVM_VERSION}
 ENV AWS_SAM_VERSION=${AWS_SAM_VERSION}
 ENV AWS_CDK_VERSION=${AWS_CDK_VERSION}
 ENV AWS_CDK8S_VERSION=${AWS_CDK8S_VERSION}
+ENV AWS_CDKTF_VERSION=${AWS_CDKTF_VERSION}
 ENV SAM_USER=$USER_NAME
 ENV USER_ID=$USER_ID
 ENV GROUP_ID=$GROUP_ID
@@ -36,7 +38,8 @@ RUN apt-get update \
         ca-certificates \
         curl \
         gnupg \
-        lsb-release
+        lsb-release \
+        software-properties-common
 
 #docker
 ENV container docker
@@ -48,6 +51,14 @@ RUN apt-get update \
     && apt-get install -y docker-ce-cli \
         docker-compose-plugin \
         unzip
+
+# Terraform-cli
+RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+RUN echo \
+    "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+    https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
+RUN apt-get update \
+    && apt-get install -y terraform
 
 #python
 RUN pip install --upgrade pip
@@ -63,19 +74,22 @@ USER "$SAM_USER"
 WORKDIR /home/${SAM_USER}/
 
 #install node 
- ENV NVM_DIR="/home/${SAM_USER}/.nvm" 
- RUN touch ~/.bashrc && chmod +x ~/.bashrc 
- RUN curl -sSL -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash 
- RUN source $NVM_DIR/nvm.sh \ 
+ENV NVM_DIR="/home/${SAM_USER}/.nvm" 
+RUN touch ~/.bashrc && chmod +x ~/.bashrc 
+RUN curl -sSL -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash 
+RUN source $NVM_DIR/nvm.sh \ 
     && nvm install node \ 
     && nvm use node \ 
     && nvm alias default node \ 
     && nvm cache clear \ 
     && npm install -g npm@${NVM_VERSION}
 
- #install cdk & cdk8s
- RUN source $NVM_DIR/nvm.sh \ 
-    && npm install -g aws-cdk@${AWS_CDK_VERSION} \ 
+#install cdk & cdk8s
+RUN source $NVM_DIR/nvm.sh \ 
+    && npm install -g aws-cdk@${AWS_CDK_VERSION}
+RUN source $NVM_DIR/nvm.sh \ 
+    && npm install -g cdktf-cli@${AWS_CDKTF_VERSION}
+RUN source $NVM_DIR/nvm.sh \ 
     && npm install -g cdk8s-cli@${AWS_CDK8S_VERSION}
 
 VOLUME [ "/home/${SAM_USER}/.aws" ]
