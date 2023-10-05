@@ -17,5 +17,6 @@ This is a simple list of examples where you can use docker to make tests without
   * AWS SAM
   * AWS CDK
   * AWS CDK + SAM
+  * AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF
   * kubectl
   * EKS
