@@ -39,7 +39,12 @@ RUN apt-get update \
         curl \
         gnupg \
         lsb-release \
-        software-properties-common
+        software-properties-common \
+        unzip \
+        git \
+        make \
+        g++
+RUN apt-get upgrade -y
 
 #docker
 ENV container docker
@@ -60,9 +65,6 @@ RUN echo \
 RUN apt-get update \
     && apt-get install -y terraform
 
-#python
-RUN pip install --upgrade pip
-
 # Install aws sam
 RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/download/aws-sam-cli-linux-x86_64.zip && \
     unzip aws-sam-cli-linux-x86_64.zip -d sam-installation && \
@@ -70,8 +72,18 @@ RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/do
     rm -rf sam-installation/ && \
     rm -rf aws-sam-cli-linux-x86_64.zip
 
-USER "$SAM_USER"
+USER "${SAM_USER}"
 WORKDIR /home/${SAM_USER}/
+
+# #pyenv
+# RUN curl https://pyenv.run | bash
+# ENV PATH="/home/${SAM_USER}/.pyenv/shims:/home/${SAM_USER}/.pyenv/bin:$PATH"
+# ENV PYENV_ROOT="/home/${SAM_USER}/.pyenv"
+# RUN source "/home/${SAM_USER}/.pyenv/completions/pyenv.bash"
+# RUN eval "$(/home/${SAM_USER}/.pyenv/bin/pyenv init --path)"
+# RUN env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1); rm -rf /tmp/*
+# RUN pyenv global  $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1)
+# RUN pip install --upgrade pip
 
 #install node 
 ENV NVM_DIR="/home/${SAM_USER}/.nvm" 
@@ -81,16 +93,14 @@ RUN source $NVM_DIR/nvm.sh \
     && nvm install node \ 
     && nvm use node \ 
     && nvm alias default node \ 
-    && nvm cache clear \ 
-    && npm install -g npm@${NVM_VERSION}
+    && npm install -g npm@${NVM_VERSION} \
+    && nvm cache clear
 
-#install cdk & cdk8s
+#install cdk, cdk8s & cdktf
 RUN source $NVM_DIR/nvm.sh \ 
-    && npm install -g aws-cdk@${AWS_CDK_VERSION}
-RUN source $NVM_DIR/nvm.sh \ 
-    && npm install -g cdktf-cli@${AWS_CDKTF_VERSION}
-RUN source $NVM_DIR/nvm.sh \ 
-    && npm install -g cdk8s-cli@${AWS_CDK8S_VERSION}
+    && npm install -g aws-cdk@${AWS_CDK_VERSION} \
+    cdk8s-cli@${AWS_CDK8S_VERSION} \
+    cdktf-cli@${AWS_CDKTF_VERSION}
 
 VOLUME [ "/home/${SAM_USER}/.aws" ]
 VOLUME [ "/home/${SAM_USER}/.aws-sam" ]
