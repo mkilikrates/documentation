@@ -256,6 +256,12 @@ Since CDK, CDK8s and CDKTF relies on pipenv, you should install the dependencies
 pipenv sync
 ```
 
+or
+
+```bash
+pipenv install -r requirements.txt
+```
+
 Then follow the documentation from each tool to synth, deploy, destroy your stack.
 
 - [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
