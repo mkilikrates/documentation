@@ -29,7 +29,15 @@ RUN addgroup --gid $GROUP_ID $SAM_USER && \
     adduser --uid $USER_ID --gid $GROUP_ID $SAM_USER
 
 # create folders
-RUN mkdir -p "/home/${SAM_USER}" && chown -R "$SAM_USER:$SAM_USER" "/home/${SAM_USER}"
+RUN mkdir -p "/home/${SAM_USER}" \
+    "/home/${SAM_USER}/.aws"   \
+    "/home/${SAM_USER}.aws-sam" \
+    "/home/${SAM_USER}.docker" \
+    "/home/${SAM_USER}/.terraform.d" \
+    "/home/${SAM_USER}/.cdk" \
+    "/home/${SAM_USER}/.cdk8s" \
+    "/home/${SAM_USER}/.cdktf" \
+    && chown -R "$SAM_USER:$SAM_USER" "/home/${SAM_USER}"
 RUN mkdir -p "/opt/app" && chown -R "$SAM_USER:$SAM_USER" "/opt/app"
 
 # dependencies
@@ -75,15 +83,11 @@ RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/do
 USER "${SAM_USER}"
 WORKDIR /home/${SAM_USER}/
 
-# #pyenv
-# RUN curl https://pyenv.run | bash
-# ENV PATH="/home/${SAM_USER}/.pyenv/shims:/home/${SAM_USER}/.pyenv/bin:$PATH"
-# ENV PYENV_ROOT="/home/${SAM_USER}/.pyenv"
-# RUN source "/home/${SAM_USER}/.pyenv/completions/pyenv.bash"
-# RUN eval "$(/home/${SAM_USER}/.pyenv/bin/pyenv init --path)"
-# RUN env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1); rm -rf /tmp/*
-# RUN pyenv global  $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1)
-# RUN pip install --upgrade pip
+# pyenv
+ENV PYTHON_BIN_PATH="$(python3 -m site --user-base)/bin"
+RUN pip install --upgrade pip \
+    && pip install --upgrade pipenv --user
+RUN echo "export PATH=$PYTHON_BIN_PATH:$PATH" >> ~/.bashrc
 
 #install node 
 ENV NVM_DIR="/home/${SAM_USER}/.nvm" 
@@ -104,6 +108,11 @@ RUN source $NVM_DIR/nvm.sh \
 
 VOLUME [ "/home/${SAM_USER}/.aws" ]
 VOLUME [ "/home/${SAM_USER}/.aws-sam" ]
+VOLUME [ "/home/${SAM_USER}/.terraform.d" ]
+VOLUME [ "/home/${SAM_USER}/.cdk" ]
+VOLUME [ "/home/${SAM_USER}/.cdk8s" ]
+VOLUME [ "/home/${SAM_USER}/.cdktf" ]
+VOLUME [ "/home/${SAM_USER}/.docker" ]
 VOLUME [ "/opt/app" ]
 
 WORKDIR /opt/app

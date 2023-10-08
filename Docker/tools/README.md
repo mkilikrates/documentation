@@ -247,16 +247,20 @@ docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v 
 using local user `$USER`
 
 ```bash
-docker run --user cdk:$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/$USER/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk-tf
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ${HOME}/.aws/:/home/$USER/.aws/ -v ${HOME}/.docker/:/home/$USER/.docker/ -v ${HOME}/.aws-sam/:/home/$USER/.aws-sam/ -v ${HOME}/.terraform.d/:/home/$USER/.terraform.d/ -v /var/run/docker.sock:/var/run/docker.sock --rm -i -t sam-cdk-tf
 ```
 
-After inside of docker, you can for instance follow the [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
+Since CDK, CDK8s and CDKTF relies on pipenv, you should install the dependencies in projects alredy existent:
 
 ```bash
-cdk init app --language python
-source .venv/bin/activate
-python -m pip install -r requirements.txt
+pipenv sync
 ```
+
+Then follow the documentation from each tool to synth, deploy, destroy your stack.
+
+- [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
+- [CDK8S for python documentation](https://cdk8s.io/docs/latest/getting-started/#prerequisites)
+- [CDKTF for python documentation](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install?variants=cdk-language%3Apython)
 
 ## Kubectl
 

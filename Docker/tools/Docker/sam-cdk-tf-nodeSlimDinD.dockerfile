@@ -87,6 +87,9 @@ USER node
 VOLUME [ "/home/node/.aws" ]
 VOLUME [ "/home/node/.aws-sam" ]
 VOLUME [ "/home/node/.terraform.d" ]
+VOLUME [ "/home/node/.cdk" ]
+VOLUME [ "/home/node/.cdk8s" ]
+VOLUME [ "/home/node/.cdktf" ]
 VOLUME [ "/home/node/.docker" ]
 VOLUME [ "/opt/app" ]
 
