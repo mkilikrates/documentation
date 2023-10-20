@@ -11,6 +11,7 @@ Some simple use tools
 - [AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF](#aws-sam--cdk--cdk8s--terraform--cdktf)
 - [Kubectl](#kubectl)
 - [EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
+- [Credentials]
 
 ## AWS CLI
 
@@ -334,4 +335,27 @@ After inside of docker, you can for instance follow the [CDK for python document
 cdk init app --language python
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+```
+
+## Credentials
+
+If you need to pass credentials in order to build image. For instance authenticating against a corporate proxy.
+
+In your Dockerfile:
+
+```Dockerfile
+# Install aws sam
+RUN --mount=type=secret,id=PASSWORD,dst=/run/secrets/.creds \
+    PASSWORD=$(cat /run/secrets/.creds) && \
+    curl -kx http://http.proxy.example.com:3128 -U "${SAM_USER}:$PASSWORD" -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/download/aws-sam-cli-linux-x86_64.zip && \
+    unzip aws-sam-cli-linux-x86_64.zip -d sam-installation && \
+    ./sam-installation/install --update && \
+    rm -rf sam-installation/ && \
+    rm -rf aws-sam-cli-linux-x86_64.zip
+```
+
+Then you can build using [builkit secrets](https://docs.docker.com/engine/swarm/secrets/)
+
+```bash
+export CREDS="<MY_ PASSWORD>";DOCKER_BUILDKIT=1;docker build -t eks --build-arg USER_NAME="$USER" --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(getent group docker | cut -d: -f3) --secret id=PASSWORD,env=CREDS - <eks.Dockerfile;unset CREDS
 ```

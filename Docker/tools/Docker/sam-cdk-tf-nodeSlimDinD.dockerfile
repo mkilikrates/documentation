@@ -31,15 +31,6 @@ RUN apt-get update \
         g++
 RUN apt-get upgrade -y
 
-# RUN curl https://pyenv.run | bash
-# ENV PATH="/root/.pyenv/shims:/root/.pyenv/bin:$PATH"
-# ENV PYENV_ROOT="/root/.pyenv"
-# RUN source "/root/.pyenv/completions/pyenv.bash"
-# RUN eval "$(/root/.pyenv/bin/pyenv init --path)"
-# RUN env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1); rm -rf /tmp/*
-# RUN pyenv global  $(pyenv install --list | grep --extended-regexp "^\s*[0-9][0-9.]*[0-9]\s*$" | tail -1)
-# RUN pip install --upgrade pip
-
 #docker
 ENV container docker
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -50,14 +41,6 @@ RUN apt-get update \
     && apt-get install -y docker-ce-cli \
         docker-compose-plugin \
         software-properties-common
-
-# pyenv
-RUN git clone https://github.com/pyenv/pyenv.git \
-    && cd pyenv/plugins/python-build \
-    && PREFIX=/usr/local ./install.sh \
-    && cd / \
-    && rm -rf pyenv \
-    && ln -s /usr/bin/python3 /usr/bin/python
 
 # Install aws sam
 RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/download/aws-sam-cli-linux-x86_64.zip && \
@@ -84,12 +67,15 @@ RUN npm install -g aws-cdk@${AWS_CDK_VERSION} \
 
 USER node
 
+# pipenv
+ENV PYTHON_BIN_PATH="$(python3 -m site --user-base)/bin"
+RUN pip install --upgrade pip \
+    && pip install --upgrade pipenv --user
+RUN echo "export PATH=$PYTHON_BIN_PATH:$PATH" >> ~/.bashrc
+
 VOLUME [ "/home/node/.aws" ]
 VOLUME [ "/home/node/.aws-sam" ]
 VOLUME [ "/home/node/.terraform.d" ]
-VOLUME [ "/home/node/.cdk" ]
-VOLUME [ "/home/node/.cdk8s" ]
-VOLUME [ "/home/node/.cdktf" ]
 VOLUME [ "/home/node/.docker" ]
 VOLUME [ "/opt/app" ]
 

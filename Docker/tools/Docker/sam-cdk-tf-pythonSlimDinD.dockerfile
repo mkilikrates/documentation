@@ -34,9 +34,6 @@ RUN mkdir -p "/home/${SAM_USER}" \
     "/home/${SAM_USER}.aws-sam" \
     "/home/${SAM_USER}.docker" \
     "/home/${SAM_USER}/.terraform.d" \
-    "/home/${SAM_USER}/.cdk" \
-    "/home/${SAM_USER}/.cdk8s" \
-    "/home/${SAM_USER}/.cdktf" \
     && chown -R "$SAM_USER:$SAM_USER" "/home/${SAM_USER}"
 RUN mkdir -p "/opt/app" && chown -R "$SAM_USER:$SAM_USER" "/opt/app"
 
@@ -52,6 +49,7 @@ RUN apt-get update \
         git \
         make \
         g++
+
 RUN apt-get upgrade -y
 
 #docker
@@ -80,10 +78,41 @@ RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/do
     rm -rf sam-installation/ && \
     rm -rf aws-sam-cli-linux-x86_64.zip
 
+# Install aws cli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install --update && \
+    rm -rf aws/ && \
+    rm -rf awscliv2.zip
+
+# Install aws-iam-authenticator
+RUN latest_aws_iam_authenticator_release_tag=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/latest | sed 's#.*/##' | cut -c2-) && \
+    aws_iam_authenticator_url=$(echo "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/vTAG/aws-iam-authenticator_TAG_linux_amd64" | sed "s/TAG/$latest_aws_iam_authenticator_release_tag/g" ) && \
+    curl -sLo aws-iam-authenticator "$aws_iam_authenticator_url" && \
+    chmod +x ./aws-iam-authenticator && \
+    mv aws-iam-authenticator /usr/local/bin/ && \
+    chown root:root /usr/local/bin/aws-iam-authenticator
+
+# Install kubectl
+RUN export latest_kubectl_release_tag=$(curl -L https://storage.googleapis.com/kubernetes-release/release/stable.txt) && \
+    curl -sLo kubectl "https://dl.k8s.io/release/$latest_kubectl_release_tag/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/ && \
+    chown root:root /usr/local/bin/kubectl
+
+# Install helm
+RUN export latest_helm_release_tag=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/helm/helm/releases/latest | sed 's#.*/##') && \
+    export helm_url=$(echo "https://get.helm.sh/helm-TAG-linux-amd64.tar.gz" | sed "s/TAG/$latest_helm_release_tag/g" ) && \
+    curl -sLo helm-linux-amd64.tar.gz "$helm_url" && \
+    tar -xvzf helm-linux-amd64.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin/ && \
+    chown root:root /usr/local/bin/helm && \
+    rm -rf elm-linux-amd64.tar.gz
+
 USER "${SAM_USER}"
 WORKDIR /home/${SAM_USER}/
 
-# pyenv
+# pipenv
 ENV PYTHON_BIN_PATH="$(python3 -m site --user-base)/bin"
 RUN pip install --upgrade pip \
     && pip install --upgrade pipenv --user
@@ -109,10 +138,8 @@ RUN source $NVM_DIR/nvm.sh \
 VOLUME [ "/home/${SAM_USER}/.aws" ]
 VOLUME [ "/home/${SAM_USER}/.aws-sam" ]
 VOLUME [ "/home/${SAM_USER}/.terraform.d" ]
-VOLUME [ "/home/${SAM_USER}/.cdk" ]
-VOLUME [ "/home/${SAM_USER}/.cdk8s" ]
-VOLUME [ "/home/${SAM_USER}/.cdktf" ]
 VOLUME [ "/home/${SAM_USER}/.docker" ]
+VOLUME [ "/home/${SAM_USER}/.kube" ]
 VOLUME [ "/opt/app" ]
 
 WORKDIR /opt/app
