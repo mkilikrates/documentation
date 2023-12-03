@@ -109,6 +109,11 @@ RUN export latest_helm_release_tag=$(curl -fsSLI -o /dev/null -w %{url_effective
     chown root:root /usr/local/bin/helm && \
     rm -rf elm-linux-amd64.tar.gz
 
+# clean up
+RUN apt-get clean autoclean && \
+    apt-get autoremove --yes && \
+    rm -rf /var/lib/{apt,dpkg,cache,log}/
+
 USER "${SAM_USER}"
 WORKDIR /home/${SAM_USER}/
 
