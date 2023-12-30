@@ -120,4 +120,65 @@ Results-driven leader with over 20 years of experience in steering high-performa
 ## Languages
 - Portuguese (Native)
 - English (Bilingual)
-- Spanish (Intermediate)
+- Spanish (Basic - Intermediate)
+
+## Skills
+- Relationship Building
+- Team Leadership
+- Positive Attitude
+- Communicative
+- Creative
+- Flexible
+- Charismatic
+- Empathetic
+- Problems Solver
+- Coach
+- Mentor
+- Team Empowerment
+- Team Diversity
+- Content Distribution Networks
+- Helm Charts
+- Snowflake
+- GraphQL
+- Shell Scripting
+- Teamwork
+- Analytical Skills
+- Strategic Planning
+- Technical Leadership
+- Diverse Groups
+- Coaching & Mentoring
+- Business Strategy
+- Serverless Computing
+- Kubernetes
+- Software Development Life Cycle (SDLC)
+- Agile Methodologies
+- Python (Programming Language)
+- Continuous Integration and Continuous Delivery (CI/CD)
+- DevOps
+- Amazon Web Services (AWS)
+- IT Management
+- Global Leadership
+- Project Management
+- IT Service Management
+- High Availability
+- Information Security
+- Cloud Computing
+- Data Center
+- TCP/IP
+- DNS
+- Security
+- Virtualization
+- Disaster Recovery
+- Performance Management
+- Linux
+- Leadership
+- Cross-functional Team Leadership
+- Team Leadership
+- Hybrid Cloud
+- Network Design
+- Network Administration
+- Firewalls
+- VPN
+- BGP
+- IPv6
+- ITIL
