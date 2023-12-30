@@ -148,7 +148,7 @@ Results-driven leader with over 20 years of experience in steering high-performa
 - Diverse Groups
 - Coaching & Mentoring
 - Business Strategy
-- Serverless Computing
+- Serverless Computing (SAM)
 - Kubernetes
 - Software Development Life Cycle (SDLC)
 - Agile Methodologies
@@ -182,3 +182,11 @@ Results-driven leader with over 20 years of experience in steering high-performa
 - BGP
 - IPv6
 - ITIL
+- Sonarqube
+- Github Enterprise Cloud
+- LaunchDarkly
+- Service-now
+- MySQL
+- Jenkins
+- DynamoDB
+- IAC (CDK, CDK8s, Terraform, CDKTF, CloudFormation)
