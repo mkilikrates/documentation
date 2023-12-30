@@ -103,12 +103,13 @@ Results-driven leader with over 20 years of experience in steering high-performa
 - Global Leadership Development, *Spring 2018*
 - Managing Across Cultures, *Spring 2018*
 
-#### The EMBA Consortium for Global Business Innovation
+#### The EMBA Consortium
 *October 2015*
+- Global Business Innovation
 
 ### COPPEAD, Universidade Federal do Rio de Janeiro (UFRJ)
-#### Executive MBA, 
-*2015 - 2015*
+*February 2015 - December 2015*
+- Executive MBA
 
 ## Licenses and Accreditations
 
