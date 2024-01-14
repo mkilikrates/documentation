@@ -115,7 +115,7 @@ Results-driven leader with over 20 years of experience in steering high-performa
 
 ### European Mentoring and Coaching Council (EMCC)
 *Issued February 2022*
-- Accredited Coach at the Individual Practitioner level
+- [Accredited Coach at the Individual Practitioner level](https://www.SmartCertificate.com/SmartCertificate/?1%7c4cdd77c0-a2cc-453b-8e28-5f7c9569f9aa%7c16ce94a3-ffcc-4d8a-bc37-de9b1e08ff69)
 
 ## Languages
 - Portuguese (Native)
