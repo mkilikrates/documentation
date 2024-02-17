@@ -154,6 +154,24 @@ cd ~/
 tar -xvzf ps.tgz 
 ```
 
+After import you must edit your gpg to trust in this key.
+
+**PS*: You will need the uid of your key then 
+
+```bash
+gpg --edit-key '<uid>'
+gpg> trust
+```
+It will be presented some options then you can select and confirm number 5 as bellow
+
+![Trust in Key](./images/gpgTrust.png)
+
+Finally just quit
+
+```bash
+gpg> quit
+```
+
 ## How to use
 
 ### to add credential
