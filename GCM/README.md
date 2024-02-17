@@ -156,7 +156,7 @@ tar -xvzf ps.tgz
 
 After import you must edit your gpg to trust in this key.
 
-**PS*: You will need the uid of your key then 
+**PS**: You will need the uid of your key then 
 
 ```bash
 gpg --edit-key '<uid>'
