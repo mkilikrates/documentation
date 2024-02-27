@@ -48,7 +48,9 @@ RUN apt-get update \
         unzip \
         git \
         make \
-        g++
+        g++ \
+        jq \
+        groff
 
 RUN apt-get upgrade -y
 
@@ -69,7 +71,8 @@ RUN echo \
     "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
     https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
 RUN apt-get update \
-    && apt-get install -y terraform
+    && apt-get install -y terraform \
+    && terraform -install-autocomplete
 
 # Install aws sam
 RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/download/aws-sam-cli-linux-x86_64.zip && \
@@ -128,7 +131,7 @@ ENV NVM_DIR="/home/${SAM_USER}/.nvm"
 RUN touch ~/.bashrc && chmod +x ~/.bashrc 
 RUN curl -sSL -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash 
 RUN source $NVM_DIR/nvm.sh \ 
-    && nvm install node \ 
+    && nvm install --lts node \ 
     && nvm use node \ 
     && nvm alias default node \ 
     && npm install -g npm@${NVM_VERSION} \
