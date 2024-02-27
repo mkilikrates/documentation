@@ -30,6 +30,6 @@ jobs:
         with:
           name: sam-cdk-tf
           file: sam-cdk-tf-pythonSlimDinD.dockerfile
-          context: "{{defaultContext}}:Docker/tools/Docker""
+          context: "{{defaultContext}}:Docker/tools/Docker"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
