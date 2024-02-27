@@ -28,7 +28,8 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v5
         with:
-          dockerfile: sam-cdk-tf-pythonSlimDinD.dockerfile
-          context: Docker/tools/Docker/
+          name: sam-cdk-tf
+          file: sam-cdk-tf-pythonSlimDinD.dockerfile
+          context: Docker/tools/Docker
           push: true
           tags: ${{ steps.meta.outputs.tags }}
