@@ -17,7 +17,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/mkilikrates/publish-packages/sam-cdk-tf
+          images: ghcr.io/mkilikrates/sam-cdk-tf
           tags: type=sha
       - name: Login to GHCR
         uses: docker/login-action@v3
