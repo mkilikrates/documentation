@@ -18,7 +18,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/mkilikrates/sam-cdk-tf
-          tags: type=sha
+          # tags: type=sha
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+          flavor: |
+            latest=true
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
