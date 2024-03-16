@@ -1,3 +1,6 @@
+LABEL org.opencontainers.image.source=https://github.com/mkilikrates/documentation
+LABEL org.opencontainers.image.description="AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF"
+LABEL org.opencontainers.image.licenses=MIT
 ARG PYTHON_VERSION=3-slim
 FROM python:${PYTHON_VERSION}
 
