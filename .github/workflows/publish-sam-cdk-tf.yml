@@ -41,6 +41,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
   cleanup:
     runs-on: ubuntu-latest
+    needs: publish
     steps:
       - name: Login to GitHub Container Registry with PAT_TOKEN
         uses: docker/login-action@v2
@@ -53,6 +54,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository_owner: ${{ github.repository_owner }}
-          repository: ${{ github.repository }}
+          repository: ghcr.io
           untagged_only: true
           owner_type: user
