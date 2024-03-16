@@ -38,4 +38,21 @@ jobs:
           file: sam-cdk-tf-pythonSlimDinD.dockerfile
           context: "{{defaultContext}}:Docker/tools/Docker"
           push: true
-          tags: ${{ steps.meta.outputs.tags }}  
+          tags: ${{ steps.meta.outputs.tags }}
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GitHub Container Registry with PAT_TOKEN
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Delete all containers from repository without tags
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          untagged_only: true
+          owner_type: user
