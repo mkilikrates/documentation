@@ -11,6 +11,7 @@ This is a simple list of examples where you can use docker to make tests without
   * Python
   * Groovy
   * Nodejs
+  * Typescript
 
 * [Tools](./tools/README.md)
   * AWS CLI
