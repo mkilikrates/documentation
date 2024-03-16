@@ -1,10 +1,7 @@
 name: Clean up Docker registry
 on:
   registry_package:
-    types: [published]
-permissions:
-  packages: write
-  contents: read
+    types: [published, updated]
 jobs:
   publish:
     runs-on: ubuntu-latest

@@ -3,7 +3,7 @@ FROM python:${PYTHON_VERSION}
 
 LABEL org.opencontainers.image.source=https://github.com/mkilikrates/documentation
 LABEL org.opencontainers.image.description="AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF"
-LABEL org.opencontainers.image.licenses=CC
+LABEL org.opencontainers.image.licenses=CC0-1.0
 
 ARG NVM_VERSION=latest
 ARG AWS_SAM_VERSION=latest
