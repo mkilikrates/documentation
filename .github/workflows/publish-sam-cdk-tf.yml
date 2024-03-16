@@ -35,8 +35,18 @@ jobs:
       - name: Build container
         uses: docker/build-push-action@v5
         with:
-          name: sam-cdk-tf
           file: sam-cdk-tf-pythonSlimDinD.dockerfile
           context: "{{defaultContext}}:Docker/tools/Docker"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+      - name: Remove Old container version
+        uses: bots-house/ghcr-delete-image-action@v1.1.0
+        with:
+          # NOTE: at now only orgs is supported
+          owner: ${{ github.repository_owner }}
+          name: sam-cdk-tf
+          # NOTE: using Personal Access Token
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Keep latest N untagged images
+          untagged-keep-latest: 1
+  
