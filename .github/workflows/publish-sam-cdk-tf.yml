@@ -50,10 +50,11 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Delete all containers from repository without tags
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository_owner: ${{ github.repository_owner }}
-          repository: ghcr.io
-          untagged_only: true
-          owner_type: user
+      - uses: actions/delete-package-versions@v5
+      with:
+        owner: ${{ github.repository_owner }}
+        package-name: 'sam-cdk-tf'
+        package-type: 'container'
+        token: ${{ secrets.GITHUB_TOKEN }}
+        # min-versions-to-keep: 1
+        delete-only-untagged-versions: 'true'
