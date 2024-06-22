@@ -2,10 +2,17 @@
 [LinkedIn Profile](https://www.linkedin.com/in/mkilikrates)
 
 ## Summary
-Results-driven leader with over 20 years of experience in steering high-performance teams and fostering innovation. Proven ability to build robust relationships and bridge diverse teams, creating an environment of psychological safety and prolific idea generation. Adept at leading technical teams, acting as a solution architect, and translating customer needs into compelling features. Committed to developing and empowering teams through training and challenges. A skilled facilitator, excelling in creating environments where all perspectives are valued, resulting in data-driven innovation and rapid learning. Expertise in managing internal and external partnerships, navigating complex processes, and driving cohesive, assertive, and innovative projects. Eager to leverage this wealth of experience to drive success in your organization.
+Results-driven leader with over 20 years of experience in steering high-performance teams and fostering innovation. Proven ability to build robust relationships and bridge diverse teams, creating an environment of psychological safety and prolific idea generation. Adept at leading technical teams, acting as a Solution Architect, and translating customer needs into compelling features. Committed to developing and empowering teams through training and challenges. A skilled facilitator, excelling in creating environments where all perspectives are valued, resulting in data-driven innovation and rapid learning. Expertise in managing internal and external partnerships, navigating complex processes, and driving cohesive, assertive, and innovative projects. Eager to leverage this wealth of experience to drive success in your organization. 
+Excellent technical skills, working as Tech Leader, Principal or Senior Engineer on Cloud, Network, Security, DevOps or DevSecOps.
+
+### Senior Cloud Engineer, TripAdvisor, Remote - PT
+*May 2024 - Present*
+- Manage/Support AWS infrastructure as a Code using CDK (TypeScript) and Terraform:
+  - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, etc;
+  - Create constructs, patterns, pipelines, SDLC flows and documentation to be reused and supported across firm;
 
 ### Principal Cloud Engineer DevOps, Fidelity Investments, Dublin - IE
-*April 2022 - Present*
+*April 2022 - May 2024*
 - Tool Management and Support: 
   - Management and support of key SDLC tools, including Jenkins, Udeploy, Sonarqube, Github Enterprise Cloud, and LaunchDarkly, leveraging Service-now for seamless integration.
 - Data Insights and Automation:
@@ -150,9 +157,10 @@ Results-driven leader with over 20 years of experience in steering high-performa
 - Business Strategy
 - Serverless Computing (SAM)
 - Kubernetes
+- Prometheus & Grafana
 - Software Development Life Cycle (SDLC)
 - Agile Methodologies
-- Python (Programming Language)
+- Python, TypeScript (Programming Language)
 - Continuous Integration and Continuous Delivery (CI/CD)
 - DevOps
 - Amazon Web Services (AWS)
