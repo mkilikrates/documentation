@@ -124,6 +124,9 @@ RUN apt-get clean autoclean && \
 USER "${SAM_USER}"
 WORKDIR /home/${SAM_USER}/
 
+# enable completion for aws cli
+echo "complete -C '/usr/local/bin/aws_completer' aws" >> /home/${SAM_USER}/.bashrc
+
 # pipenv
 ENV PYTHON_BIN_PATH="$(python3 -m site --user-base)/bin"
 RUN pip install --upgrade pip \
