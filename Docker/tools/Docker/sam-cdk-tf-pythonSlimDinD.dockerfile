@@ -54,12 +54,13 @@ RUN apt-get update \
         make \
         g++ \
         jq \
-        groff
+        groff \
+        bash-completion
 
 RUN apt-get upgrade -y
 
 #docker
-ENV container docker
+ENV container=docker
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 RUN echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
@@ -116,6 +117,9 @@ RUN export latest_helm_release_tag=$(curl -fsSLI -o /dev/null -w %{url_effective
     chown root:root /usr/local/bin/helm && \
     rm -rf elm-linux-amd64.tar.gz
 
+# Helm completion
+RUN helm completion bash > /etc/bash_completion.d/helm
+
 # clean up
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
@@ -126,6 +130,9 @@ WORKDIR /home/${SAM_USER}/
 
 # enable completion for aws cli
 RUN echo "complete -C '/usr/local/bin/aws_completer' aws" >> /home/${SAM_USER}/.bashrc
+
+# enable completion for kubectl
+RUN echo 'source <(kubectl completion bash)' >> /home/${SAM_USER}/.bashrc
 
 # pipenv
 ENV PYTHON_BIN_PATH="$(python3 -m site --user-base)/bin"
