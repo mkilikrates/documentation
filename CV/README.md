@@ -10,6 +10,7 @@ Excellent technical skills, working as Tech Leader, Principal or Senior Engineer
 - Manage/Support AWS infrastructure as a Code using CDK (TypeScript) and Terraform:
   - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, etc;
   - Create constructs, patterns, pipelines, SDLC flows and documentation to be reused and supported across firm;
+  - Use Github Actions on CodeBuild self Runners to build, test and publish npm packages as well as deploy in AWS environments.
 
 ### Principal Cloud Engineer DevOps, Fidelity Investments, Dublin - IE
 *April 2022 - May 2024*
