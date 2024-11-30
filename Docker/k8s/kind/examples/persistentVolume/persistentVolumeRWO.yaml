@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: persistentvolume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dynamic-claim
+  namespace: persistentvolume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsvp-db
+  namespace: persistentvolume
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      appdb: rsvpdb
+  template:
+    metadata:
+      labels:
+        appdb: rsvpdb
+    spec:
+      volumes:
+        - name: voldb
+          persistentVolumeClaim:
+           claimName: dynamic-claim
+      containers:
+      - name: rsvpd-db
+        image: mongo
+        volumeMounts:
+        - name: voldb
+          mountPath: /data/db
+        ports:
+        - containerPort: 27017
