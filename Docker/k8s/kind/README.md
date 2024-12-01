@@ -34,7 +34,13 @@ To create cluster you can just run
 kind create cluster --config cluster.yaml
 ```
 
+If you prefer to monitor your resources and testes using [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack), then use the following line:
+
 ## Ingress
+
+```bash
+kind create cluster --config cluster-prometheus.yaml
+```
 
 In my case since I just want to test one service at time, I am exposing only port http (80), but you can follow same concepts and expose others.
 
@@ -45,6 +51,22 @@ kubectl apply -f deploy-ingress-nginx.yaml
 ```
 
 **PS**: This file was changed following the [documentation](https://kind.sigs.k8s.io/docs/user/ingress/#option-2-extraportmapping) to add `nodeSelector` property.
+
+## kube-prometheus-stack
+
+After install nginx-ingress, you can now install [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) using helm.
+
+```bash
+helm upgrade --install --wait --timeout 15m   --namespace monitoring --create-namespace   --repo https://prometheus-community.github.io/helm-charts   kube-prometheus-stack kube-prometheus-stack -f prometheus-values.yaml
+```
+
+Now you will have access to main dashboards exposed:
+
+- [grafana](http://127.0.0.1/grafana/) - default user: `admin`, password: `prom-operator`
+- [prometheus](http://127.0.0.1/prometheus)
+- [alertmanager](http://127.0.0.1/alertmanager)
+
+*Note*: If you try to access `http://127.0.0.1/` it will fail since the idea is that you can use this path in other tests.
 
 ## clean up
 

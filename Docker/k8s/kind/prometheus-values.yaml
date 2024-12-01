@@ -1,0 +1,32 @@
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    paths: 
+      - /prometheus
+  prometheusSpec:
+    externalUrl: "http://ubuntu/prometheus/"
+    routePrefix: /prometheus
+alertmanager:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    paths: 
+      - /alertmanager
+  alertmanagerSpec:
+    externalUrl: "http://ubuntu/alertmanager/"
+    routePrefix: /alertmanager
+grafana:
+  env:
+    GF_SERVER_SERVE_FROM_SUB_PATH: true
+  grafana.ini:
+    server:
+      domain: "ubuntu"
+      root_url: "http://ubuntu/grafana/"
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    path: /grafana
+kubeEtcd:
+  service:
+    targetPort: 2381
