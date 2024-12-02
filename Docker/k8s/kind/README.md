@@ -6,7 +6,8 @@ Some simple use tools
 
 - [Installation](#kind-installation)
 - [Create Cluster](#create-cluster)
-- [Ingress](#ingress)
+- [Ingress](#nginx-ingress)
+- [Prometheus](#kube-prometheus-stack)
 - [Clean up](#clean-up)
 
 ## Kind Installation
@@ -36,13 +37,21 @@ kind create cluster --config cluster.yaml
 
 If you prefer to monitor your resources and testes using [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack), then use the following line:
 
-## Ingress
-
 ```bash
 kind create cluster --config cluster-prometheus.yaml
 ```
 
 In my case since I just want to test one service at time, I am exposing only port http (80), but you can follow same concepts and expose others.
+
+## kube-prometheus-stack
+
+After install nginx-ingress, you can now install [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) using helm.
+
+```bash
+helm upgrade --install --wait --timeout 15m   --namespace monitoring --create-namespace   --repo https://prometheus-community.github.io/helm-charts   prometheus-stack kube-prometheus-stack -f prometheus-values.yaml
+```
+
+## nginx Ingress
 
 If you want to use Ingress, you can apply this:
 
@@ -50,14 +59,18 @@ If you want to use Ingress, you can apply this:
 kubectl apply -f deploy-ingress-nginx.yaml
 ```
 
-**PS**: This file was changed following the [documentation](https://kind.sigs.k8s.io/docs/user/ingress/#option-2-extraportmapping) to add `nodeSelector` property.
+**PS**: This file was changed following the [documentation](https://kind.sigs.k8s.io/docs/user/ingress/#option-2-extraportmapping) to add `nodeSelector` property and Annotations for monitor as described in [nginx docummentation](https://kubernetes.github.io/ingress-nginx/user-guide/monitoring/).
 
-## kube-prometheus-stack
-
-After install nginx-ingress, you can now install [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) using helm.
+or if you installed the prometheus-cluster, use this version:
 
 ```bash
-helm upgrade --install --wait --timeout 15m   --namespace monitoring --create-namespace   --repo https://prometheus-community.github.io/helm-charts   kube-prometheus-stack kube-prometheus-stack -f prometheus-values.yaml
+helm upgrade --install --namespace ingress-nginx --create-namespace \
+--repo https://kubernetes.github.io/ingress-nginx ingress-nginx ingress-nginx \
+--values https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/hack/manifest-templates/provider/kind/values.yaml \
+--set controller.metrics.enabled=true \
+--set controller.metrics.serviceMonitor.enabled=true \
+--set controller.nodeSelector."kubernetes\.io/hostname"=kind-control-plane \
+--set controller.metrics.serviceMonitor.additionalLabels.release="prometheus-stack"
 ```
 
 Now you will have access to main dashboards exposed:
