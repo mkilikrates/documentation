@@ -61,7 +61,7 @@ kubectl apply -f deploy-ingress-nginx.yaml
 
 **PS**: This file was changed following the [documentation](https://kind.sigs.k8s.io/docs/user/ingress/#option-2-extraportmapping) to add `nodeSelector` property and Annotations for monitor as described in [nginx docummentation](https://kubernetes.github.io/ingress-nginx/user-guide/monitoring/).
 
-or if you installed the prometheus-cluster, use this version:
+or if you want to monitor your nginx in prometheus, please use this version:
 
 ```bash
 helm upgrade --install --namespace ingress-nginx --create-namespace \
