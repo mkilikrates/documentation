@@ -81,6 +81,8 @@ Now you will have access to main dashboards exposed:
 
 *Note*: If you try to access `http://127.0.0.1/` it will fail since the idea is that you can use this path in other tests.
 
+You can add nginx official dashboards following their [documentation](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/monitoring.md#connect-and-view-grafana-dashboard)
+
 ## clean up
 
 To clean up you can remove using this
