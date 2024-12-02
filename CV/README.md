@@ -6,7 +6,7 @@ Results-driven leader with over 20 years of experience in steering high-performa
 Excellent technical skills, working as Tech Leader, Principal or Senior Engineer on Cloud, Network, Security, DevOps or DevSecOps.
 
 ### Senior Cloud Engineer, TripAdvisor, Remote - PT
-*May 2024 - Present*
+*May 2024 - Nov 2024*
 - Manage/Support AWS infrastructure as a Code using CDK (TypeScript) and Terraform:
   - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, etc;
   - Create constructs, patterns, pipelines, SDLC flows and documentation to be reused and supported across firm;
