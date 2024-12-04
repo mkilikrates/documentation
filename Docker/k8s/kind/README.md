@@ -27,21 +27,22 @@ sudo mv ./kind /usr/local/bin/kind
 
 ## Create cluster
 
-As you can see in [cluster.yaml file](./kind/cluster.yaml) this cluster has 1 controller and 3 workers and expose ports 80 on localhost
+As you can see in [cluster.yaml file](./kind/cluster.yaml) this cluster has 1 controller and 3 workers and expose ports 80 on localhost.
+
+It will set some additional parameters in case you want to use [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) without failures.
+
+The API Endpoint will bind ip address of your wsl machine, so it can use other Docker containers to reach it, instead or only default `127.0.0.1`.
 
 To create cluster you can just run
 
 ```bash
-kind create cluster --config cluster.yaml
+export MY_PRIVATE_IP="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < cluster.yaml | kind create cluster --config -
 ```
 
-If you prefer to monitor your resources and testes using [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack), then use the following line:
+*PS*: This will export a variable MY_PRIVATE_IP with ip address of your wsl, then it will replace this variable on yaml file that will be used on kind create cluster command.
 
-```bash
-kind create cluster --config cluster-prometheus.yaml
-```
-
-In my case since I just want to test one service at time, I am exposing only port http (80), but you can follow same concepts and expose others.
+In this case since I just want to test one service at time, using different uri, I am exposing only port http (80), but you can follow same concepts and expose others.
 
 ## kube-prometheus-stack
 
@@ -53,15 +54,7 @@ helm upgrade --install --wait --timeout 15m   --namespace monitoring --create-na
 
 ## nginx Ingress
 
-If you want to use Ingress, you can apply this:
-
-```bash
-kubectl apply -f deploy-ingress-nginx.yaml
-```
-
-**PS**: This file was changed following the [documentation](https://kind.sigs.k8s.io/docs/user/ingress/#option-2-extraportmapping) to add `nodeSelector` property and Annotations for monitor as described in [nginx docummentation](https://kubernetes.github.io/ingress-nginx/user-guide/monitoring/).
-
-or if you want to monitor your nginx in prometheus, please use this version:
+Use Ingress so you can test access to your applications or prometheus without any manual steps using this:
 
 ```bash
 helm upgrade --install --namespace ingress-nginx --create-namespace \
@@ -70,8 +63,12 @@ helm upgrade --install --namespace ingress-nginx --create-namespace \
 --set controller.metrics.enabled=true \
 --set controller.metrics.serviceMonitor.enabled=true \
 --set controller.nodeSelector."kubernetes\.io/hostname"=kind-control-plane \
---set controller.metrics.serviceMonitor.additionalLabels.release="prometheus-stack"
+--set controller.metrics.serviceMonitor.additionalLabels.release="prometheus-stack" \
+--set-string controller.podAnnotations."prometheus\.io/scrape"="true" \
+--set-string controller.podAnnotations."prometheus\.io/port"="10254"
 ```
+
+**PS**: As you can see in the [nginx helm documentation](https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx) we are using a [values.yaml file](https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/hack/manifest-templates/provider/kind/values.yaml) already set to work on kind environment, additionally we are enabling metrics service and Service Monitor, so you can see ingress-nginx metrics on prometheus as well as `nodeSelector` property and Annotations for the controller as described in [nginx docummentation](https://kubernetes.github.io/ingress-nginx/user-guide/monitoring/) to expose services on localhost without any manual configuration.
 
 Now you will have access to main dashboards exposed:
 
@@ -79,7 +76,7 @@ Now you will have access to main dashboards exposed:
 - [prometheus](http://127.0.0.1/prometheus)
 - [alertmanager](http://127.0.0.1/alertmanager)
 
-*Note*: If you try to access `http://127.0.0.1/` it will fail since the idea is that you can use this path in other tests.
+*Note*: If you try to access `http://127.0.0.1/` it will fail (404) since the idea is that you can use this path and all others during your tests.
 
 You can add nginx official dashboards following their [documentation](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/monitoring.md#connect-and-view-grafana-dashboard)
 
