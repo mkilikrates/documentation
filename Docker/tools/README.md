@@ -9,6 +9,7 @@ Some simple use tools
 - [AWS CDK](#aws-cdk-python)
 - [AWS CDK + SAM](#aws-cdk--sam)
 - [AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF](#aws-sam--cdk--cdk8s--terraform--cdktf)
+- [Terraform & OpenTofu](#terraform-or-opentofu-cli)
 - [Kubectl](#kubectl)
 - [EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
 - [Credentials](#credentials)
@@ -197,7 +198,7 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-## AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF
+## AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF + KUBECTL + Kconnect
 
 [Official documentation about cdk](https://aws.amazon.com/cdk/)
 
@@ -208,6 +209,8 @@ python -m pip install -r requirements.txt
 [Official documentation about TERRAFORM](https://www.terraform.io/)
 
 [Official documentation about CDKFT](https://developer.hashicorp.com/terraform/tutorials/cdktf)
+
+[Official documentation about kubectl](https://hub.docker.com/r/bitnami/kubectl/)
 
 There is no official image for these tools, in this case I sharing a [dockerfile](./Docker/sam-cdk-pythonSlimDinD.dockerfile) and following instructions to build and run.
 
@@ -242,13 +245,19 @@ Using local path where your credentials are stored, current folder for your code
 using default user `cdk`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ~/.aws:/home/cdk/.aws -v ~/.aws-sam:/home/cdk/.aws-sam -v ~/.docker:/home/cdk/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD":/opt/app -t -i --rm sam-cdk-tf
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp --rm sam-cdk-tf
+```
+
+*Note*: I have this container build available on my github registry, so if you want to use it you can just
+
+```bash
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp --rm ghcr.io/mkilikrates/sam-cdk-tf:latest
 ```
 
 using local user `$USER`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -v ${PWD}:/opt/app -v ${HOME}/.aws/:/home/$USER/.aws/ -v ${HOME}/.docker/:/home/$USER/.docker/ -v ${HOME}/.aws-sam/:/home/$USER/.aws-sam/ -v ${HOME}/.terraform.d/:/home/$USER/.terraform.d/ -v /var/run/docker.sock:/var/run/docker.sock --rm -i -t sam-cdk-tf
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/$USER/.aws/ -v ~/.aws-sam/:/home/$USER/.aws-sam/ -v ~/.docker/:/home/$USER/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/$USER/.kube -v "$HOME"/.helm:/home/$USER/.helm -v "$HOME"/.config/helm:/home/$USER/.config/helm -v "$HOME/.kconnect:/home/$USER/.kconnect/" -v "$HOME"/.terraform.d:/home/$USER/.terraform.d -v "$HOME"/lixo:/home/$USER/tmp --rm sam-cdk-tf
 ```
 
 Since CDK, CDK8s and CDKTF relies on pipenv, you should install the dependencies in projects alredy existent:
@@ -268,6 +277,59 @@ Then follow the documentation from each tool to synth, deploy, destroy your stac
 - [CDK for python documentation](https://docs.aws.amazon.com/cdk/v2/guide/work-with-cdk-python.html)
 - [CDK8S for python documentation](https://cdk8s.io/docs/latest/getting-started/#prerequisites)
 - [CDKTF for python documentation](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install?variants=cdk-language%3Apython)
+
+## Terraform or OpenTofu CLI
+
+### terraform
+
+[Official documentation about this image](https://hub.docker.com/r/hashicorp/terraform)
+
+### opentofu
+
+[Official documentation about this image](https://opentofu.org/docs/intro/install/docker/)
+
+*Note*: You can change from terraform to opentofu replacing the image from `hashicorp/terraform:latest` to `ghcr.io/opentofu/opentofu:latest`.
+
+Using local path as workspace
+
+```bash
+docker run -t -i --rm -v "${PWD}":/workspace -w /workspace hashicorp/terraform:latest <command> <args>
+```
+
+e.g.:
+
+```bash
+docker run -t -i --rm -v "${PWD}":/workspace -w /workspace hashicorp/terraform:latest apply
+```
+
+Additionally, depends on your use case, you can mount your credentials files for cloud or kubernetes and even work as docker-in-docker to build containers like this:
+
+```bash
+docker run -t -i --rm -v "${HOME}"/.aws:/root/.aws -v ~/.kube/config:/root/.kube/config -v /var/run/docker.sock:/var/run/docker.sock -v "${PWD}":/workspace -w /workspace ghcr.io/opentofu/opentofu:latest
+```
+
+**PS:**
+this docker will run using root inside of container, so if you configure your credentials using it, your local user if not root will not able to see files in `~/.aws/`
+
+Add this alias to your ~/.bash_aliases so you can use allways this docker instead of install anything local
+
+```bash
+alias terraform='docker run -t -i --rm -v "${HOME}"/.aws:/root/.aws -v ~/.kube/config:/root/.kube/config -v /var/run/docker.sock:/var/run/docker.sock -v "${PWD}":/workspace -w /workspace hashicorp/terraform:latest'
+alias tofu='docker run -t -i --rm -v "${HOME}"/.aws:/root/.aws -v ~/.kube/config:/root/.kube/config -v /var/run/docker.sock:/var/run/docker.sock -v "${PWD}":/workspace -w /workspace ghcr.io/opentofu/opentofu:latest'
+```
+
+If you just edit your file, run the following command to reload your environment
+
+```bash
+source ~/.bashrc
+```
+
+Then you can run any command
+
+```bash
+terraform --version
+tofu --version
+```
 
 ## Kubectl
 

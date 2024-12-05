@@ -38,6 +38,11 @@ RUN mkdir -p "/home/${SAM_USER}" \
     "/home/${SAM_USER}.aws-sam" \
     "/home/${SAM_USER}.docker" \
     "/home/${SAM_USER}/.terraform.d" \
+    "/home/${SAM_USER}/.kube" \
+    "/home/${SAM_USER}/.helm" \
+    "/home/${SAM_USER}/config" \
+    "/home/${SAM_USER}/config/helm" \
+    "/home/${SAM_USER}/.kconnect" \
     && chown -R "$SAM_USER:$SAM_USER" "/home/${SAM_USER}"
 RUN mkdir -p "/opt/app" && chown -R "$SAM_USER:$SAM_USER" "/opt/app"
 
@@ -162,6 +167,7 @@ VOLUME [ "/home/${SAM_USER}/.aws-sam" ]
 VOLUME [ "/home/${SAM_USER}/.terraform.d" ]
 VOLUME [ "/home/${SAM_USER}/.docker" ]
 VOLUME [ "/home/${SAM_USER}/.kube" ]
+VOLUME [ "/home/${SAM_USER}/.kconnect" ]
 VOLUME [ "/opt/app" ]
 
 WORKDIR /opt/app
