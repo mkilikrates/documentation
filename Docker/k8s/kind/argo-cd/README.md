@@ -77,6 +77,8 @@ argo-cd argo-cd --namespace argocd --create-namespace \
 --set notifications.metrics.serviceMonitor.additionalLabels.release="prometheus-stack"
 ```
 
+More information about other options can be checked in the official [helm chart docummentation](https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd#general-parameters).
+
 Now you can get the random password generated during installation
 
 ```bash
