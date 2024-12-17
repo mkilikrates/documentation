@@ -35,9 +35,9 @@ If you want to monitor using [prometheus operator](https://github.com/prometheus
 *Note*: That each internal service must be enabled according to your use case, the full version will be like this:
 
 ```bash
-helm upgrade --install \
---repo https://argoproj.github.io/argo-helm \
-argo-cd argo-cd --namespace argocd --create-namespace \
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+helm upgrade --install argo-cd argo/argo-cd --namespace argocd --create-namespace \
 --set configs.params."server\.insecure"=true \
 --set configs.params."server\.basehref"="/argo-cd" \
 --set configs.params."server\.rootpath"="/argo-cd" \
