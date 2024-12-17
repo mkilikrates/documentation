@@ -97,6 +97,8 @@ curl http://127.0.0.1:/argo-cd
 
 *PS*: After you logon, the redirect will fail sending you to `http://127.0.0.1/argo-cd/argo-cd/applications` but you can just go to the right path `http://127.0.0.1/argo-cd/applications`
 
+If you are using prometheus, you can import official dashboard from [github](https://github.com/argoproj/argo-cd/blob/master/examples/dashboard.json)
+
 ## clean up
 
 To clean up you can remove using this
