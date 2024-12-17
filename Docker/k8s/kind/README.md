@@ -6,8 +6,9 @@ Some simple use tools
 
 - [Installation](#kind-installation)
 - [Create Cluster](#create-cluster)
-- [Ingress](#nginx-ingress)
+- [Metrics-Server](#metrics-server)
 - [Prometheus](#kube-prometheus-stack)
+- [Ingress](#nginx-ingress)
 - [Clean up](#clean-up)
 
 ## Kind Installation
@@ -45,6 +46,18 @@ envsubst < cluster.yaml | kind create cluster --config -
 *PS*: This will export a variable MY_PRIVATE_IP with ip address of your wsl, then it will replace this variable on yaml file that will be used on kind create cluster command.
 
 In this case since I just want to test one service at time, using different uri, I am exposing only port http (80), but you can follow same concepts and expose others.
+
+## metrics-server
+
+Metrics Server collects resource metrics from Kubelets and exposes them in Kubernetes apiserver through Metrics API for use by Horizontal Pod Autoscaler and Vertical Pod Autoscaler. Metrics API can also be accessed by kubectl top, making it easier to debug autoscaling pipelines.
+
+[Official Documentation](https://kubernetes-sigs.github.io/metrics-server/) or in their [Github](https://github.com/kubernetes-sigs/metrics-server)
+
+```bash
+helm upgrade --install --namespace kube-system \
+ --repo https://kubernetes-sigs.github.io/metrics-server/ metrics-server metrics-server \
+ --set args[0]=--kubelet-insecure-tls
+```
 
 ## kube-prometheus-stack
 
