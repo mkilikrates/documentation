@@ -18,8 +18,31 @@ Installing using [helm](https://helm.sh/)
 helm upgrade --install \
  --namespace keda --create-namespace \
  --repo https://kedacore.github.io/charts/ \
- keda keda 
+ keda keda
 ```
+
+If want get metrics of keda on [prometheus](https://keda.sh/docs/2.16/integrations/prometheus/)
+
+```bash
+helm upgrade --install \
+ --namespace keda --create-namespace \
+ --repo https://kedacore.github.io/charts/ \
+ keda keda \
+ --set prometheus.metricServer.enabled=true \
+ --set prometheus.metricServer.serviceMonitor.enabled=true \
+ --set prometheus.metricServer.serviceMonitor.additionalLabels.release="prometheus-stack" \
+ --set prometheus.metricServer.podMonitor.enabled=true \
+ --set prometheus.operator.enabled=true \
+ --set prometheus.operator.serviceMonitor.enabled=true \
+ --set prometheus.operator.serviceMonitor.additionalLabels.release="prometheus-stack" \
+ --set prometheus.operator.podMonitor.enabled=true \
+ --set prometheus.webhooks.enabled=true \
+ --set prometheus.webhooks.serviceMonitor.enabled=true \
+ --set prometheus.webhooks.serviceMonitor.additionalLabels.release="prometheus-stack" \
+ --set prometheus.webhooks.podMonitor.enabled=true
+```
+
+Then you can import [dashboard](https://github.com/kedacore/keda/blob/main/config/grafana/keda-dashboard.json) or from [grafana](https://grafana.com/grafana/dashboards/22111-keda-operator/)
 
 ## Scalling some app using keda based on cron
 
