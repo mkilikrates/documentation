@@ -16,8 +16,12 @@ In this example the installation will be executed using [helm](https://helm.sh/)
 *Basic installation*: This will only install and expose it on host `http://gitea.local/` as http only, disabling https since this is a local test.
 
 ```bash
-helm upgrade --install --namespace gitea --create-namespace \
- --repo https://dl.gitea.io/charts/ gitea gitea \
+helm repo add gitea https://dl.gitea.io/charts/
+helm repo update
+helm upgrade --install gitea gitea/gitea \
+ --namespace gitea --create-namespace \
+ --set gitea.config.repository.ENABLE_PUSH_CREATE_USER=true \
+ --set gitea.config.repository.ENABLE_PUSH_CREATE_ORG=true \
  --set service.http.type=LoadBalancer \
  --set ingress.enabled=true \
  --set ingress.className=nginx \
@@ -30,6 +34,7 @@ helm upgrade --install --namespace gitea --create-namespace \
  ```
 
 Note that latest 3 lines are to expose metrics to [prometheus operator](https://github.com/prometheus-operator/prometheus-operator?tab=readme-ov-file#helm-chart) so you can remove it if you don't need it.
+Additionally, it is allowing create new repositories using simple git push.
 
 Finally you can access using your browser
 
