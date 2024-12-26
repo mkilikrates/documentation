@@ -75,4 +75,7 @@ To clean up you can remove using this
 ```bash
 kubectl delete -f cronscale.yaml
 kubectl delete -f ../kind/examples/initcontainers/nginx-busybox-initcontainer.yaml
+# uninstall keda
+helm -n keda uninstall keda
+kubectl delete namespaces keda
 ```
