@@ -159,3 +159,16 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# kubectl configuration file
+.kube/config
+
+# Ignore Kustomize config file
+kustomization.yaml
+
+# Ignore Kustomize build directory
+.kustomize/
+
+# Ignore node_modules directory for javascript projects
+node_modules/
+**/node_modules/

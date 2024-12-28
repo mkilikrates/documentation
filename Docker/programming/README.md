@@ -44,6 +44,8 @@ Using local path where you are developing your code
 docker run --name node --user "$(id -u):$(id -g)" -t -i --rm -v "${PWD}":/usr/src -w /usr/src node:slim /bin/bash
 ```
 
+check some [examples](./nodejs/examples/)
+
 ## TYPESCRIPT
 
 [Official documentation about this image](https://hub.docker.com/_/microsoft-devcontainers-typescript-node)
