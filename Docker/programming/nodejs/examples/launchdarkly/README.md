@@ -42,6 +42,8 @@ To cancel it, use `<CTRL>+<c>`
 
 In case you want to build a container ready to just run, there is this [Dockerfile](./Dockerfile) that you can use to build it.
 
+You can find more information in [official documentation](https://docs.docker.com/reference/cli/docker/container/run/)
+
 ```bash
 docker build . -t myapp
 ```
