@@ -17,6 +17,7 @@ docker run --name node --user "$(id -u):$(id -g)" -t -i --rm -v "${PWD}":/usr/sr
 Inside of your docker, just run
 
 ```bash
+npm install
 node index.js
 ```
 
@@ -36,3 +37,49 @@ Finally you can access using your browser
 * [Feature Flag](http://127.0.0.1:3000/feature-flag)
 
 To cancel it, use `<CTRL>+<c>`
+
+## Building your own container
+
+In case you want to build a container ready to just run, there is this [Dockerfile](./Dockerfile) that you can use to build it.
+
+```bash
+docker build . -t myapp
+```
+
+To run it
+
+```bash
+docker run -d --rm -p 3000:3000 -e LAUNCHDARKLY_SDK_KEY='sdk-0123456-789s4-123abc'  -e LAUNCHDARKLY_FLAG_KEY='myflag' myapp
+```
+
+Finally you can access using your browser
+
+* [hello](http://127.0.0.1:3000/)
+* [Feature Flag](http://127.0.0.1:3000/feature-flag)
+
+you can see it running using
+
+```bash
+docker ps
+```
+
+It will show something like this:
+
+```bash
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                    NAMES
+3b7c360efc1f   myapp     "docker-entrypoint.s…"   36 seconds ago   Up 35 seconds   0.0.0.0:3000->3000/tcp   sleepy_brahmagupta
+```
+
+To see logs use
+
+```bash
+docker logs 3b7c360efc1f
+```
+
+*NOTE*: Since we didn't named our container, we must use their ID to interact with it
+
+To cancel it, use
+
+```bash
+docker stop 3b7c360efc1f
+```
