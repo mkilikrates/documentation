@@ -55,3 +55,19 @@ Using local path where you are developing your code
 ```bash
 docker run --user "$(id -u)":"$(id -g)" -it --rm -v ${PWD}:/home/node/app -w /home/node/app  mcr.microsoft.com/devcontainers/typescript-node /bin/bash
 ```
+
+## GO
+
+[Official documentation about this image](https://hub.docker.com/_/golang)
+
+Using local path where you are developing your code
+
+```bash
+docker run -it --rm -v ${PWD}:/usr/src/myapp -w /usr/src/myapp  golang /bin/bash
+```
+
+Executing a local script
+
+```bash
+docker run -it --rm -v ${PWD}:/usr/src/myapp -w /usr/src/myapp -p 8080:8080  golang go run .
+```
