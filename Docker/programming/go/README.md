@@ -77,6 +77,7 @@ To cancel it, use `<CTRL>+<c>`
 ### Compiling
 
 One advantage of go is that we can compile, so it will became a executable file that you don't need to use with go environment.
+More information can be found on [official documentation](https://pkg.go.dev/go/build).
 
 To compile you can do like this:
 
