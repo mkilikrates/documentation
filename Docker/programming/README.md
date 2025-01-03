@@ -44,7 +44,7 @@ Using local path where you are developing your code
 docker run --name node --user "$(id -u):$(id -g)" -t -i --rm -v "${PWD}":/usr/src -w /usr/src node:slim /bin/bash
 ```
 
-check some [examples](./nodejs/examples/)
+check some [simple case](./nodejs/) or other [examples](./nodejs/examples/)
 
 ## TYPESCRIPT
 
@@ -60,6 +60,8 @@ docker run --user "$(id -u)":"$(id -g)" -it --rm -v ${PWD}:/home/node/app -w /ho
 
 [Official documentation about this image](https://hub.docker.com/_/golang)
 
+check some [simple case](./go/)
+
 Using local path where you are developing your code
 
 ```bash
@@ -70,4 +72,10 @@ Executing a local script
 
 ```bash
 docker run -it --rm -v ${PWD}:/usr/src/myapp -w /usr/src/myapp -p 8080:8080  golang go run .
+```
+
+Compiling a local script to make it executable
+
+```bash
+docker run -it --rm -v ${PWD}:/usr/src/myapp -w /usr/src/myapp -p 8080:8080 -e CGO_ENABLED=0 -e GOOS=linux -e GOARCH=amd64 golang go build -o ./app .
 ```
