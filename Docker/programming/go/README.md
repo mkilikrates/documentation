@@ -73,3 +73,39 @@ Finally you can access using your browser
 * [hello](http://127.0.0.1:8080/)
 
 To cancel it, use `<CTRL>+<c>`
+
+### Compiling
+
+One advantage of go is that we can compile, so it will became a executable file that you don't need to use with go environment.
+
+To compile you can do like this:
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./app .
+```
+
+It will produce a `app` file. Then you can even exit from our container then just execute
+
+```bash
+./app
+```
+
+It will show something like this:
+
+```bash
+Server starting on http://localhost:8080
+```
+
+Finally you can access using your browser
+
+* [hello](http://127.0.0.1:8080/)
+
+*Note*: If you are running this on WSL, you need to access your container ip, so you can use this
+
+```bash
+ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+```
+
+then open your browser with the ip address it shows, like `http://172.31.99.41:8080`.
+
+To cancel it, use `<CTRL>+<c>`
