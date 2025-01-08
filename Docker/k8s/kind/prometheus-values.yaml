@@ -2,31 +2,50 @@ prometheus:
   ingress:
     enabled: true
     ingressClassName: nginx
-    paths: 
-      - /prometheus
+    annotations:
+    paths:
+    - /prometheus
+    pathType: Prefix
+    hosts:
+      - host.docker.internal
+    tls:
+      - hosts:
+        - host.docker.internal
   prometheusSpec:
-    externalUrl: "http://ubuntu/prometheus/"
+    externalUrl: "https://host.docker.internal/prometheus"
     routePrefix: /prometheus
 alertmanager:
   ingress:
     enabled: true
     ingressClassName: nginx
-    paths: 
-      - /alertmanager
+    paths:
+    - /alertmanager
+    pathType: Prefix
+    hosts:
+      - host.docker.internal
+    tls:
+      - hosts:
+        - host.docker.internal
   alertmanagerSpec:
-    externalUrl: "http://ubuntu/alertmanager/"
+    externalUrl: "https://host.docker.internal/alertmanager"
     routePrefix: /alertmanager
 grafana:
   env:
     GF_SERVER_SERVE_FROM_SUB_PATH: true
   grafana.ini:
     server:
-      domain: "ubuntu"
-      root_url: "http://ubuntu/grafana/"
+      domain: "host.docker.internal"
+      root_url: "https://host.docker.internal/grafana"
   ingress:
     enabled: true
     ingressClassName: nginx
     path: /grafana
+    pathType: Prefix
+    hosts:
+      - host.docker.internal
+    tls:
+      - hosts:
+        - host.docker.internal
 kubeEtcd:
   service:
     targetPort: 2381

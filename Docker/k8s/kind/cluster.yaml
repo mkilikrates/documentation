@@ -2,7 +2,15 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
   # bind all ip addresses to allow reach it from other containeres.
-  apiServerAddress: "$MY_PRIVATE_IP"
+  apiServerAddress: "0.0.0.0"
+  # enable dualstack
+  ipFamily: dual
+# Add local registry
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    config_path = "/etc/containerd/certs.d"
+# patches for prometheus
 kubeadmConfigPatches:
 - |-
   kind: ClusterConfiguration
@@ -23,6 +31,7 @@ kubeadmConfigPatches:
   kind: KubeProxyConfiguration
   # configure proxy metrics bind address
   metricsBindAddress: 0.0.0.0
+# nodes configuration and ingress port mapping
 nodes:
 - role: control-plane
   kubeadmConfigPatches:
@@ -34,6 +43,9 @@ nodes:
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
     protocol: TCP
 - role: worker
 - role: worker

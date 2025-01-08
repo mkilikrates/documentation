@@ -41,9 +41,11 @@ spec:
 git add -A
 git commit -m "my first commit"
 # set upstream git to gitea and push/creating new repo
-git remote add origin http://gitea.local/gitea_admin/ngix_deploy.git
-git push -o repo.private=false --set-upstream origin main
+git remote add origin git remote add origin https://host.docker.internal/gitea/gitea_admin/ngix_deploy.git
+git -c http.sslVerify=false push -o repo.private=false --set-upstream origin main
 ```
+
+*Note*: Setting `http.sslVerify` to `false` since it is using a private self signed certificate.
 
 ## argo-cd manifest
 

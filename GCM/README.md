@@ -45,6 +45,7 @@ You can run the following command to install the package
 
 ```bash
 sudo dpkg -i gcm-linux_amd64.deb
+rm -rf gcm-linux_amd64.deb
 ```
 
 ## Install gpg
@@ -109,6 +110,8 @@ gpg --list-secret-keys --keyid-format LONG
 ```
 
 - `Pay attention to line uid` since you will use that info on your password store settings bellow
+
+If you want to add your [private email address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address#setting-your-commit-email-address-on-github) from github into your gpg to sign your commits, check on the [documentation](https://docs.github.com/en/authentication/managing-commit-signature-verification/associating-an-email-with-your-gpg-key)
 
 ## Install passwordstore
 
