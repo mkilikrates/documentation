@@ -96,6 +96,35 @@ kind create cluster --config cluster.yaml
 
 In this case since I just want to test one service at time, using different uri, I am exposing both ports http (80) and https (443) using a self signed dummy certificate, but you can follow same concepts and expose others.
 
+If you enabled dual stack, you can check using these:
+
+```bash
+# show nodes cidrs
+kubectl get nodes -o go-template --template='{{range .items}}{{printf "Node : %s\n" .metadata.name}}{{range .spec.podCIDRs}}{{printf "%s\n" .}}{{end}}{{"\n"}}{{end}}'
+# show node ips
+kubectl get nodes -o go-template --template='{{range .items}}{{printf "Node : %s\n" .metadata.name}}{{
+range .status.addresses}}{{printf "%s: %s\n" .type .address}}{{end}}{{"\n"}}{{end}}'
+# show pod ips
+kubectl get pods -o go-template='{{range .items}}{{.metadata.name}} : {{range .status.podIPs}}{{printf "%s " .ip}}{{end}}{{"\n"}}{{end}}' -A
+```
+
+To test connectivity from ipv6 in a interative session
+
+```bash
+kubectl run -i --tty --rm debug --image=busybox --restart=Never -- sh
+```
+
+Inside of your pod
+
+```bash
+ifconfig
+ping -6 www.google.com
+```
+
+To clean up just use `exit`
+
+Other examples can be found on [official documentation](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_run/#examples)
+
 ## Local Registry
 
 Following the instructions from [kind documentation](https://kind.sigs.k8s.io/docs/user/local-registry/)
