@@ -13,7 +13,7 @@ Instead of creating multiple repositories in github, we can use [gitea](https://
 
 In this example the installation will be executed using [helm](https://helm.sh/).
 
-*Basic installation*: This will only install and expose it on host `https://host.docker.internal/gitea`.
+*Basic installation*: This will only install and expose it on host `https://host.docker.internal/gitea` without any HA.
 
 ```bash
 helm repo add gitea https://dl.gitea.io/charts/
@@ -26,6 +26,10 @@ helm upgrade --install gitea gitea/gitea \
  --set gitea.config.server.DISABLE_SSH=true \
  --set gitea.config.server.LFS_START_SERVER=true \
  --set gitea.config.packages.ENABLED=true \
+ --set redis-cluster.enabled=false \
+ --set redis.enabled=true \
+ --set postgresql-ha.enabled=false \
+ --set postgresql.enabled=true \
  --set service.http.type=LoadBalancer \
  --set ingress.enabled=true \
  --set ingress.className=nginx \
