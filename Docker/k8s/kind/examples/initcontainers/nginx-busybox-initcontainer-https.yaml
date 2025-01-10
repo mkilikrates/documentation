@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: initcontainer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  namespace: initcontainer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-ip
+  template:
+    metadata:
+      labels:
+        app: nginx-ip
+    spec:
+      volumes:
+      - name: web-content
+        emptyDir: {}
+      initContainers:
+      - name: write-ip
+        image: busybox
+        command: ["sh", "-c", "echo $MY_POD_IP > /web-content/ip.txt; echo 'Wrote the Pod IP to ip.txt'"]
+        env:
+        - name: MY_POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        volumeMounts:
+        - name: web-content
+          mountPath: /web-content
+      - name: create-html
+        image: busybox
+        command: ["sh", "-c", "echo 'Hello, World! Your Pod IP is: ' > /web-content/index.html; cat /web-content/ip.txt >> /web-content/index.html; echo 'Created index.html with the Pod IP'"]
+        volumeMounts:
+        - name: web-content
+          mountPath: /web-content
+      containers:
+        - name: web-container
+          image: nginx
+          volumeMounts:
+          - name: web-content
+            mountPath: /usr/share/nginx/html
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-ip-service
+  namespace: initcontainer
+spec:
+  type: LoadBalancer
+  selector:
+    app: nginx-ip
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ip-ingress
+  namespace: initcontainer
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - host: host.docker.internal
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: /initcontainer($|/)?(.*)
+        backend:
+          service:
+            name: nginx-ip-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - host.docker.internal
+---

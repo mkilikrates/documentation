@@ -20,6 +20,12 @@ It will deploy 3 pods using [nginx-busybox-initcontainer.yaml](nginx-busybox-ini
 kubectl apply -f nginx-busybox-initcontainer.yaml
 ```
 
+if you are using names `host.docker.internal` and `https` then use this
+
+```bash
+kubectl apply -f nginx-busybox-initcontainer-https.yaml
+```
+
 You can check that it is running using
 
 ```bash

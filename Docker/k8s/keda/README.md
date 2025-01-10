@@ -52,6 +52,12 @@ For instance, let's use our [examples/initcontainers](../kind/examples/initconta
 kubectl apply -f ../kind/examples/initcontainers/nginx-busybox-initcontainer.yaml
 ```
 
+if you are using names `host.docker.internal` and `https` then use this
+
+```bash
+kubectl apply -f ../kind/examples/initcontainers/nginx-busybox-initcontainer-https.yaml
+```
+
 Then let's scale [number of replicas](cronscale.yaml) from 3 to 10
 
 *Note*: You can adjust cron for the numbers that makes sense for your test, more information [here](https://crontab.guru/)
