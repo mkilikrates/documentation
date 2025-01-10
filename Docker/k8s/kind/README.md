@@ -86,12 +86,12 @@ As you can see in [cluster.yaml file](./kind/cluster.yaml) this cluster has 1 co
 
 It will set some additional parameters in case you want to use [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) without failures.
 
-The API Endpoint will bind ip address of your wsl machine, so it can use other Docker containers to reach it, instead or only default `127.0.0.1`,
+The API Endpoint will bind ip address of your wsl machine, so it can use other Docker containers to reach it, instead or only default `127.0.0.1`.
 
 To create cluster you can just run
 
 ```bash
-kind create cluster --config cluster.yaml
+export MY_PRIVATE_IP="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < cluster.yaml | kind create cluster --config -
 ```
 
 In this case since I just want to test one service at time, using different uri, I am exposing both ports http (80) and https (443) using a self signed dummy certificate, but you can follow same concepts and expose others.

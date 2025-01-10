@@ -2,19 +2,19 @@
 
 This is a simple list of examples where you can use docker to make tests without depends on local installation.
 
-* [Connecting to Databases](./Databases/README.md)
+* [Connecting to Databases](./Databases/)
   * Postgres SQL
   * Oracle Instant Client
   * MYSQL Client
 
-* [Programming Languages and script execution](./programming/README.md)
+* [Programming Languages and script execution](./programming/)
   * Python
   * Groovy
-  * [Nodejs](./programming/nodejs/README.md)
+  * [Nodejs](./programming/nodejs/)
   * Typescript
-  * Go
+  * [Go](./programming/go/)
 
-* [Tools](./tools/README.md)
+* [Tools](./tools/)
   * AWS CLI
   * AWS SAM
   * AWS CDK
@@ -24,8 +24,10 @@ This is a simple list of examples where you can use docker to make tests without
   * kubectl
   * EKS
 
-* [Kubernetes](./k8s/README.md)
-  * [kind](./k8s/kind/README.md)
-    * [argo-cd](./k8s/kind/argo-cd/README.md)
-    * [gitea](./k8s/kind/gitea/README.md)
-  * [keda](./k8s/keda/README.md)
+* [Kubernetes](./k8s/)
+  * [helm](./k8s/helm/examples/go-hello/)
+  * [keda](./k8s/keda/)
+  * [kind](./k8s/kind/)
+    * [argo-cd](./k8s/kind/argo-cd/)
+    * [gitea](./k8s/kind/gitea/)
+    * [kubernetes-dashboard](./k8s/kind/kubernetes-dashboard/)

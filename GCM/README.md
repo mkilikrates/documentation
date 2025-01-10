@@ -144,27 +144,31 @@ echo "alias cpass='f(){ pass \"\$1\" | clip.exe; unset -f f; }; f'" >>~/.bash_al
 ## Export / Backup your keys
 
 ```bash
-gpg --export-secret-keys $ID > my-private-key.asc
 cd ~/
-tar -cvzf ps.tgz ~/.password-store/
+gpg --export-options backup -o ~/keyring.gpg --export-secret-keys
+tar -cvzf ps.tgz -C .password-store/ .
 ```
+
+*NOTE*: Keep both files `keyring.gpg` and `ps.tgz` safe.
 
 ## Import / Restore your keys
 
 ```bash
-gpg --import $ID < my-private-key.asc
-cd ~/
-tar -xvzf ps.tgz 
+gpg --import ~/keyring.gpg
+mkdir ~/.password-store/
+chmod 700 ~/.password-store/
+tar -xvzf ps.tgz -C ~/.password-store/
 ```
 
 After import you must edit your gpg to trust in this key.
 
-**PS**: You will need the uid of your key then 
+**PS**: You will need the uid of your key, if you have multiple keys you may need to repeat for each of them. If it is just one, you wil see they id in the second line `sec   rsa4096/123456abc 1900-01-01 [SC]`, in this case it is `123456abc`.
 
 ```bash
 gpg --edit-key '<uid>'
 gpg> trust
 ```
+
 It will be presented some options then you can select and confirm number 5 as bellow
 
 ![Trust in Key](./images/gpgTrust.png)
@@ -173,6 +177,12 @@ Finally just quit
 
 ```bash
 gpg> quit
+```
+
+You may need to reload the agent
+
+```bash
+gpg-connect-agent reloadagent /bye
 ```
 
 ## How to use

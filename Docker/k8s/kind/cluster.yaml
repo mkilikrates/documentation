@@ -2,7 +2,8 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
   # bind all ip addresses to allow reach it from other containeres.
-  apiServerAddress: "0.0.0.0"
+  apiServerAddress: "$MY_PRIVATE_IP"
+  apiServerPort: 6443
   # enable dualstack
   ipFamily: dual
 # Add local registry
@@ -47,6 +48,7 @@ nodes:
   - containerPort: 443
     hostPort: 443
     protocol: TCP
+- role: control-plane
 - role: worker
 - role: worker
 - role: worker
