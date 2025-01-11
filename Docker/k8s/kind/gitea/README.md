@@ -102,6 +102,28 @@ so, my `~/gitea/.gitconfig`:
         email = gitea@local.domain
 ```
 
+## Create a simple repo
+
+```bash
+# create a folder
+mkdir my_first_repo
+cd my_first_repo/
+#initiate git
+git init
+# create a file with content
+echo "This is my first_repo! " > README.md
+# add this file to my git
+git add README.md
+git commit -m "my first commit"
+# set upstream git to gitea and push/creating new repo
+git remote add origin https://host.docker.internal/gitea/gitea_admin/my_first_repo.git
+git -c http.sslVerify=false push -o repo.private=false --set-upstream origin main
+```
+
+Finally you can access using your browser
+
+- [gitea](https://host.docker.internal/gitea/gitea_admin/my_first_repo)
+
 ## clean up
 
 To clean up you can remove using this

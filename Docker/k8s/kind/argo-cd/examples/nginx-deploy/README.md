@@ -6,9 +6,10 @@ This will deploy 1 [pod](https://kubernetes.io/docs/concepts/workloads/pods/) an
 
 [Official documentation about this image](https://hub.docker.com/_/nginx)
 
-## Using gitea as Local git repository provider
 
-For the purpose of testing and making changes in this deployment, please follow steps on [this link](../../../gitea/README.md) to install gitea, then steps bellow to create a new repository
+For the purpose of testing and making changes in this deployment, please follow steps on [gitea](../../../gitea/) or [gilab](../../../gitlab/) to install a git server, then steps bellow to create a new repository
+
+## create a new repository
 
 ```bash
 # create a folder
@@ -40,8 +41,21 @@ spec:
 # add file to git
 git add -A
 git commit -m "my first commit"
+```
+
+## if you are using gitea
+
+```bash
 # set upstream git to gitea and push/creating new repo
-git remote add origin git remote add origin https://host.docker.internal/gitea/gitea_admin/ngix_deploy.git
+git remote add origin https://host.docker.internal/gitea/gitea_admin/ngix_deploy.git
+git -c http.sslVerify=false push -o repo.private=false --set-upstream origin main
+```
+
+## if you are using gitlab
+
+```bash
+# set upstream git to gitlab and push/creating new repo
+git remote add origin https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io/root/ngix_deploy.git
 git -c http.sslVerify=false push -o repo.private=false --set-upstream origin main
 ```
 
