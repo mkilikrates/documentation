@@ -30,4 +30,5 @@ This is a simple list of examples where you can use docker to make tests without
   * [kind](./k8s/kind/)
     * [argo-cd](./k8s/kind/argo-cd/)
     * [gitea](./k8s/kind/gitea/)
+    * [gitlab](./k8s/kind/gitlab/)
     * [kubernetes-dashboard](./k8s/kind/kubernetes-dashboard/)
