@@ -82,9 +82,9 @@ Then restart your docker desktop by selecting on the top the question mark icon 
 
 ## Create cluster
 
-As you can see in [cluster.yaml file](./kind/cluster.yaml) this cluster has 1 controller and 3 workers and expose ports 80 and 443 on localhost.
+As you can see in [cluster.yaml file](./kind/cluster.yaml) this cluster has 2 controller and 3 workers and expose ports 80 and 443 on localhost.
 
-It will set some additional parameters in case you want to use [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) without failures.
+It will set some additional parameters in case you want to use [prometheus-operator](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) without failures, add the local registry and enable few [adimission controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 
 The API Endpoint will bind ip address of your wsl machine, so it can use other Docker containers to reach it, instead or only default `127.0.0.1`.
 
@@ -95,6 +95,18 @@ export MY_PRIVATE_IP="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 ```
 
 In this case since I just want to test one service at time, using different uri, I am exposing both ports http (80) and https (443) using a self signed dummy certificate, but you can follow same concepts and expose others.
+
+To dump your configuration in yaml format (json is default)
+
+```bash
+kubectl cluster-info dump -o yaml
+```
+
+To see the list of admission plugins
+
+```bash
+kubectl -n kube-system describe pod kube-apiserver-kind-control-plane | grep admission
+```
 
 If you enabled dual stack, you can check using these:
 
@@ -240,6 +252,12 @@ Metrics Server collects resource metrics from Kubelets and exposes them in Kuber
 helm upgrade --install --namespace kube-system \
  --repo https://kubernetes-sigs.github.io/metrics-server/ metrics-server metrics-server \
  --set args[0]=--kubelet-insecure-tls
+```
+
+You can check if execution was complete using
+
+```bash
+kubectl -n kube-system get pods -l app.kubernetes.io/instance=metrics-server
 ```
 
 ## kube-prometheus-stack

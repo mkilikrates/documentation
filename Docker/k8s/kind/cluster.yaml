@@ -8,6 +8,7 @@ networking:
   ipFamily: dual
 # Add local registry
 containerdConfigPatches:
+# patches for local registry
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry]
     config_path = "/etc/containerd/certs.d"
@@ -15,6 +16,10 @@ containerdConfigPatches:
 kubeadmConfigPatches:
 - |-
   kind: ClusterConfiguration
+  # patches for enable admission puglins
+  apiServer:
+    extraArgs:
+      "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
   # configure controller-manager bind address
   controllerManager:
     extraArgs:

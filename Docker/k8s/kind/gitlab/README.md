@@ -46,17 +46,26 @@ helm upgrade --install --namespace gitlab --create-namespace \
  --set postgresql.metrics.resources.requests.cpu=10m
  ```
 
-Finally you can access using your browser
-
-- [gitlab](https://gitlab.<Your-IP>.io)
-
- or can test using curl like
+It take some time until everything became available, you can check using
 
 ```bash
-curl -k curl -k https://gitlab.192.168.1.104.nip.io/
+kubectl -n gitlab get pods
 ```
 
-to get the default password you can use
+Finally you can access using your browser after get the url with this
+
+```bash
+echo "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io"
+```
+
+or can test using curl like
+
+```bash
+curl -k "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet
+\s)\d+(\.\d+){3}').nip.io"
+```
+
+to get the default password for root user using this command
 
 ```bash
 kubectl -n gitlab get secrets gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 -d;echo
