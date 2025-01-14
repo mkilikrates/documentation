@@ -61,8 +61,7 @@ echo "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').
 or can test using curl like
 
 ```bash
-curl -k "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet
-\s)\d+(\.\d+){3}').nip.io"
+curl -k "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io"
 ```
 
 to get the default password for root user using this command
