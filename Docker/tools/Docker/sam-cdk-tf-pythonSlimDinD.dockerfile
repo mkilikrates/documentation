@@ -84,6 +84,16 @@ RUN apt-get update \
     && apt-get install -y terraform \
     && terraform -install-autocomplete
 
+# Install terragrunt
+RUN latest_terragrunt_release_tag=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/gruntwork-io/terragrunt/releases/latest | sed 's#.*/##' | cut -c2-) && \
+    ARCH=$(uname -s | tr A-Z a-z)_$(uname -m | sed 's/x86_64/amd64/') && \
+    terragrunt_url=$(echo "https://github.com/gruntwork-io/terragrunt/releases/download/v${latest_terragrunt_release_tag}/terragrunt_${ARCH}" ) && \
+    curl -sLo terragrunt "$terragrunt_url" && \
+    chmod +x ./terragrunt && \
+    mv terragrunt /usr/local/bin/ && \
+    chown root:root /usr/local/bin/terragrunt && \
+    terragrunt --install-autocomplete
+
 # Install aws sam
 RUN curl -L -O https://github.com/aws/aws-sam-cli/releases/${AWS_SAM_VERSION}/download/aws-sam-cli-linux-x86_64.zip && \
     unzip aws-sam-cli-linux-x86_64.zip -d sam-installation && \

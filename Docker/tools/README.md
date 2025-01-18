@@ -245,19 +245,19 @@ Using local path where your credentials are stored, current folder for your code
 using default user `cdk`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp --rm sam-cdk-tf
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp -it --rm sam-cdk-tf
 ```
 
 *Note*: I have this container build available on my github registry, so if you want to use it you can just
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp --rm ghcr.io/mkilikrates/sam-cdk-tf:latest
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp -it --rm ghcr.io/mkilikrates/sam-cdk-tf:latest
 ```
 
 using local user `$USER`
 
 ```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/$USER/.aws/ -v ~/.aws-sam/:/home/$USER/.aws-sam/ -v ~/.docker/:/home/$USER/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/$USER/.kube -v "$HOME"/.helm:/home/$USER/.helm -v "$HOME"/.config/helm:/home/$USER/.config/helm -v "$HOME/.kconnect:/home/$USER/.kconnect/" -v "$HOME"/.terraform.d:/home/$USER/.terraform.d -v "$HOME"/lixo:/home/$USER/tmp --rm sam-cdk-tf
+docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/$USER/.aws/ -v ~/.aws-sam/:/home/$USER/.aws-sam/ -v ~/.docker/:/home/$USER/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/$USER/.kube -v "$HOME"/.helm:/home/$USER/.helm -v "$HOME"/.config/helm:/home/$USER/.config/helm -v "$HOME/.kconnect:/home/$USER/.kconnect/" -v "$HOME"/.terraform.d:/home/$USER/.terraform.d -v "$HOME"/lixo:/home/$USER/tmp -it --rm sam-cdk-tf
 ```
 
 Since CDK, CDK8s and CDKTF relies on pipenv, you should install the dependencies in projects alredy existent:
