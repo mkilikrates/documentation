@@ -18,11 +18,13 @@ In this example the installation will be executed using [helm](https://helm.sh/)
 ```bash
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
 helm upgrade --install --namespace gitlab --create-namespace \
  --timeout 15m gitlab gitlab/gitlab \
  --set global.edition=ce \
- --set global.hosts.domain="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io" \
- --set global.hosts.externalIP="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')" \
+ --set global.hosts.domain="${MY_PRIVATE_IP}.nip.io" \
+ --set global.hosts.externalIP="${MY_PRIVATE_IP}" \
  --set global.ingress.configureCertmanager=false \
  --set global.ingress.class=nginx \
  --set global.minio.enabled=true \
@@ -43,7 +45,8 @@ helm upgrade --install --namespace gitlab --create-namespace \
  --set registry.hpa.minReplicas=1 \
  --set registry.hpa.maxReplicas=1 \
  --set redis.metrics.resources.requests.cpu=10m \
- --set postgresql.metrics.resources.requests.cpu=10m
+ --set postgresql.metrics.resources.requests.cpu=10m \
+ --set gitlab-runner.runners.privileged=true
  ```
 
 It take some time until everything became available, you can check using
@@ -55,13 +58,17 @@ kubectl -n gitlab get pods
 Finally you can access using your browser after get the url with this
 
 ```bash
-echo "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io"
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+echo "https://gitlab.${MY_PRIVATE_IP}.nip.io"
 ```
 
 or can test using curl like
 
 ```bash
-curl -k "https://gitlab.$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}').nip.io"
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+curl -k "https://gitlab.${MY_PRIVATE_IP}.nip.io"
 ```
 
 to get the default password for root user using this command

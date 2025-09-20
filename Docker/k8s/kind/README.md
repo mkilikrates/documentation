@@ -91,7 +91,7 @@ The API Endpoint will bind ip address of your wsl machine, so it can use other D
 To create cluster you can just run
 
 ```bash
-export MY_PRIVATE_IP="$(ip addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < cluster.yaml | kind create cluster --config -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < cluster.yaml | kind create cluster --config -
 ```
 
 In this case since I just want to test one service at time, using different uri, I am exposing both ports http (80) and https (443) using a self signed dummy certificate, but you can follow same concepts and expose others.
