@@ -6,9 +6,11 @@ Some simple use tools
 
 - [Installation](#kind-installation)
 - [Create Cluster](#create-cluster)
+- [Create Gateway API Cluster](#create-gateway-api-cluster)
 - [Metrics-Server](#metrics-server)
 - [Prometheus](#kube-prometheus-stack)
 - [Ingress](#nginx-ingress)
+- [Gateway API](#gateway-api-with-envoy-gateway)
 - [Clean up](#clean-up)
 
 ## Kind Installation
@@ -137,6 +139,26 @@ To clean up just use `exit`
 
 Other examples can be found on [official documentation](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_run/#examples)
 
+## Create Gateway API Cluster
+
+If you want to use Gateway API with Envoy Gateway instead of nginx ingress, you can use the [cluster-gateway.yaml](./cluster-gateway.yaml) configuration file. This cluster configuration is optimized for Gateway API and includes port mappings for LoadBalancer services.
+
+The main differences from the standard cluster:
+- Includes port mapping for Gateway API LoadBalancer services
+- Optimized for use with cloud-provider-kind and LoadBalancer port mapping
+
+To create the Gateway API cluster:
+
+```bash
+export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < cluster-gateway.yaml | kind create cluster --config -
+```
+
+This cluster configuration exposes:
+- Port 80 and 443 for standard HTTP/HTTPS traffic
+- Port 8080 mapped to NodePort 30000 for Gateway API services
+
+**Note**: This cluster configuration is specifically designed for Gateway API usage and requires cloud-provider-kind with LoadBalancer port mapping enabled.
+
 ## Local Registry
 
 Following the instructions from [kind documentation](https://kind.sigs.k8s.io/docs/user/local-registry/)
@@ -171,7 +193,7 @@ done
 You can check if execution was complete using
 
 ```bash
-for node in $(kind get nodes); do docker exec "${node}" cat "${REGISTRY_DIR}/hosts.toml";done
+or node in $(kind get nodes | grep -v load); do docker exec "${node}" cat "${REGISTRY_DIR}/hosts.toml";done
 ```
 
 To connect the registry to the cluster network
@@ -302,6 +324,127 @@ If you enabled the [*.docker.internal](https://docs.docker.com/desktop/setup/ins
 *Note*: If you try to access `http://127.0.0.1/` or `http://host.docker.internal/` it will fail (404) since the idea is that you can use this path and all others during your tests.
 
 You can add nginx official dashboards following their [documentation](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/monitoring.md#connect-and-view-grafana-dashboard)
+
+## Gateway API with Envoy Gateway
+
+Gateway API is the next-generation ingress API for Kubernetes, providing more advanced routing capabilities than traditional Ingress. This setup uses Envoy Gateway as the Gateway controller and cloud-provider-kind for LoadBalancer service support.
+
+**Prerequisites**: 
+- Use the [cluster-gateway.yaml](./cluster-gateway.yaml) configuration when creating your kind cluster
+- Ensure you have the Gateway API cluster running (see [Create Gateway API Cluster](#create-gateway-api-cluster))
+
+### Install Gateway API CRDs
+
+First, install the Gateway API Custom Resource Definitions:
+
+```bash
+kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/standard-install.yaml
+```
+
+### Install Envoy Gateway
+
+Install Envoy Gateway as the Gateway controller:
+
+```bash
+kubectl apply --server-side -f https://github.com/envoyproxy/gateway/releases/download/v1.6.1/install.yaml --force-conflicts
+```
+
+Wait for Envoy Gateway to be ready:
+
+```bash
+kubectl get pods -n envoy-gateway-system
+```
+
+### Create Gateway Class
+
+Create the Gateway Class that Envoy Gateway will manage:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: eg
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+EOF
+```
+
+### Start Cloud Provider Kind
+
+For LoadBalancer services to work properly in WSL2 environment, start cloud-provider-kind with LoadBalancer port mapping enabled:
+
+```bash
+docker run -d --rm --name cloud-provider-kind --network kind -v /var/run/docker.sock:/var/run/docker.sock registry.k8s.io/cloud-provider-kind/cloud-controller-manager:v0.4.0 --enable-lb-port-mapping
+```
+
+**Important**: The `--enable-lb-port-mapping` flag is crucial for LoadBalancer services to get external IPs and be accessible from localhost.
+
+### Deploy HTTPRoute Example
+
+You can now deploy HTTPRoute resources instead of Ingress. Here's an example that creates a red-blue service routing:
+
+```bash
+kubectl apply -f ../examples/ingress/red-blue-httproute.yaml
+```
+
+### Check Gateway Status
+
+Verify that your Gateway is programmed and has an external IP:
+
+```bash
+kubectl get gateway -n red-blue-httproute
+kubectl get svc -n envoy-gateway-system
+```
+
+### Access Your Services
+
+With cloud-provider-kind running with `--enable-lb-port-mapping`, your Gateway services will be accessible on dynamically assigned localhost ports. Check the load balancer container ports:
+
+```bash
+docker ps | grep kindccm
+```
+
+You'll see output like:
+```
+2ebb8bbbe20b   envoyproxy/envoy:v1.30.1   ...   0.0.0.0:52324->80/tcp, 0.0.0.0:52682->10000/tcp   kindccm-...
+```
+
+Access your services using the mapped ports:
+- HTTP traffic: `http://localhost:52324/red` and `http://localhost:52324/blue`
+- Admin interface: `http://localhost:52682/`
+
+### Gateway API Benefits
+
+Gateway API provides several advantages over traditional Ingress:
+
+- **Advanced routing**: Header-based routing, traffic splitting, and more
+- **Better resource model**: Separate concerns between infrastructure and application teams
+- **Extensibility**: Support for custom filters and policies
+- **Type safety**: Strongly typed API with better validation
+- **Multi-protocol support**: HTTP, HTTPS, TCP, UDP, and more
+
+### Troubleshooting
+
+If LoadBalancer services remain in `<pending>` state:
+
+1. Ensure cloud-provider-kind is running with the correct flags
+2. Check cloud-provider-kind logs: `docker logs cloud-provider-kind`
+3. Verify the cluster was created with `cluster-gateway.yaml`
+
+If you can't access services from localhost:
+
+1. Check the dynamically assigned ports: `docker ps | grep kindccm`
+2. Ensure the Gateway has an external IP: `kubectl get gateway -A`
+3. Verify HTTPRoute is accepted: `kubectl get httproute -A`
+
+### Clean up Cloud Provider Kind
+
+To stop the cloud-provider-kind controller:
+
+```bash
+docker stop cloud-provider-kind
+```
 
 ## clean up
 

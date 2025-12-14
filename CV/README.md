@@ -8,10 +8,10 @@ Pronouns: he/him/his
 
 ## Summary
 
-Extensive technical knowledge working as Senior Manager, Tech Leader, Principal or Senior Engineer on Cloud, DevOps or DevSecOps, Network, Security.
-Results-driven leader with more than 20 years of experience in steering high-performance teams and fostering innovation. Proven ability to build robust relationships and bridge diverse teams, creating an environment of psychological safety and prolific idea generation. Adept at leading technical teams, acting as a Solution Architect, and translating customer needs into compelling features.
+Extensive technical knowledge acting as Senior Manager, Technical Lead, Principal or Senior Engineer in Cloud, Platform Engineering, DevOps or DevSecOps, Network Engineering and Information Security.
+Results-oriented leader with over 20 years of experience leading high-performing teams and fostering innovation. Proven ability to build strong relationships and connect diverse teams, creating an environment of psychological safety and prolific idea generation. Experienced in leading technical teams, acting as a Solutions Architect and translating client needs into compelling functionalities.
 Committed to developing and empowering teams through training and challenges.
-A skilled facilitator, excelling in creating environments where all perspectives are valued, resulting in data-driven innovation and rapid learning. Expertise in managing internal and external partnerships, navigating complex processes, and driving cohesive, assertive, and innovative projects. Eager to leverage this wealth of experience to drive success in your organisation.
+Skilled facilitator, excelling in creating environments where all perspectives are valued, resulting in data-driven innovation and rapid learning. Expert in managing internal and external partnerships, navigating complex processes, and leading cohesive, assertive, and innovative projects. Eager to leverage this vast experience to drive success in your organization.
 
 ### Key Functional Roles and Highlights
 
@@ -41,13 +41,24 @@ A skilled facilitator, excelling in creating environments where all perspectives
 
 ### Key Technical Expertise
 
-- *Cloud Platforms*: AWS, Azure, Google Cloud
+- *Cloud Platforms*: AWS, Azure, Google Cloud,  and on-premises solutions like Apache Cloudstack
 - *DevOps Tools*: Docker, Kubernetes, Helm Charts, Jenkins, Gitlab-CI, GitHub Actions, CDK, CDK8s, Terraform and CloudFormation
 - *Programming & Automation*: Python, Shell Scripting, Go, TypeScript
-- *Networking & Security*: VPC, DNS, BGP, VPN, Firewall, WAF, CDN, Load Balancers
+- *Networking & Security*: VPC, DNS, BGP, VPN, Firewall, WAF, CDN, Load Balancers, Cisco, Juniper, Palo Alto, CheckPoint
 - *Data & Analytics*: MySQL, DynamoDB, Postgres, Snowflake
 
 ## Experience
+
+### Senior DevOps Engineer, Finoa, Remote - PT
+
+*Jan 2025 - current*:
+
+- Manage/Support AWS infrastructure using Terragrunt/Terraform:
+  - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, Organizations, Control Tower, Firewall Manager, CloudFront, Shield, WAF, etc;
+  - Create terraform modules, patterns, pipelines, SDLC flows and documentation to be reused and supported;
+- Tool Management and Platform Engineering:
+  - Use Gitlab CI on CodeBuild self Runners to build, test and publish packages, containers as well as deploy in AWS environments.
+  - Definition and rollout of full Gitlab CI pipeline, integrating build, test and security with Servicenow, Slack, Jira and other tools to make a resilient platform availabe to give all information needed to Developers and Business Managers.
 
 ### Senior Cloud Engineer, TripAdvisor, Remote - PT
 
@@ -62,7 +73,7 @@ A skilled facilitator, excelling in creating environments where all perspectives
 
 *April 2022 - May 2024*:
 
-- Tool Management and Support:
+- Tool Management and Platform Engineering:
   - Management and support of key SDLC tools, including Jenkins, Udeploy, Sonarqube, Github Enterprise Cloud, and LaunchDarkly, leveraging Service-now for seamless integration.
 - Data Insights and Automation:
   - Innovatively design and implement pipelines, Python scripts, Step Functions and Lambda functions to gather comprehensive metadata on SDLC tools;
