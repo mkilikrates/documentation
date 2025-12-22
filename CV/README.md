@@ -58,12 +58,12 @@ Outside my full‑time role, I enjoy connecting with engineering leaders and pra
 
 *Jan 2025 - current*:
 
-- Manage/Support AWS infrastructure using Terragrunt/Terraform:
-  - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, Organizations, Control Tower, Firewall Manager, CloudFront, Shield, WAF, etc;
-  - Create terraform modules, patterns, pipelines, SDLC flows and documentation to be reused and supported;
-- Tool Management and Platform Engineering:
-  - Use Gitlab CI on CodeBuild self Runners to build, test and publish packages, containers as well as deploy in AWS environments.
-  - Definition and rollout of full Gitlab CI pipeline, integrating build, test and security with Servicenow, Slack, Jira and other tools to make a resilient platform availabe to give all information needed to Developers and Business Managers.
+- *Cloud & platform engineering* – Design, build and operate AWS infrastructure across multiple accounts (networking, compute, DNS, backup, protection services), with a strong emphasis on security, reliability and compliance. 
+- *SDLC & GitLab platform* – Lead the evolution of GitLab as a core delivery platform on AWS, including CI/CD design, reusable templates, integrations (identity, collaboration tools) and build infrastructure such as CodeBuild runners. 
+- *Databases & core services* – Execute sensitive production database work for financial services (balances, transfers, wallet operations) in a controlled, auditable way to protect data integrity and customer experience. 
+- *Observability, logging & SIEM* – Grow and maintain monitoring and logging capabilities using Elastic, Grafana, CloudWatch and GuardDuty/WAF data, providing security and operations with actionable signals. 
+- *Infrastructure as Code & standards* – Develop and maintain Terraform/Terragrunt modules and live layouts (networking, WAF, Firewall Manager, DNS, protections) to standardise how infrastructure is defined and operated. 
+- *Collaboration & ways of working* – Work closely with security, product and engineering teams and draw on coaching and leadership experience to support clearer communication, ownership and continuous improvement. 
 
 ### Senior Cloud Engineer, TripAdvisor, Remote - PT
 
