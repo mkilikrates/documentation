@@ -58,12 +58,11 @@ Outside my full‑time role, I enjoy connecting with engineering leaders and pra
 
 *Jan 2025 - current*:
 
-- *Cloud & platform engineering* – Design, build and operate AWS infrastructure across multiple accounts (networking, compute, DNS, backup, protection services), with a strong emphasis on security, reliability and compliance. 
-- *SDLC & GitLab platform* – Lead the evolution of GitLab as a core delivery platform on AWS, including CI/CD design, reusable templates, integrations (identity, collaboration tools) and build infrastructure such as CodeBuild runners. 
-- *Databases & core services* – Execute sensitive production database work for financial services (balances, transfers, wallet operations) in a controlled, auditable way to protect data integrity and customer experience. 
-- *Observability, logging & SIEM* – Grow and maintain monitoring and logging capabilities using Elastic, Grafana, CloudWatch and GuardDuty/WAF data, providing security and operations with actionable signals. 
-- *Infrastructure as Code & standards* – Develop and maintain Terraform/Terragrunt modules and live layouts (networking, WAF, Firewall Manager, DNS, protections) to standardise how infrastructure is defined and operated. 
-- *Collaboration & ways of working* – Work closely with security, product and engineering teams and draw on coaching and leadership experience to support clearer communication, ownership and continuous improvement. 
+- **Cloud & platform engineering** – Design, build and operate AWS infrastructure across multiple accounts including RDS, EKS, ASGs, CloudFront, networking, compute, DNS, backup and protection services, with strong emphasis on security, reliability and compliance. 
+- **SDLC platform & GitLab** – Designed GitLab-based delivery patterns with templates/jobs for build, test (unit, behaviour, security) and deploy to serverless/EKS, integrated with ServiceNow approvals, Terragrunt stacks, Grafana/Loki observability – enabling developers to use GitLab as single pane for code quality and delivery. 
+- **Observability, logging & SIEM** – Integrate comprehensive security observability into Elastic SIEM using VPC flow logs, CloudTrail, AWS Config and GuardDuty alongside Grafana, Loki, CloudWatch and WAF data to provide actionable signals for security and operations. 
+- **Infrastructure as Code & standards** – Implement reusable Terraform/Terragrunt standards and modules covering RDS, EKS, ASGs, VPCs, SQS, buckets, CloudFront, Firewall Manager, WAF, Shield, MSK – enabling full change tracking, auditability and scalability across environments. 
+- **Collaboration & ways of working** – Work closely with security, product and engineering teams; leverage coaching/leadership experience to support communication, ownership and continuous improvement.
 
 ### Senior Cloud Engineer, TripAdvisor, Remote - PT
 
