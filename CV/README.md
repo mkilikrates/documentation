@@ -6,12 +6,17 @@ Pronouns: he/him/his
 
 [LinkedIn Profile](https://www.linkedin.com/in/mkilikrates)
 
+## Headline
+
+Cloud & Platform Engineering | DevOps & DevSecOps | Network & Security | Accredited Coach with executive education in Leadership & Strategy (UCD Smurfit)
+
 ## Summary
 
-Extensive technical knowledge acting as Senior Manager, Technical Lead, Principal or Senior Engineer in Cloud, Platform Engineering, DevOps or DevSecOps, Network Engineering and Information Security.
-Results-oriented leader with over 20 years of experience leading high-performing teams and fostering innovation. Proven ability to build strong relationships and connect diverse teams, creating an environment of psychological safety and prolific idea generation. Experienced in leading technical teams, acting as a Solutions Architect and translating client needs into compelling functionalities.
-Committed to developing and empowering teams through training and challenges.
-Skilled facilitator, excelling in creating environments where all perspectives are valued, resulting in data-driven innovation and rapid learning. Expert in managing internal and external partnerships, navigating complex processes, and leading cohesive, assertive, and innovative projects. Eager to leverage this vast experience to drive success in your organization.
+I work at the intersection of Cloud & Platform Engineering, DevOps/DevSecOps, networking and security, with more than 20 years of experience in designing, building and operating large‑scale, business‑critical infrastructure and platforms. I have led as Senior Manager, Tech Lead, Principal and Senior Engineer, and I enjoy turning complex environments into secure, observable and reliable platforms that teams can actually move fast on. 
+My background ranges from network‑heavy and media environments to AWS‑based, Kubernetes‑driven platforms and modern SDLC tooling (CI/CD, quality, security). I care as much about how people work as about the technology itself, and I often act as a bridge between product, platform, security and leadership. 
+Alongside my technical work, I’ve invested heavily in leadership and coaching. I hold an Executive MBA and multiple executive‑education diplomas in Leadership Development, Strategy Development & Innovation, and Advanced Business & Executive Coaching (MSc pathway) from UCD Michael Smurfit, as well as an Advanced Global Leadership diploma from SJSU. I am an accredited coach at the Individual Practitioner level, with a strong focus on psychological safety, behavioural change and sustainable performance for tech leaders and teams. 
+I am particularly interested in how platform, SRE and DevOps teams collaborate with product and security, and how coaching and mentoring can support healthier, higher‑performing ways of working – from on‑call culture and ownership to feedback and experimentation. 
+Outside my full‑time role, I enjoy connecting with engineering leaders and practitioners who are building or evolving cloud and platform capabilities, or who are curious about how coaching can support their own leadership and their teams. If the topics above resonate, feel free to reach out here on LinkedIn.
 
 ### Key Functional Roles and Highlights
 
