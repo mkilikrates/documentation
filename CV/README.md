@@ -89,16 +89,12 @@ Tech lead for platform engineering and DevOps initiatives serving 20,000+ develo
 
 *December 2019 - April 2022*:
 
-- Architectural Guidance and Troubleshooting:
-  - Collaborated with customers, providing expertise in architecture, troubleshooting, and sharing best practices using AWS Cloud Services.
-  - Specialized in DNS (Route53 services), Load balancing (Layer 4-7), IPsec, SSL, TCP/IP, Routing, Network Firewall, WAF, and physical connectivity using Direct Connect.
-- Broad Technical Expertise:
-  - Demonstrated proficiency in a wide range of AWS services, including CI/CD Pipelines, containers using ECS and EKS, and infrastructure as code using Cloudformation, CDK, or CDK8s.
-- Global Collaboration:
-  - Worked seamlessly with interdisciplinary and diverse teams worldwide to solve complex problems and contribute to the development of tools, features, and training for both internal and external customers.
-- Leadership in Internal Development:
-  - Led an internal development team in creating cutting-edge internal tools for training and development of internal teams using Serverless architecture (Python/Lambda, API Gateway + Cognito, DynamoDB).
-  - Spearheaded internal tool using infrastructure as code initiatives using SAM, CDK, and CDK8s, ensuring efficient and scalable solutions aligned with organizational goals.
+**Cloud Support Engineer (Networking/Security)** – AWS
+Provided architecture guidance, troubleshooting and best practices for AWS customers worldwide, specializing in networking, security and containers while leading internal serverless tool development. 
+- **Customer architecture & troubleshooting** – Partnered with global customers on complex architectures including DNS (Route53), load balancing (L4-7), IPsec VPN, WAF, Network Firewall, Direct Connect and hybrid connectivity, plus CI/CD pipelines, ECS/EKS containers and IaC (CloudFormation, CDK, CDK8s). 
+- **Internal platform tooling** – Led development of internal serverless tools (Python/Lambda, API Gateway + Cognito, DynamoDB) using SAM/CDK/CDK8s to improve support workflows, training and team productivity across AWS. 
+- **Observability integration** – Incorporated CloudWatch Logs, Metrics and Insights into customer solutions and internal tools for better visibility and proactive issue resolution. 
+- **Global cross-functional collaboration** – Worked with diverse, interdisciplinary teams worldwide to solve customer challenges, create training materials and develop features serving both internal support and external AWS customers. 
 
 ### Globo, Rio de Janeiro - BR
 
