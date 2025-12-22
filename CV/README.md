@@ -77,19 +77,13 @@ Outside my full‑time role, I enjoy connecting with engineering leaders and pra
 
 *April 2022 - May 2024*:
 
-- Tool Management and Platform Engineering:
-  - Management and support of key SDLC tools, including Jenkins, Udeploy, Sonarqube, Github Enterprise Cloud, and LaunchDarkly, leveraging Service-now for seamless integration.
-- Data Insights and Automation:
-  - Innovatively design and implement pipelines, Python scripts, Step Functions and Lambda functions to gather comprehensive metadata on SDLC tools;
-  - Ingest and enrich this data using Snowflake, Jenkins, RDS, DynamoDB, and Pandas, providing actionable insights for informed decision-making.
-- Mentorship and Team Building:
-  - Mentor team members to enhance their professional networks within the organization, fostering a culture of collaboration and knowledge-sharing.
-- Advocacy for Best Practices:
-  - Act as a proactive advocate, shaping best practices in both technical and agile culture;
-  - Champion diversity and psychological safety, contributing to a workplace environment that nurtures innovation and inclusivity.
-- Policy Creation and Automation:
-  - Lead the creation of robust policies and automation frameworks, ensuring the enforcement of corporate policies and best practices related to security, costs, and services;
-  - Drive efficiency and compliance across the organization through strategic automation initiatives.
+Tech lead for platform engineering and DevOps initiatives serving 20,000+ developers across 80,000+ repositories (Bitbucket → GitHub Enterprise migration), driving technical strategy, automation and culture change across the organisation. 
+
+- **SDLC tooling & platform** – Tech lead for core delivery platform (Jenkins, uDeploy, SonarQube, GitHub Enterprise Cloud, Bitbucket → GitHub migration with 80k+ repos, LaunchDarkly) serving 20k+ developers, with ServiceNow/Jira integration for reliable workflows. 
+- **Data insights & automation** – Designed serverless pipelines (Python, Step Functions, Lambda) to collect/enrich SDLC metadata from Jenkins/tools across massive scale, ingesting into Snowflake/RDS/DynamoDB with Pandas for leadership visibility on quality, speed, costs and security. 
+- **Policy & standards enforcement** – Drove automation frameworks and policies embedding corporate standards for security, costs and services into SDLC tooling and cloud environments, influencing compliance and efficiency enterprise-wide. 
+- **Technical leadership & advocacy** – Tech lead and DevOps advocate shaping technical best practices (CI/CD, testing, quality gates) and agile culture (psychological safety, diversity, innovation) through cross-company influence. 
+- **Mentorship & coaching** – Coached and mentored engineers to expand their organisational networks and capabilities, leveraging formal coaching training to foster collaboration, ownership and high-performance team dynamics.
 
 ### Cloud Support Engineer, Amazon Web Services (AWS), Dublin - IE
 
