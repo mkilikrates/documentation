@@ -1,0 +1,113 @@
+prometheus:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+  route:
+    main:
+      # -- Enables or disables the route
+      enabled: true
+      hostnames: 
+      - "prometheus.$MY_PRIVATE_IP.nip.io"
+      parentRefs:
+      - name: nginx-shared-gateway
+        namespace: nginx-gateway
+
+      # -- create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+      ## Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+      ## matches, filters and additionalRules will be ignored if this is set to true. Be are
+      httpsRedirect: false
+
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+alertmanager:
+  route:
+    main:
+      # -- Enables or disables the route
+      enabled: true
+      hostnames: 
+      - "alertmanager.$MY_PRIVATE_IP.nip.io"
+      parentRefs:
+      - name: nginx-shared-gateway
+        namespace: nginx-gateway
+
+      # -- create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+      ## Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+      ## matches, filters and additionalRules will be ignored if this is set to true. Be are
+      httpsRedirect: false
+
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+
+grafana:
+  route:
+    main:
+      # -- Enables or disables the route
+      enabled: true
+      hostnames: 
+      - "grafana.$MY_PRIVATE_IP.nip.io"
+      parentRefs:
+      - name: nginx-shared-gateway
+        namespace: nginx-gateway
+
+      # -- create http route for redirect (https://gateway-api.sigs.k8s.io/guides/http-redirect-rewrite/#http-to-https-redirects)
+      ## Take care that you only enable this on the http listener of the gateway to avoid an infinite redirect.
+      ## matches, filters and additionalRules will be ignored if this is set to true. Be are
+      httpsRedirect: false
+
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kubeEtcd:
+  service:
+    targetPort: 2381
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+coreDns:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kubeScheduler:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kubeProxy:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+prometheus-node-exporter:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+prometheusOperator:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
