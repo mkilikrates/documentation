@@ -1,7 +1,6 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
-  # bind all ip addresses to allow reach it from other containeres.
   apiServerAddress: "$MY_PRIVATE_IP"
   apiServerPort: 6443
   # enable dualstack
@@ -37,26 +36,13 @@ kubeadmConfigPatches:
   kind: KubeProxyConfiguration
   # configure proxy metrics bind address
   metricsBindAddress: 0.0.0.0
-# nodes configuration and gateway port mapping
 nodes:
-- role: control-plane
-  kubeadmConfigPatches:
-    - |
-      kind: InitConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "ingress-ready=true"
-  extraPortMappings:
-  - containerPort: 80
-    hostPort: 80
-    protocol: TCP
-  - containerPort: 443
-    hostPort: 443
-    protocol: TCP
-  - containerPort: 30000
-    hostPort: 8080
-    protocol: TCP
-- role: control-plane
-- role: worker
-- role: worker
-- role: worker
+  - role: control-plane
+    extraPortMappings:
+      # nginx-fabric
+      - containerPort: 31437
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 31438
+        hostPort: 8443
+        protocol: TCP

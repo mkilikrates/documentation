@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: red-blue-httproute
+  labels:
+    shared-gateway-access: "true"
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: red-app
+  namespace: red-blue-httproute
+  labels:
+    app: red
+spec:
+  containers:
+  - command:
+    - /agnhost
+    - serve-hostname
+    - --http=true
+    - --port=8080
+    image: registry.k8s.io/e2e-test-images/agnhost:2.40
+    name: red-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: red-service
+  namespace: red-blue-httproute
+spec:
+  selector:
+    app: red
+  ports:
+  # Default port used by the image
+  - port: 8080
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: blue-app
+  namespace: red-blue-httproute
+  labels:
+    app: blue
+spec:
+  containers:
+  - command:
+    - /agnhost
+    - serve-hostname
+    - --http=true
+    - --port=8080
+    image: registry.k8s.io/e2e-test-images/agnhost:2.40
+    name: blue-app
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: blue-service
+  namespace: red-blue-httproute
+spec:
+  selector:
+    app: blue
+  ports:
+  # Default port used by the image
+  - port: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: red-blue-httproute
+  namespace: red-blue-httproute
+spec:
+  parentRefs:
+  - name: kind-shared-gateway
+    namespace: kind-gateway
+  hostnames:
+  - "red-blue.$MY_PRIVATE_IP.nip.io"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /red
+    backendRefs:
+    - name: red-service
+      port: 8080
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /blue
+    backendRefs:
+    - name: blue-service
+      port: 8080
+---

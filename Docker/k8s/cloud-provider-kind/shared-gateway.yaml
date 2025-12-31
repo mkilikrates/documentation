@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kind-gateway
+  labels:
+    shared-gateway-access: "true"
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: kind-shared-gateway
+  namespace: kind-gateway
+spec:
+  gatewayClassName: cloud-provider-kind
+  listeners:
+  - name: http
+    hostname: "*.$MY_PRIVATE_IP.nip.io"
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            shared-gateway-access: "true"
