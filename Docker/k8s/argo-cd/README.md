@@ -30,6 +30,17 @@ argo-cd argo-cd --namespace argocd --create-namespace \
 --set server.ingress.tls=false
 ```
 
+Using api gateway [nginx-fabric](../nginx-fabric/) it will use this instead:
+
+```bash
+# create namespace with api-gateway tag for use the shared gateway
+kubectl apply -f namespaces.yaml
+# install using api-gateway(nginx-fabric)
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < prometheus-apigw-values.yaml | helm upgrade --install --wait --timeout 15m   --namespace argocd --repo https://argoproj.github.io/argo-helm argo-cd argo-cd -f -
+```
+
 If you want to monitor using [prometheus operator](https://github.com/prometheus-operator/prometheus-operator?tab=readme-ov-file#helm-chart) then you can enable metrics and use serviceMonitor.
 
 *Note*: That each internal service must be enabled according to your use case, the full version will be like this:
@@ -82,12 +93,14 @@ More information about other options can be checked in the official [helm chart 
 Now you can get the random password generated during installation
 
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d;echo
 ```
 
 Finally you can access using your browser
 
-- [argo-cd](http://127.0.0.1:/argo-cd)
+### using ingress
+
+- [argo-cd](http://127.0.0.1:/argo-cd) 
 
  or can test using curl
 
@@ -95,7 +108,17 @@ Finally you can access using your browser
 curl http://127.0.0.1:/argo-cd
 ```
 
-*PS*: After you logon, the redirect will fail sending you to `http://127.0.0.1/argo-cd/argo-cd/applications` but you can just go to the right path `http://127.0.0.1/argo-cd/applications`
+### using api-gateway(nginx-fabric)
+
+test using curl
+
+```bash
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+curl http://argocd.$MY_PRIVATE_IP.nip.io:8080/
+```
+
+*PS if you are using ingress*: After you logon, the redirect will fail sending you to `http://127.0.0.1/argo-cd/argo-cd/applications` but you can just go to the right path `http://127.0.0.1/argo-cd/applications`
 
 If you are using prometheus, you can import official dashboard from [github](https://github.com/argoproj/argo-cd/blob/master/examples/dashboard.json)
 

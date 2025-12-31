@@ -1,0 +1,13 @@
+global:
+  domain: argocd.$MY_PRIVATE_IP.nip.io
+
+configs:
+  params:
+    server.insecure: true  # disable HTTPS backend
+
+server:
+  httproute:
+    enabled: true
+    parentRefs:
+    - name: nginx-shared-gateway
+      namespace: nginx-gateway
