@@ -11,53 +11,53 @@ server:
     parentRefs:
     - name: nginx-shared-gateway
       namespace: nginx-gateway
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-controller:
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-redis:
-  exporter:
-    enabled: true
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-repoServer:
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-dex:
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-applicationSet:
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
-notifications:
-  metrics:
-    serviceMonitor:
-      enabled: true
-      namespace: monitoring
-      additionalLabels:
-        release: "prometheus-stack"
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# controller:
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# redis:
+#   exporter:
+#     enabled: true
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# repoServer:
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# dex:
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# applicationSet:
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
+# notifications:
+#   metrics:
+#     serviceMonitor:
+#       enabled: true
+#       namespace: monitoring
+#       additionalLabels:
+#         release: "prometheus-stack"
