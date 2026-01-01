@@ -16,3 +16,13 @@ spec:
         selector:
           matchLabels:
             shared-gateway-access: "true"
+  - name: https
+    hostname: "*.$MY_PRIVATE_IP.nip.io"
+    protocol: HTTPS
+    port: 443
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchLabels:
+            shared-gateway-access: "true"

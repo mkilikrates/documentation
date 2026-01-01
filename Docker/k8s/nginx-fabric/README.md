@@ -14,7 +14,7 @@ kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gate
 ## Install NGINX Gateway using Helm
 
 ```bash
-helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway --set nginx.service.type=NodePort --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80},{"port":31438,"listenerPort":443}]'
+helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway --set nginx.service.type=NodePort --set-json 'nginx.service.nodePorts=[{"name":"http","port":31437,"listenerPort":80},{"name":"https","port":31438,"listenerPort":443}]'
 ```
 
 **Note:** The gateway service is set to Nodeport listen on port 31437 and 31438
@@ -49,7 +49,7 @@ kubectl -n nginx-gateway get gateway nginx-shared-gateway -o jsonpath='{.spec.li
 ### install app test
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < ../nginx-fabric/app.yaml | kubectl apply -f -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < app.yaml | kubectl apply -f -
 ```
 
 ### check the app
@@ -75,7 +75,7 @@ curl http://red-blue.$MY_PRIVATE_IP.nip.io:8080/blue;echo
 ### check gateway service as nodeport
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric/v${gatewayapiversion}/deploy/nodeport/deploy.yaml
+kubectl -n nginx-gateway get svc nginx-shared-gateway-nginx
 ```
 
 ## clean up
@@ -83,7 +83,7 @@ kubectl apply -f https://raw.githubusercontent.com/nginxinc/nginx-gateway-fabric
 ### uninstall app test
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < ../nginx-fabric/app.yaml | kubectl delete -f -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < app.yaml | kubectl delete -f -
 ```
 
 ### remove shared gateway
