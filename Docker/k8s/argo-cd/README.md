@@ -118,7 +118,10 @@ test using curl
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
 curl http://argocd.$MY_PRIVATE_IP.nip.io:8080/
-echo curl http://argocd.$MY_PRIVATE_IP.nip.io:8080/
+echo http://argocd.$MY_PRIVATE_IP.nip.io:8080/
+# if using cert-manager
+curl -k https://argocd.$MY_PRIVATE_IP.nip.io:8443/
+echo https://argocd.$MY_PRIVATE_IP.nip.io:8443/
 ```
 
 *PS if you are using ingress*: After you logon, the redirect will fail sending you to `http://127.0.0.1/argo-cd/argo-cd/applications` but you can just go to the right path `http://127.0.0.1/argo-cd/applications`

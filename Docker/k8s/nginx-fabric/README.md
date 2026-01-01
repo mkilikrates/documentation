@@ -32,6 +32,12 @@ kubectl -n nginx-gateway get pods
 export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < shared-gateway.yaml | kubectl apply -f -
 ```
 
+if you want to use https/tls, please install [cert-manager](../cert-manager/) first then
+
+```bash
+export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < shared-gateway-tls.yaml | kubectl apply -f -
+```
+
 check the gateway
 
 ```bash
@@ -70,6 +76,15 @@ export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
 curl http://red-blue.$MY_PRIVATE_IP.nip.io:8080/red;echo
 curl http://red-blue.$MY_PRIVATE_IP.nip.io:8080/blue;echo
+```
+
+using tls
+
+```bash
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+curl -k https://red-blue.$MY_PRIVATE_IP.nip.io:8443/red;echo
+curl -k https://red-blue.$MY_PRIVATE_IP.nip.io:8443/blue;echo
 ```
 
 ### check gateway service as nodeport
