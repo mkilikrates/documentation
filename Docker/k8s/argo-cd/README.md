@@ -38,7 +38,7 @@ kubectl apply -f namespaces.yaml
 # install using api-gateway(nginx-fabric)
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
-envsubst < prometheus-apigw-values.yaml | helm upgrade --install --wait --timeout 15m   --namespace argocd --repo https://argoproj.github.io/argo-helm argo-cd argo-cd -f -
+envsubst < argocd-apigw-values.yaml | helm upgrade --install --wait --timeout 15m   --namespace argocd --repo https://argoproj.github.io/argo-helm argo-cd argo-cd -f -
 ```
 
 If you want to monitor using [prometheus operator](https://github.com/prometheus-operator/prometheus-operator?tab=readme-ov-file#helm-chart) then you can enable metrics and use serviceMonitor.
@@ -88,6 +88,8 @@ helm upgrade --install argo-cd argo/argo-cd --namespace argocd --create-namespac
 --set notifications.metrics.serviceMonitor.additionalLabels.release="prometheus-stack"
 ```
 
+using api-gateway(nginx-fabric) uncomment the metrics service in the file.
+
 More information about other options can be checked in the official [helm chart docummentation](https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd#general-parameters).
 
 Now you can get the random password generated during installation
@@ -116,6 +118,7 @@ test using curl
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
 curl http://argocd.$MY_PRIVATE_IP.nip.io:8080/
+echo curl http://argocd.$MY_PRIVATE_IP.nip.io:8080/
 ```
 
 *PS if you are using ingress*: After you logon, the redirect will fail sending you to `http://127.0.0.1/argo-cd/argo-cd/applications` but you can just go to the right path `http://127.0.0.1/argo-cd/applications`
