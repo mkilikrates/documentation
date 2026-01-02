@@ -6,6 +6,8 @@ on:
 permissions:
   packages: write
   contents: read
+  attestations: write
+  id-token: write
 env:
   REGISTRY_IMAGE: ghcr.io/mkilikrates/terragrunt-terraform-tofu
 jobs:
