@@ -55,6 +55,9 @@ jobs:
       - name: Validate build configuration
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/amd64,linux/arm64
+          file: terragrunt-terraform-tofu.dockerfile
+          context: "{{defaultContext}}:Docker/tools/Docker"
           call: check
       - name: Build container
         id: push
