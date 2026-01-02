@@ -70,8 +70,8 @@ jobs:
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY_IMAGE }}:buildcache,mode=max
+          cache-from: type=registry,ref${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:buildcache,mode=max
       - name: Inspect
         run: |
           docker image inspect ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}:latest
