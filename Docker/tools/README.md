@@ -9,7 +9,7 @@ Some simple use tools
 - [AWS CDK](#aws-cdk-python)
 - [AWS CDK + SAM](#aws-cdk--sam)
 - [AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF](#aws-sam--cdk--cdk8s--terraform--cdktf--kubectl--kconnect)
-- [Terraform & OpenTofu](#terraform-or-opentofu-cli)
+- [Terragrunt, Terraform & OpenTofu](#terraform-or-opentofu-cli)
 - [Kubectl](#kubectl)
 - [EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
 - [Credentials](#credentials)
@@ -248,12 +248,6 @@ using default user `cdk`
 docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp -it --rm sam-cdk-tf
 ```
 
-*Note*: I have this container build available on my github registry, so if you want to use it you can just
-
-```bash
-docker run --user $(id -u):$(getent group docker | cut -d: -f3) --privileged -e SAM_CLI_TELEMETRY=0 -e AWS_EC2_METADATA_DISABLED="true" -v "${PWD}":/opt/app -v ~/.aws/:/home/cdk/.aws/ -v ~/.aws-sam/:/home/cdk/.aws-sam/ -v ~/.docker/:/home/cdk/.docker/ -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME"/.kube:/home/cdk/.kube -v "$HOME"/.helm:/home/cdk/.helm -v "$HOME"/.config/helm:/home/cdk/.config/helm -v "$HOME/.kconnect:/home/cdk/.kconnect/" -v "$HOME"/.terraform.d:/home/cdk/.terraform.d -v "$HOME"/lixo:/home/cdk/tmp -it --rm ghcr.io/mkilikrates/sam-cdk-tf:latest
-```
-
 using local user `$USER`
 
 ```bash
@@ -278,7 +272,7 @@ Then follow the documentation from each tool to synth, deploy, destroy your stac
 - [CDK8S for python documentation](https://cdk8s.io/docs/latest/getting-started/#prerequisites)
 - [CDKTF for python documentation](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-install?variants=cdk-language%3Apython)
 
-## Terraform or OpenTofu CLI
+## Terragrunt with Terraform or OpenTofu CLI
 
 ### terraform
 
@@ -329,6 +323,30 @@ Then you can run any command
 ```bash
 terraform --version
 tofu --version
+```
+
+### Terragrunt
+
+[Official documentation about this image](https://hub.docker.com/r/alpine/terragrunt)
+
+```bash
+docker run -ti --rm -v $HOME/.aws:/root/.aws -v ${HOME}/.ssh:/root/.ssh -v `pwd`:/apps alpine/terragrunt
+```
+
+**PS:**
+this docker will run using root inside of container, so if you configure your credentials using it, your local user if not root will not able to see files in `~/.aws/`. 
+
+There is no tofu version yet available in this image but you can create your own using this [dockerfile](./Docker/terragrunt-terraform-tofu.dockerfile). This is ready for build using buildx and multi-architecture
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 -f terragrunt-terraform-tofu.dockerfile -t terragrunt-terraform-tofu .
+```
+
+You can set the version passing as build arguments
+
+then use it
+```bash
+docker run -ti --rm -v $HOME/.aws:/root/.aws -v ${HOME}/.ssh:/root/.ssh -v `pwd`:/apps terragrunt-terraform-tofu
 ```
 
 ## Kubectl
