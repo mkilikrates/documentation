@@ -67,7 +67,6 @@ jobs:
           file: terragrunt-terraform-tofu.dockerfile
           context: "{{defaultContext}}:Docker/tools/Docker"
           push: true
-          load: true
           sbom: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
