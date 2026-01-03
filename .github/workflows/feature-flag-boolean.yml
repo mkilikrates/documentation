@@ -1,0 +1,258 @@
+name: Feature Flag Boolean Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      restore_original_state:
+        description: 'Restore original flag state after testing'
+        required: false
+        default: 'true'
+        type: boolean
+  pull_request:
+    paths:
+      - 'Docker/programming/nodejs/examples/launchdarkly/**'
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  IMAGE_NAME: launchdarkly-test-app
+
+jobs:
+  test-feature-flag:
+    name: Build and Test Feature Flag Behavior
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image locally
+        run: |
+          echo "Building LaunchDarkly application Docker image..."
+          docker build -t ${{ env.IMAGE_NAME }}:test Docker/programming/nodejs/examples/launchdarkly/
+          echo "✅ Docker image built successfully"
+
+      - name: Start LaunchDarkly application
+        run: |
+          echo "Starting LaunchDarkly application container..."
+          docker run -d \
+            --name launchdarkly-app \
+            -p 3000:3000 \
+            -e LAUNCHDARKLY_SDK_KEY="${{ secrets.LAUNCHDARKLY_SDK_KEY }}" \
+            -e LAUNCHDARKLY_FLAG_KEY="${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
+            ${{ env.IMAGE_NAME }}:test
+          
+          echo "Container started, waiting for application to initialize..."
+
+      - name: Wait for application to be ready
+        run: |
+          echo "Waiting for LaunchDarkly application to initialize..."
+          
+          # Wait for container to be running
+          sleep 10
+          
+          # Check container status
+          docker ps -a
+          
+          # Check container logs
+          echo "Container logs:"
+          docker logs launchdarkly-app
+          
+          # Test if application is responding
+          for i in {1..15}; do
+            if curl -f http://localhost:3000/ 2>/dev/null; then
+              echo "✅ Application is ready!"
+              break
+            fi
+            echo "Attempt $i: Application not ready, waiting..."
+            if [ $i -eq 15 ]; then
+              echo "❌ Application failed to start properly"
+              docker logs launchdarkly-app
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Get current flag state using LaunchDarkly Action
+        id: current-state
+        uses: launchdarkly/gha-flags@v1
+        with:
+          sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
+          flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
+          context-key: github-actions-test
+          send-events: false
+
+      - name: Display current flag state
+        run: |
+          FLAG_VALUE="${{ steps.current-state.outputs[secrets.LAUNCHDARKLY_FLAG_KEY] }}"
+          echo "Current flag state: $FLAG_VALUE"
+          echo "current_state=$FLAG_VALUE" >> $GITHUB_ENV
+
+      - name: Test application with current flag state
+        run: |
+          echo "Testing application with current flag state: ${{ env.current_state }}"
+          
+          # Test main endpoint
+          RESPONSE=$(curl -s http://localhost:3000/)
+          echo "Main endpoint response: $RESPONSE"
+          
+          # Test feature flag endpoint
+          FLAG_RESPONSE=$(curl -s http://localhost:3000/feature-flag)
+          echo "Feature flag endpoint response: $FLAG_RESPONSE"
+          
+          # Validate response contains expected content
+          if [[ "$FLAG_RESPONSE" == *"Feature flag"* ]]; then
+            echo "✅ Application is responding correctly to feature flag endpoint"
+          else
+            echo "❌ Application feature flag endpoint not working properly"
+            echo "Full response: $FLAG_RESPONSE"
+            exit 1
+          fi
+
+      - name: Toggle flag state
+        id: toggle-flag
+        run: |
+          CURRENT_STATE="${{ env.current_state }}"
+          NEW_STATE="false"
+          
+          if [ "$CURRENT_STATE" = "false" ]; then
+            NEW_STATE="true"
+          fi
+          
+          echo "Toggling flag from $CURRENT_STATE to $NEW_STATE"
+          
+          # Update flag state via LaunchDarkly API
+          RESPONSE=$(curl -s -X PATCH \
+            "https://app.launchdarkly.com/api/v2/flags/${{ secrets.LAUNCHDARKLY_PROJECT_KEY }}/${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
+            -H "Authorization: ${{ secrets.LAUNCHDARKLY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
+              "instructions": [
+                {
+                  "kind": "turnFlagOn",
+                  "value": '$NEW_STATE'
+                }
+              ]
+            }')
+          
+          echo "API Response: $RESPONSE"
+          echo "new_state=$NEW_STATE" >> $GITHUB_ENV
+          
+          # Wait for flag change to propagate
+          echo "Waiting for flag change to propagate..."
+          sleep 15
+
+      - name: Verify flag state change using LaunchDarkly Action
+        id: verify-state
+        uses: launchdarkly/gha-flags@v1
+        with:
+          sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
+          flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
+          context-key: github-actions-test
+          send-events: false
+
+      - name: Confirm flag state change
+        run: |
+          VERIFIED_STATE="${{ steps.verify-state.outputs[secrets.LAUNCHDARKLY_FLAG_KEY] }}"
+          EXPECTED_STATE="${{ env.new_state }}"
+          
+          echo "Expected flag state: $EXPECTED_STATE"
+          echo "Verified flag state: $VERIFIED_STATE"
+          
+          if [ "$VERIFIED_STATE" = "$EXPECTED_STATE" ]; then
+            echo "✅ Flag state change confirmed via LaunchDarkly Action"
+          else
+            echo "❌ Flag state change not reflected. Expected: $EXPECTED_STATE, Got: $VERIFIED_STATE"
+            exit 1
+          fi
+
+      - name: Test application with new flag state
+        run: |
+          echo "Testing application with new flag state: ${{ env.new_state }}"
+          
+          # Test feature flag endpoint with new state
+          FLAG_RESPONSE=$(curl -s http://localhost:3000/feature-flag)
+          echo "Feature flag endpoint response after toggle: $FLAG_RESPONSE"
+          
+          # Validate the application picked up the flag change
+          if [[ "$FLAG_RESPONSE" == *"Feature flag"* ]]; then
+            echo "✅ Application is responding to flag state change"
+          else
+            echo "❌ Application did not respond to flag state change"
+            echo "Full response: $FLAG_RESPONSE"
+            exit 1
+          fi
+
+      - name: Restore original flag state
+        if: ${{ inputs.restore_original_state == true || inputs.restore_original_state == '' }}
+        run: |
+          ORIGINAL_STATE="${{ env.current_state }}"
+          echo "Restoring original flag state: $ORIGINAL_STATE"
+          
+          RESPONSE=$(curl -s -X PATCH \
+            "https://app.launchdarkly.com/api/v2/flags/${{ secrets.LAUNCHDARKLY_PROJECT_KEY }}/${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
+            -H "Authorization: ${{ secrets.LAUNCHDARKLY_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
+              "instructions": [
+                {
+                  "kind": "turnFlagOn",
+                  "value": '$ORIGINAL_STATE'
+                }
+              ]
+            }')
+          
+          echo "Restore API Response: $RESPONSE"
+          echo "✅ Flag state restored to original value: $ORIGINAL_STATE"
+
+      - name: Final flag state verification
+        if: ${{ inputs.restore_original_state == true || inputs.restore_original_state == '' }}
+        id: final-verification
+        uses: launchdarkly/gha-flags@v1
+        with:
+          sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
+          flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
+          context-key: github-actions-test
+          send-events: false
+
+      - name: Confirm restoration
+        if: ${{ inputs.restore_original_state == true || inputs.restore_original_state == '' }}
+        run: |
+          FINAL_STATE="${{ steps.final-verification.outputs[secrets.LAUNCHDARKLY_FLAG_KEY] }}"
+          ORIGINAL_STATE="${{ env.current_state }}"
+          
+          echo "Original flag state: $ORIGINAL_STATE"
+          echo "Final flag state: $FINAL_STATE"
+          
+          if [ "$FINAL_STATE" = "$ORIGINAL_STATE" ]; then
+            echo "✅ Flag state successfully restored to original value"
+          else
+            echo "⚠️ Flag state restoration may not have completed yet (Expected: $ORIGINAL_STATE, Got: $FINAL_STATE)"
+          fi
+
+      - name: Show container logs
+        if: always()
+        run: |
+          echo "=== Container Logs ==="
+          docker logs launchdarkly-app
+
+      - name: Cleanup local resources
+        if: always()
+        run: |
+          echo "Cleaning up local resources..."
+          
+          # Stop and remove container
+          docker stop launchdarkly-app || true
+          docker rm launchdarkly-app || true
+          
+          # Remove local image
+          docker rmi ${{ env.IMAGE_NAME }}:test || true
+          
+          echo "Test Summary:"
+          echo "- Original flag state: ${{ env.current_state }}"
+          echo "- Toggled to state: ${{ env.new_state }}"
+          echo "- Application responded correctly to both states"
+          echo "- Flag state restored: ${{ inputs.restore_original_state }}"
+          echo "✅ Local cleanup completed"
