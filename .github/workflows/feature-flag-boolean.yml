@@ -100,9 +100,18 @@ jobs:
           FLAG_RESPONSE=$(curl -s http://localhost:3000/feature-flag)
           echo "Feature flag endpoint response: $FLAG_RESPONSE"
           
-          # Validate response contains expected content
-          if [[ "$FLAG_RESPONSE" == *"Feature flag"* ]]; then
+          # Validate response contains expected content and matches flag state
+          if [[ "$FLAG_RESPONSE" == *"Feature is"* ]]; then
             echo "✅ Application is responding correctly to feature flag endpoint"
+            
+            # Additional validation: check if response matches expected state
+            if [[ "${{ env.current_state }}" == "true" && "$FLAG_RESPONSE" == *"enabled"* ]]; then
+              echo "✅ Flag state matches: true -> enabled"
+            elif [[ "${{ env.current_state }}" == "false" && "$FLAG_RESPONSE" == *"disabled"* ]]; then
+              echo "✅ Flag state matches: false -> disabled"
+            else
+              echo "⚠️ Flag state mismatch - Expected: ${{ env.current_state }}, Response: $FLAG_RESPONSE"
+            fi
           else
             echo "❌ Application feature flag endpoint not working properly"
             echo "Full response: $FLAG_RESPONSE"
@@ -176,8 +185,18 @@ jobs:
           echo "Feature flag endpoint response after toggle: $FLAG_RESPONSE"
           
           # Validate the application picked up the flag change
-          if [[ "$FLAG_RESPONSE" == *"Feature flag"* ]]; then
+          if [[ "$FLAG_RESPONSE" == *"Feature is"* ]]; then
             echo "✅ Application is responding to flag state change"
+            
+            # Additional validation: check if response matches expected new state
+            if [[ "${{ env.new_state }}" == "true" && "$FLAG_RESPONSE" == *"enabled"* ]]; then
+              echo "✅ Flag toggle successful: true -> enabled"
+            elif [[ "${{ env.new_state }}" == "false" && "$FLAG_RESPONSE" == *"disabled"* ]]; then
+              echo "✅ Flag toggle successful: false -> disabled"
+            else
+              echo "⚠️ Flag state after toggle - Expected: ${{ env.new_state }}, Response: $FLAG_RESPONSE"
+              echo "This might indicate the flag change hasn't propagated yet"
+            fi
           else
             echo "❌ Application did not respond to flag state change"
             echo "Full response: $FLAG_RESPONSE"
