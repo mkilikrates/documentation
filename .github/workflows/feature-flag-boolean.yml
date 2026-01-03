@@ -123,12 +123,14 @@ jobs:
         run: |
           CURRENT_STATE="${{ env.current_state }}"
           NEW_STATE="false"
+          INSTRUCTION="turnFlagOff"
           
           if [ "$CURRENT_STATE" = "false" ]; then
             NEW_STATE="true"
+            INSTRUCTION="turnFlagOn"
           fi
           
-          echo "Toggling flag from $CURRENT_STATE to $NEW_STATE"
+          echo "Toggling flag from $CURRENT_STATE to $NEW_STATE using instruction: $INSTRUCTION"
           
           # Update flag state via LaunchDarkly API
           RESPONSE=$(curl -s -X PATCH \
@@ -139,8 +141,7 @@ jobs:
               "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
               "instructions": [
                 {
-                  "kind": "turnFlagOn",
-                  "value": '$NEW_STATE'
+                  "kind": "'$INSTRUCTION'"
                 }
               ]
             }')
@@ -207,7 +208,13 @@ jobs:
         if: ${{ inputs.restore_original_state == true || inputs.restore_original_state == '' }}
         run: |
           ORIGINAL_STATE="${{ env.current_state }}"
-          echo "Restoring original flag state: $ORIGINAL_STATE"
+          RESTORE_INSTRUCTION="turnFlagOff"
+          
+          if [ "$ORIGINAL_STATE" = "true" ]; then
+            RESTORE_INSTRUCTION="turnFlagOn"
+          fi
+          
+          echo "Restoring original flag state: $ORIGINAL_STATE using instruction: $RESTORE_INSTRUCTION"
           
           RESPONSE=$(curl -s -X PATCH \
             "https://app.launchdarkly.com/api/v2/flags/${{ secrets.LAUNCHDARKLY_PROJECT_KEY }}/${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
@@ -217,8 +224,7 @@ jobs:
               "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
               "instructions": [
                 {
-                  "kind": "turnFlagOn",
-                  "value": '$ORIGINAL_STATE'
+                  "kind": "'$RESTORE_INSTRUCTION'"
                 }
               ]
             }')
