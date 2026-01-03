@@ -89,5 +89,5 @@ jobs:
           package-name: 'terragrunt-terraform-tofu'
           package-type: 'container'
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-versions-to-keep: '6'
+          min-versions-to-keep: '5'
           delete-only-untagged-versions: 'false'
