@@ -75,7 +75,7 @@ jobs:
 
       - name: Get current flag state using LaunchDarkly Action
         id: current-state
-        uses: launchdarkly/gha-flags@v1
+        uses: launchdarkly/gha-flags@v1.0.2
         with:
           sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
           flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
@@ -145,7 +145,7 @@ jobs:
 
       - name: Verify flag state change using LaunchDarkly Action
         id: verify-state
-        uses: launchdarkly/gha-flags@v1
+        uses: launchdarkly/gha-flags@v1.0.2
         with:
           sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
           flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
@@ -210,7 +210,7 @@ jobs:
       - name: Final flag state verification
         if: ${{ inputs.restore_original_state == true || inputs.restore_original_state == '' }}
         id: final-verification
-        uses: launchdarkly/gha-flags@v1
+        uses: launchdarkly/gha-flags@v1.0.2
         with:
           sdk-key: ${{ secrets.LAUNCHDARKLY_SDK_KEY }}
           flags: ${{ secrets.LAUNCHDARKLY_FLAG_KEY }},false
