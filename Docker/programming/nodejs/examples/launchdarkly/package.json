@@ -8,8 +8,8 @@
     "license": "ISC",
     "description": "Hello World",
     "dependencies": {
-      "@launchdarkly/node-server-sdk": "^9.7.2",
-      "express": "^4.21.2"
+      "@launchdarkly/node-server-sdk": "^9.10.5",
+      "express": "^5.2.1"
     }
   }
   

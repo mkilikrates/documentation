@@ -85,3 +85,51 @@ To cancel it, use
 ```bash
 docker stop 3b7c360efc1f
 ```
+
+## Maintaining Dependencies
+
+To keep packages updated without installing Node.js locally, use these Docker commands:
+
+### Check for Updates
+
+```bash
+# Check which packages are outdated
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm outdated
+
+# Check for latest versions (more comprehensive)
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npx npm-check-updates
+```
+
+### Update to Latest Versions
+
+```bash
+# Update package.json to latest versions
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npx npm-check-updates -u
+
+# Install updated packages and regenerate package-lock.json
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm install
+```
+
+### Security Updates
+
+```bash
+# Check for security vulnerabilities
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm audit
+
+# Fix security issues automatically
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm audit fix
+```
+
+### Conservative Updates (Semver-Safe)
+
+```bash
+# Update within existing version constraints
+docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm update
+```
+
+**Benefits of this approach:**
+- No local Node.js installation required
+- Always uses latest Node.js LTS version
+- Maintains consistent environment
+- Generates proper package-lock.json
+- Keeps your system clean
