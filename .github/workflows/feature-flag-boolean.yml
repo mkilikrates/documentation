@@ -135,16 +135,10 @@ jobs:
           # Update flag state via LaunchDarkly API
           RESPONSE=$(curl -s -X PATCH \
             "https://app.launchdarkly.com/api/v2/flags/${{ secrets.LAUNCHDARKLY_PROJECT_KEY }}/${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
+            -H 'LD-API-Version: 20240415' \
             -H "Authorization: ${{ secrets.LAUNCHDARKLY_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
-              "instructions": [
-                {
-                  "kind": "'$INSTRUCTION'"
-                }
-              ]
-            }')
+            -H 'Content-Type: application/json; domain-model=launchdarkly.semanticpatch' \
+            -d "{\"environmentKey\": \"${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}\", \"instructions\": [{\"kind\": \"$INSTRUCTION\"}]}")
           
           echo "API Response: $RESPONSE"
           echo "new_state=$NEW_STATE" >> $GITHUB_ENV
@@ -218,16 +212,10 @@ jobs:
           
           RESPONSE=$(curl -s -X PATCH \
             "https://app.launchdarkly.com/api/v2/flags/${{ secrets.LAUNCHDARKLY_PROJECT_KEY }}/${{ secrets.LAUNCHDARKLY_FLAG_KEY }}" \
+            -H 'LD-API-Version: 20240415' \
             -H "Authorization: ${{ secrets.LAUNCHDARKLY_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "environmentKey": "${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}",
-              "instructions": [
-                {
-                  "kind": "'$RESTORE_INSTRUCTION'"
-                }
-              ]
-            }')
+            -H 'Content-Type: application/json; domain-model=launchdarkly.semanticpatch' \
+            -d "{\"environmentKey\": \"${{ secrets.LAUNCHDARKLY_ENVIRONMENT_KEY }}\", \"instructions\": [{\"kind\": \"$RESTORE_INSTRUCTION\"}]}")
           
           echo "Restore API Response: $RESPONSE"
           echo "✅ Flag state restored to original value: $ORIGINAL_STATE"
