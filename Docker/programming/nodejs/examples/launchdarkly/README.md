@@ -133,3 +133,7 @@ docker run --rm -v "${PWD}":/usr/src -w /usr/src node:lts-slim npm update
 - Maintains consistent environment
 - Generates proper package-lock.json
 - Keeps your system clean
+
+### Using github actions
+
+You can use this [workflow](../../../../../.github/workflows/feature-flag-boolean.yml) to see how to use github actions to test your application and feature flags.
