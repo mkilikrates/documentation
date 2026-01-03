@@ -8,12 +8,12 @@ on:
         required: false
         default: 'true'
         type: boolean
-  pull_request:
+  push:
     paths:
       - 'Docker/programming/nodejs/examples/launchdarkly/**'
   schedule:
-    # Run daily at 2 AM UTC
-    - cron: '0 2 * * *'
+    # Run monthly on the 1st at 2 AM UTC
+    - cron: '0 2 1 * *'
 
 env:
   IMAGE_NAME: launchdarkly-test-app
