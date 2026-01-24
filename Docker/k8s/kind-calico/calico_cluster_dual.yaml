@@ -1,0 +1,79 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true # to install calico
+  apiServerAddress: "$MY_PRIVATE_IP"
+  apiServerPort: 6443
+  # enable dualstack
+  ipFamily: dual
+  podSubnet: "10.244.0.0/16,fd00:10:244::/56" # IPv4 first, then IPv6 for Calico compatibility
+  serviceSubnet: "10.96.0.0/12,fd00:10:96::/112" # IPv4 first, then IPv6
+# Add local registry
+# containerdConfigPatches:
+# # patches for local registry
+# - |-
+#   [plugins."io.containerd.grpc.v1.cri".registry]
+#     config_path = "/etc/containerd/certs.d"
+# patches for prometheus
+kubeadmConfigPatches:
+- |-
+  kind: ClusterConfiguration
+  # patches for enable admission puglins
+  apiServer:
+    extraArgs:
+      "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
+  # configure controller-manager bind address
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  # configure etcd metrics listen address
+  etcd:
+    local:
+      extraArgs:
+        listen-metrics-urls: http://0.0.0.0:2381
+  # configure scheduler bind address
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+- |-
+  kind: KubeProxyConfiguration
+  # configure proxy metrics bind address
+  metricsBindAddress: 0.0.0.0
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # nginx-fabric
+      - containerPort: 31437
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 31438
+        hostPort: 8443
+        protocol: TCP
+    # IPv6 configuration for control plane
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-ip: "::" # Enable IPv6 node IP detection
+    - |
+      kind: ClusterConfiguration
+      networking:
+        podSubnet: "10.244.0.0/16,fd00:10:244::/56"
+        serviceSubnet: "10.96.0.0/12,fd00:10:96::/112"
+  - role: worker
+    # IPv6 configuration for worker nodes
+    kubeadmConfigPatches:
+    - |
+      kind: JoinConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-ip: "::" # Enable IPv6 node IP detection
+  - role: worker
+    # IPv6 configuration for worker nodes
+    kubeadmConfigPatches:
+    - |
+      kind: JoinConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-ip: "::" # Enable IPv6 node IP detection

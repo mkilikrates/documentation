@@ -1,0 +1,53 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true # to install calico
+  apiServerAddress: "$MY_PRIVATE_IP"
+  apiServerPort: 6443
+  # enable dualstack
+  ipFamily: ipv4
+  podSubnet: "10.244.0.0/16" # IPv4 only
+  serviceSubnet: "10.96.0.0/12" # IPv4 only
+# Add local registry
+# containerdConfigPatches:
+# # patches for local registry
+# - |-
+#   [plugins."io.containerd.grpc.v1.cri".registry]
+#     config_path = "/etc/containerd/certs.d"
+# patches for prometheus
+kubeadmConfigPatches:
+- |-
+  kind: ClusterConfiguration
+  # patches for enable admission puglins
+  apiServer:
+    extraArgs:
+      "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
+  # configure controller-manager bind address
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  # configure etcd metrics listen address
+  etcd:
+    local:
+      extraArgs:
+        listen-metrics-urls: http://0.0.0.0:2381
+  # configure scheduler bind address
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+- |-
+  kind: KubeProxyConfiguration
+  # configure proxy metrics bind address
+  metricsBindAddress: 0.0.0.0
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # nginx-fabric
+      - containerPort: 31437
+        hostPort: 8080
+        protocol: TCP
+      - containerPort: 31438
+        hostPort: 8443
+        protocol: TCP
+  - role: worker
+  - role: worker
