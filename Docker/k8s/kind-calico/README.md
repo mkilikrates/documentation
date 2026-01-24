@@ -6,9 +6,20 @@ If you want to test network policies with kind, this will hows how to combine it
 
 - [Enable ipv6 on WSL](#enable-ipv6-on-wsl)
 - [Enable ipv6 on Docker Desktop](#enable-ipv6-on-docker-desktop)
-- [Installation](#kind-installation)
-- [Create Cluster](#create-cluster)
-- [Clean up](#clean-up)
+- [Kind Installation](#kind-installation)
+- [Create cluster](#create-cluster)
+- [Install Calico](#install-calico)
+  - [Ipv4 only](#ipv4-only)
+  - [Dual-stack (Recommended for IPv6)](#dual-stack-recommended-for-ipv6)
+    - [Step 1: Download and Configure Calico Manifest](#step-1-download-and-configure-calico-manifest)
+    - [Step 2: Configure IPAM for Dual-stack](#step-2-configure-ipam-for-dual-stack)
+    - [Step 3: Install yq (if not already installed)](#step-3-install-yq-if-not-already-installed)
+    - [Step 4: Configure Calico DaemonSet for IPv6](#step-4-configure-calico-daemonset-for-ipv6)
+    - [Step 5: Apply Calico Configuration](#step-5-apply-calico-configuration)
+    - [Step 6: Wait for Calico to be Ready](#step-6-wait-for-calico-to-be-ready)
+    - [Step 7: Verify Installation](#step-7-verify-installation)
+- [Local Registry](#local-registry)
+- [Delete cluster](#delete-cluster)
 
 ## Enable ipv6 on WSL
 
