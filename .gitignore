@@ -172,3 +172,4 @@ kustomization.yaml
 # Ignore node_modules directory for javascript projects
 node_modules/
 **/node_modules/
+package-lock.json
