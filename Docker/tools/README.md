@@ -6,12 +6,12 @@ Some simple use tools
 
 - [AWS CLI](#aws-cli)
 - [AWS SAM](#aws-sam)
-- [AWS CDK](#aws-cdk-python)
+- [AWS CDK (Python)](#aws-cdk-python)
 - [AWS CDK + SAM](#aws-cdk--sam)
-- [AWS SAM + CDK + CDK8s + TERRAFORM + CDKTF](#aws-sam--cdk--cdk8s--terraform--cdktf--kubectl--kconnect)
+- [AWS SAM + CDK + CDK8s + Terraform + CDKTF](#aws-sam--cdk--cdk8s--terraform--cdktf--kubectl--kconnect)
 - [Terragrunt, Terraform & OpenTofu](#terraform-or-opentofu-cli)
 - [Kubectl](#kubectl)
-- [EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
+- [AWS EKS](#aws-eks-kubectl--helm--iam-authenticator--kconnect)
 - [Credentials](#credentials)
 
 ## AWS CLI
@@ -336,7 +336,7 @@ docker run -ti --rm -v $HOME/.aws:/root/.aws -v ${HOME}/.ssh:/root/.ssh -v `pwd`
 **PS:**
 this docker will run using root inside of container, so if you configure your credentials using it, your local user if not root will not able to see files in `~/.aws/`. 
 
-There is no tofu version yet available in this image but you can create your own using this [dockerfile](./Docker/terragrunt-terraform-tofu.dockerfile). This is ready for build using buildx and multi-architecture
+There is no tofu version yet available in this image but you can create your own using this [dockerfile](./Docker/terragrunt-terraform-tofu.dockerfile). This is ready for build using buildx and multi-architecture. This image is also published automatically via [GitHub Actions](../../.github/workflows/publish-tg-tf-tofu.yml) to GHCR.
 
 ```bash
 docker buildx build --platform linux/amd64,linux/arm64 -f terragrunt-terraform-tofu.dockerfile -t terragrunt-terraform-tofu .

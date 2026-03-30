@@ -69,5 +69,5 @@ Then you can open each of them in your browser
 
 ```bash
 helm -n monitoring uninstall prometheus-stack
-kubect delete namespaces monitoring
+kubectl delete namespaces monitoring
 ```

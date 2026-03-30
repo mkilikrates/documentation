@@ -46,16 +46,16 @@ Then you can import [dashboard](https://github.com/kedacore/keda/blob/main/confi
 
 ## Scalling some app using keda based on cron
 
-For instance, let's use our [examples/initcontainers](../kind/examples/initcontainers/README.md)
+For instance, let's use our [examples/initcontainers](../app-examples/initcontainers/README.md)
 
 ```bash
-kubectl apply -f ../kind/examples/initcontainers/nginx-busybox-initcontainer.yaml
+kubectl apply -f ../app-examples/initcontainers/nginx-busybox-initcontainer.yaml
 ```
 
 if you are using names `host.docker.internal` and `https` then use this
 
 ```bash
-kubectl apply -f ../kind/examples/initcontainers/nginx-busybox-initcontainer-https.yaml
+kubectl apply -f ../app-examples/initcontainers/nginx-busybox-initcontainer-https.yaml
 ```
 
 Then let's scale [number of replicas](cronscale.yaml) from 3 to 10
@@ -80,7 +80,7 @@ To clean up you can remove using this
 
 ```bash
 kubectl delete -f cronscale.yaml
-kubectl delete -f ../kind/examples/initcontainers/nginx-busybox-initcontainer.yaml
+kubectl delete -f ../app-examples/initcontainers/nginx-busybox-initcontainer.yaml
 # uninstall keda
 helm -n keda uninstall keda
 kubectl delete namespaces keda

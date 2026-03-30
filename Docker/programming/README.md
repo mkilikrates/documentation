@@ -15,7 +15,7 @@ docker run --name python -it --rm -v "${PWD}":/opt python /bin/bash
 Executing a local script
 
 ```bash
-docker run --name python -it --rm -v "${PWD}"::/usr/src/myapp -w /usr/src/myapp python python <script> <script-args>
+docker run --name python -it --rm -v "${PWD}":/usr/src/myapp -w /usr/src/myapp python python <script> <script-args>
 ```
 
 ## GROOVY

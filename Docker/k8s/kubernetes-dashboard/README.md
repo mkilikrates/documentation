@@ -2,6 +2,8 @@
 
 Web UI to access your Kubernetes cluster
 
+**Note**: The Kubernetes Dashboard has evolved significantly. Version 3+ uses a different architecture. The instructions below work with the current Helm chart. Check the [official documentation](https://github.com/kubernetes/dashboard) for the latest changes.
+
 ## Installation
 
 In this example the installation will be executed using [helm](https://helm.sh/).

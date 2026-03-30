@@ -14,7 +14,7 @@ export POSTGRES_PORT='<port to connect>' # usually 5432
 export POSTGRES_DB='<database name to connect>'
 export POSTGRES_PASSWORD='<Database password>'
 export POSTGRES_USER='<Database user name>'
-docker run --name plsqlclient -it --rm postgres plsql -h $POSTGRES_HOST -p $POSTGRES_PORT -d $POSTGRES_DB -u $POSTGRES_USER -W
+docker run --name plsqlclient -it --rm postgres psql -h $POSTGRES_HOST -p $POSTGRES_PORT -d $POSTGRES_DB -U $POSTGRES_USER -W
 ```
 
 or
@@ -25,7 +25,7 @@ export POSTGRES_PORT='<port to connect>' # usually 5432
 export POSTGRES_DB='<database name to connect>'
 export POSTGRES_PASSWORD='<Database password>'
 export POSTGRES_USER='<Database user name>'
-docker run --name plsqlclient -it --rm --user postgres:$(id -g) -v "/tmp":/tmp postgres plsql postgresql://$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_HOST':'$POSTGRES_PORT'/'$POSTGRES_DB
+docker run --name plsqlclient -it --rm --user postgres:$(id -g) -v "/tmp":/tmp postgres psql postgresql://$POSTGRES_USER':'$POSTGRES_PASSWORD'@'$POSTGRES_HOST':'$POSTGRES_PORT'/'$POSTGRES_DB
 ```
 
 ### Using aliases
@@ -35,7 +35,7 @@ You can use aliases with [password store](../../GCM/README.md)
 Add to your '~/.bash_aliases'
 
 ```bash
-alias plsql='f(){ CREDS=$(pass "$1"); IFS=$'\''\n'\'' read -r -d '\'''\'' -a array <<< "$CREDS"; docker run --name plsql -e PGPASSWORD="${array[0]}" -it --rm --user postgres:$(id -g) -v "/tmp":/tmp postgres psql -h "${array[2]}" -p "${array[3]}" -d "${array[4]}" -U "${array[1]}"; unset -f f; }; f'
+alias psql='f(){ CREDS=$(pass "$1"); IFS=$'\''\n'\'' read -r -d '\'''\'' -a array <<< "$CREDS"; docker run --name psql -e PGPASSWORD="${array[0]}" -it --rm --user postgres:$(id -g) -v "/tmp":/tmp postgres psql -h "${array[2]}" -p "${array[3]}" -d "${array[4]}" -U "${array[1]}"; unset -f f; }; f'
 ```
 
 After change this file you need to reload your environment
