@@ -4,97 +4,122 @@
 
 Pronouns: he/him/his
 
-[LinkedIn Profile](https://www.linkedin.com/in/mkilikrates)
+[LinkedIn](https://www.linkedin.com/in/mkilikrates) | [GitHub](https://github.com/mkilikrates) | [Website](https://kilikrates.io)
 
 ## Headline
 
-Cloud & Platform Engineering | DevOps & DevSecOps | Network & Security | Accredited Coach with executive education in Leadership & Strategy (UCD Smurfit)
+Cloud & Platform Engineering | DevOps & DevSecOps | Network & Security | AI-Augmented Engineering | Accredited Coach with executive education in Leadership & Strategy (UCD Smurfit)
 
 ## Summary
 
-I work at the intersection of Cloud & Platform Engineering, DevOps/DevSecOps, networking and security, with more than 20 years of experience in designing, building and operating large‑scale, business‑critical infrastructure and platforms. I have led as Senior Manager, Tech Lead, Principal and Senior Engineer, and I enjoy turning complex environments into secure, observable and reliable platforms that teams can actually move fast on. 
-My background ranges from network‑heavy and media environments to AWS‑based, Kubernetes‑driven platforms and modern SDLC tooling (CI/CD, quality, security). I care as much about how people work as about the technology itself, and I often act as a bridge between product, platform, security and leadership. 
-Alongside my technical work, I’ve invested heavily in leadership and coaching. I hold an Executive MBA and multiple executive‑education diplomas in Leadership Development, Strategy Development & Innovation, and Advanced Business & Executive Coaching (MSc pathway) from UCD Michael Smurfit, as well as an Advanced Global Leadership diploma from SJSU. I am an accredited coach at the Individual Practitioner level, with a strong focus on psychological safety, behavioural change and sustainable performance for tech leaders and teams. 
-I am particularly interested in how platform, SRE and DevOps teams collaborate with product and security, and how coaching and mentoring can support healthier, higher‑performing ways of working – from on‑call culture and ownership to feedback and experimentation. 
-Outside my full‑time role, I enjoy connecting with engineering leaders and practitioners who are building or evolving cloud and platform capabilities, or who are curious about how coaching can support their own leadership and their teams. If the topics above resonate, feel free to reach out here on LinkedIn.
+I work at the intersection of Cloud & Platform Engineering, DevOps/DevSecOps, networking and security, with more than 20 years of experience in designing, building and operating large-scale, business-critical infrastructure and platforms. I have led as Senior Manager, Tech Lead, Principal and Senior Engineer, and I enjoy turning complex environments into secure, observable and reliable platforms that teams can actually move fast on.
+
+My background ranges from network-heavy and media environments to AWS-based, Kubernetes-driven platforms and modern SDLC tooling (CI/CD, quality, security). I care as much about how people work as about the technology itself, and I often act as a bridge between product, platform, security and leadership.
+
+Alongside my technical work, I've invested heavily in leadership and coaching. I hold an Executive MBA and multiple executive-education diplomas in Leadership Development, Strategy Development & Innovation, and Advanced Business & Executive Coaching (MSc pathway) from UCD Michael Smurfit, as well as an Advanced Global Leadership diploma from SJSU. I am an accredited coach at the Individual Practitioner level, with a strong focus on psychological safety, behavioural change and sustainable performance for tech leaders and teams.
+
+I am particularly interested in how platform, SRE and DevOps teams collaborate with product and security, and how coaching and mentoring can support healthier, higher-performing ways of working — from on-call culture and ownership to feedback and experimentation.
 
 ### Key Functional Roles and Highlights
 
-- *Cloud and DevOps Engineering*: 
-  - Managed and supported AWS infrastructures using tools like CDK (TypeScript), Terraform, and CloudFormation;
-  - Worked on CI/CD pipelines using tools such as Jenkins, GitLab CI, and AWS CodePipeline;
-  - Designed constructs, patterns, and reusable workflows for deployment;
-  - Led teams in implementing solutions for high availability, disaster recovery, and observability using AWS services like EKS, MSK, ECS, RDS, and S3.
+- *Cloud and DevOps Engineering*:
+  - Design and operate multi-account AWS infrastructure (EKS, RDS, CloudFront, WAF, Shield, Firewall Manager, Route53, S3, SQS, MSK, ASGs) with Terraform/Terragrunt and full IaC governance;
+  - Build CI/CD platforms and delivery patterns (GitLab CI, Jenkins, GitHub Actions) with security scanning (Checkov, Trivy, tfsec, OPA, SonarQube) embedded in every pipeline;
+  - Operate Kubernetes clusters at scale — pod lifecycle, networking, probes, PDBs, rolling updates, Helm Charts, Docker, Docker Compose;
+  - Led cost optimisation initiatives saving thousands of dollars per day through architecture improvements, right-sizing and automated scheduling.
 - *Leadership and Mentorship*:
-  - Acted as a technical leader and mentor, guiding team members to improve their skills and network;
+  - Acted as technical leader and mentor, guiding team members to improve their skills and network;
   - Advocated for best practices in technical implementations and company culture;
-  - Accredited coach with experience in fostering diverse teams and psychological safety.
+  - Accredited coach (EMCC) with experience in fostering diverse teams and psychological safety;
+  - Led company merger integration — network, corporate IT and cloud convergence.
 - *Solution Architecture and Infrastructure*:
-  - Provided architecture guidance, troubleshooting, and best practices for AWS services like Route53, CloudFront, and API Gateway;
-  - Led cloud initiatives to significantly reduce time-to-market for infrastructure provisioning;
+  - Provided architecture guidance, troubleshooting, and best practices for AWS services including Route53, CloudFront, WAF, Shield, API Gateway, Direct Connect;
+  - Led cloud migrations (on-prem GitLab to EKS, Myra Security to CloudFront/Shield/WAF, Bitbucket to GitHub Enterprise);
   - Designed and deployed datacenters with modern, cost-efficient topologies.
 - *Security and Compliance*:
-  - Established and integrated DevSecOps practices, embedding security into the development lifecycle;
-  - Created governance policies, implemented federated authentication, and led information security awareness initiatives.
+  - Established and integrated DevSecOps practices — Checkov, Trivy, tfsec, OPA, container scanning, license compliance, credential detection;
+  - Created governance policies, implemented federated authentication, and led information security awareness initiatives (SEC-DEV-OPS);
+  - Built Elastic SIEM integration (VPC flow logs, CloudTrail, AWS Config, GuardDuty, WAF data).
+- *AI-Augmented Engineering*:
+  - Developed a custom Kiro Power that reduced per-service release automation migration from days/weeks to minutes, compressing a months-long programme into weeks;
+  - Created Kiro steering files for GitLab CI template development with embedded best practices and versioning governance;
+  - Integrated GitLab Duo with Amazon Q for AI-assisted development workflows.
+- *Networking and Technical Operations*:
+  - Specialised in network design and operations — BGP, IPsec VPN, DNS, IPv6, SDN/OpenFlow, load balancing (L4-L7), CDN architecture;
+  - Architected one of Brazil's largest private CDNs (+2 Tbps, BGP peering at major IXs across Brazil, Portugal and USA) delivering streaming to millions of simultaneous users;
+  - Managed enterprise firewalls (CheckPoint, Palo Alto) and helped customers integrate third-party firewalls (Cisco, Juniper, Fortinet) with AWS.
 - *Strategic Management and Business Leadership*:
   - Completed advanced diplomas and executive education in strategy, leadership development, and coaching;
-  - Partnered with global teams and stakeholders to drive innovation and achieve organizational goals.
-- *Networking and Technical Operations*:
-  - Specialized in network design and operations, including routing, firewalls, VPNs, and IPv6;
-  - Spearheaded large-scale initiatives, such as IP telephony and video surveillance for enterprise environments;
-  - Architected and led the creation of a private CDN for the largest media group in Brazil with a presence in Portugal and the USA.
+  - Partnered with global teams and stakeholders to drive innovation and achieve organisational goals.
 
 ### Key Technical Expertise
 
-- *Cloud Platforms*: AWS, Azure, Google Cloud,  and on-premises solutions like Apache Cloudstack
-- *DevOps Tools*: Docker, Kubernetes, Helm Charts, Jenkins, Gitlab-CI, GitHub Actions, CDK, CDK8s, Terraform and CloudFormation
-- *Programming & Automation*: Python, Shell Scripting, Go, TypeScript
-- *Networking & Security*: VPC, DNS, BGP, VPN, Firewall, WAF, CDN, Load Balancers, Cisco, Juniper, Palo Alto, CheckPoint
-- *Data & Analytics*: MySQL, DynamoDB, Postgres, Snowflake
+- *Cloud Platforms*: AWS (EKS, RDS, MSK, ECS, CloudFront, Route53, WAF, Shield, Firewall Manager, Lambda, Step Functions, API Gateway, S3, SQS, VPC, Direct Connect, Athena), Azure, Google Cloud, Apache CloudStack
+- *Infrastructure as Code*: Terraform, Terragrunt, AWS CDK (TypeScript), CDK8s, CDKTF, CloudFormation, AWS SAM
+- *Containers & Orchestration*: Kubernetes/EKS, Docker, Docker Compose, ECS, Helm Charts, ArgoCD
+- *CI/CD & SDLC*: GitLab CI, Jenkins, GitHub Actions, CodeBuild, CodePipeline, uDeploy, SonarQube, LaunchDarkly, ServiceNow, Jira
+- *Security*: WAF, Shield Advanced, Firewall Manager, Checkov, Trivy, tfsec, OPA, CrowdStrike Falcon, container scanning, DNSSEC
+- *Observability*: Grafana, Loki, Prometheus, Elastic SIEM, OpenSearch, Kibana, CloudWatch, Checkmk, Athena
+- *Programming & Automation*: Python, Go, TypeScript, Shell Scripting
+- *Networking*: BGP, OSPF, MPLS, IPsec VPN, DNS, IPv6, SDN/OpenFlow, Load Balancing (ALB/NLB, L4-L7), CDN, Direct Connect, anycast
+- *Firewalls*: CheckPoint, Palo Alto, Cisco, Juniper, Fortinet, AWS Network Firewall
+- *Databases*: PostgreSQL/RDS, DynamoDB, MySQL, Snowflake
+- *AI Tooling*: Kiro (custom Powers and steering files), GitLab Duo, Amazon Q
+- *OS*: Ubuntu, Amazon Linux, RedHat/CentOS, FreeBSD, Solaris
+
+---
 
 ## Experience
 
 ### Senior DevOps Engineer, Finoa, Remote - PT
 
-*Jan 2025 - current*:
+*January 2025 - present*:
 
-- **Cloud & platform engineering** – Design, build and operate AWS infrastructure across multiple accounts including RDS, EKS, ASGs, CloudFront, networking, compute, DNS, backup and protection services, with strong emphasis on security, reliability and compliance. 
-- **SDLC platform & GitLab** – Designed GitLab-based delivery patterns with templates/jobs for build, test (unit, behaviour, security) and deploy to serverless/EKS, integrated with ServiceNow approvals, Terragrunt stacks, Grafana/Loki observability – enabling developers to use GitLab as single pane for code quality and delivery. 
-- **Observability, logging & SIEM** – Integrate comprehensive security observability into Elastic SIEM using VPC flow logs, CloudTrail, AWS Config and GuardDuty alongside Grafana, Loki, CloudWatch and WAF data to provide actionable signals for security and operations. 
-- **Infrastructure as Code & standards** – Implement reusable Terraform/Terragrunt standards and modules covering RDS, EKS, ASGs, VPCs, SQS, buckets, CloudFront, Firewall Manager, WAF, Shield, MSK – enabling full change tracking, auditability and scalability across environments. 
-- **Collaboration & ways of working** – Work closely with security, product and engineering teams; leverage coaching/leadership experience to support communication, ownership and continuous improvement.
+- **Cloud & platform engineering** — Design, build and operate AWS infrastructure across multiple accounts (RDS, EKS, ASGs, CloudFront, networking, compute, DNS, backup, Shield, WAF, Firewall Manager) with emphasis on security, reliability and compliance.
+- **GitLab platform** — Migrated on-premises GitLab to EKS — Helm chart, Terraform modules (RDS, ELB, Elasticache, IAM), repeatable upgrade process (17.3.0 → 18.2.8). Enabled Advanced Search (OpenSearch), GitLab Duo with Amazon Q, Jira and ServiceNow integration. Managed GitLab configurations as IaC under Terraform/Terragrunt governance.
+- **SDLC & release automation** — Designed GitLab CI delivery patterns with reusable templates for build, test (unit, behaviour, security) and deploy, integrated with ServiceNow approvals, Terragrunt stacks, Grafana/Loki observability. Built release automation pipeline with Slack notifications, QA gates and multi-env deployment.
+- **Security** — Led migration from Myra Security to AWS CloudFront/Shield Advanced/WAF with Terraform modules, Firewall Manager policies with OU scope. Integrated Checkov, Trivy, container scanning, license compliance and credential detection into SDLC. Built Elastic SIEM integration (VPC flow logs, CloudTrail, AWS Config, GuardDuty, WAF data).
+- **Cost optimisation** — Analysed CloudWatch metrics and VPC flow logs via Athena to right-size instances, reduce NAT Gateway and cross-AZ data transfer costs, automate instance scheduling — saving thousands of dollars per day.
+- **AI-assisted engineering** — Developed a custom Kiro Power that reduced per-service release automation migration from days/weeks to minutes, compressing the overall timeline from months to weeks. Created Kiro steering files for GitLab CI template development with embedded best practices and versioning governance.
+- **Infrastructure as Code** — Reusable Terraform/Terragrunt modules for RDS, EKS, ASGs, VPCs, SQS, CloudFront, WAF, Shield, MSK, Firewall Manager with CI/CD governance (tfsec, OPA policy gates).
+- **Networking** — ALB as ingress and backend for API Gateway and CloudFront via VPC endpoints. NLB for GitLab and syslog/netflow HA. IPsec VPN and BGP. DNS migration to Route53.
+- **Observability & SIEM** — Grafana/Loki observability integrated into delivery patterns. Elastic SIEM with agents across all EKS clusters and on-prem servers. Kubernetes audit logs to CloudWatch.
+- **Collaboration** — Work closely with security, product and engineering teams; leverage coaching/leadership experience to support communication, ownership and continuous improvement.
 
 ### Senior Cloud Engineer, TripAdvisor, Remote - PT
 
-*May 2024 - Nov 2024*:
+*May 2024 - November 2024*:
 
-- Manage/Support AWS infrastructure as a Code using CDK (TypeScript) and Terraform:
-  - EKS, MSK, ECS, RDS, S3, Prometheus, Grafana, etc;
-  - Create constructs, patterns, pipelines, SDLC flows and documentation to be reused and supported across firm;
-  - Use Github Actions on CodeBuild self Runners to build, test and publish npm packages as well as deploy in AWS environments.
+- Managed AWS infrastructure using CDK (TypeScript) and Terraform — EKS, MSK, ECS, RDS, S3, Prometheus, Grafana.
+- Created reusable CDK constructs, patterns, pipelines, SDLC flows and documentation across the firm.
+- Led AWS Workgroup, defining best practices for cloud and release management using Jira automations.
+- Used GitHub Actions on CodeBuild self-hosted runners to build, test and publish npm packages and deploy to AWS.
+- Managed IPsec VPN and BGP for network connectivity. Operated EKS clusters with Helm Charts, Docker and Docker Compose.
+- Mentored team members to navigate and expand their knowledge and network across the company.
 
 ### Principal Cloud Engineer DevOps, Fidelity Investments, Dublin - IE
 
 *April 2022 - May 2024*:
 
-Tech lead for platform engineering and DevOps initiatives serving 20,000+ developers across 80,000+ repositories (Bitbucket → GitHub Enterprise migration), driving technical strategy, automation and culture change across the organisation. 
+Tech lead of a small platform engineering team managing SDLC tooling and DevOps for an organisation of 20,000+ developers across 80,000+ repositories, driving technical strategy, automation and culture change.
 
-- **SDLC tooling & platform** – Tech lead for core delivery platform (Jenkins, uDeploy, SonarQube, GitHub Enterprise Cloud, Bitbucket → GitHub migration with 80k+ repos, LaunchDarkly) serving 20k+ developers, with ServiceNow/Jira integration for reliable workflows. 
-- **Data insights & automation** – Designed serverless pipelines (Python, Step Functions, Lambda) to collect/enrich SDLC metadata from Jenkins/tools across massive scale, ingesting into Snowflake/RDS/DynamoDB with Pandas for leadership visibility on quality, speed, costs and security. 
-- **Policy & standards enforcement** – Drove automation frameworks and policies embedding corporate standards for security, costs and services into SDLC tooling and cloud environments, influencing compliance and efficiency enterprise-wide. 
-- **Technical leadership & advocacy** – Tech lead and DevOps advocate shaping technical best practices (CI/CD, testing, quality gates) and agile culture (psychological safety, diversity, innovation) through cross-company influence. 
-- **Mentorship & coaching** – Coached and mentored engineers to expand their organisational networks and capabilities, leveraging formal coaching training to foster collaboration, ownership and high-performance team dynamics.
+- **SDLC tooling & platform** — Led Bitbucket → GitHub Enterprise Cloud migration (80k+ repos). Managed Jenkins, uDeploy, SonarQube, LaunchDarkly with ServiceNow/Jira integration. Managed CloudFlare and CloudFront CDN services.
+- **Data insights & automation** — Designed serverless pipelines using AWS SAM (Python, Lambda, Step Functions) to collect and enrich SDLC metadata at massive scale, ingesting into Snowflake/RDS/DynamoDB with Pandas for leadership visibility on quality, speed, costs and security.
+- **Policy & standards enforcement** — Drove automation frameworks and policies embedding corporate standards for security, costs and services using OPA and SonarQube, influencing compliance and efficiency enterprise-wide.
+- **Technical leadership & advocacy** — DevOps advocate shaping technical best practices (CI/CD, testing, quality gates) and agile culture (psychological safety, diversity, innovation) through cross-company influence.
+- **Mentorship & coaching** — Coached and mentored engineers to expand their organisational networks and capabilities, leveraging formal coaching training to foster collaboration, ownership and high-performance team dynamics.
 
 ### Cloud Support Engineer, Amazon Web Services (AWS), Dublin - IE
 
 *December 2019 - April 2022*:
 
-**Cloud Support Engineer (Networking/Security)** – AWS
-Provided architecture guidance, troubleshooting and best practices for AWS customers worldwide, specializing in networking, security and containers while leading internal serverless tool development. 
-- **Customer architecture & troubleshooting** – Partnered with global customers on complex architectures including DNS (Route53), load balancing (L4-7), IPsec VPN, WAF, Network Firewall, Direct Connect and hybrid connectivity, plus CI/CD pipelines, ECS/EKS containers and IaC (CloudFormation, CDK, CDK8s). 
-- **Internal platform tooling** – Led development of internal serverless tools (Python/Lambda, API Gateway + Cognito, DynamoDB) using SAM/CDK/CDK8s to improve support workflows, training and team productivity across AWS. 
-- **Observability integration** – Incorporated CloudWatch Logs, Metrics and Insights into customer solutions and internal tools for better visibility and proactive issue resolution. 
-- **Global cross-functional collaboration** – Worked with diverse, interdisciplinary teams worldwide to solve customer challenges, create training materials and develop features serving both internal support and external AWS customers. 
+Provided architecture guidance, troubleshooting and best practices for AWS customers worldwide, specialising in networking, security and containers while leading internal serverless tool development.
+
+- **Customer architecture & troubleshooting** — Partnered with global customers on complex architectures including DNS (Route53), load balancing (L4-L7), IPsec VPN, WAF, Network Firewall, Direct Connect and hybrid connectivity, plus CI/CD pipelines, ECS/EKS containers and IaC (CloudFormation, CDK, CDK8s).
+- **Firewall integration** — Helped customers integrate third-party firewalls (Cisco, Juniper, Palo Alto, CheckPoint, Fortinet) with AWS via VPN or as Network Firewall appliances.
+- **Internal platform tooling** — Led development of internal serverless tools (Python/Lambda, API Gateway + Cognito, DynamoDB) using SAM/CDK/CDK8s to improve support workflows, training and team productivity.
+- **Observability** — Incorporated CloudWatch Logs, Metrics and Insights into customer solutions and internal tools for proactive issue resolution.
+- **Global collaboration** — Worked with diverse, interdisciplinary teams worldwide to solve customer challenges, create training materials and develop features.
 
 ### Globo, Rio de Janeiro - BR
 
@@ -104,65 +129,67 @@ Provided architecture guidance, troubleshooting and best practices for AWS custo
 
 *June 2012 - December 2019*:
 
-- Network Team Leadership:
-  - Developed a network-api orchestrating both physical and virtual networks, offering L2/L3 networks, server load balancers (L4-7), SDN open flow, proxy, and firewall rules for IPv4 and IPv6 using BGP. Architected and led the creation of a private CDN with presence in several public IXs in Brazil, as well as in Portugal and the USA, delivering streaming and web experience to millions of simultaneous users.
-- Information Security Initiative:
-  - Lead the Information Security Team, implementing policies for security services, two-factor authentication, federated identity, API authentication, ACLs, proxy and firewall rules, SSL certificate lifecycle management, static analysis, pen-tests. Established an awareness program for developers (SEC-DEV-OPS) and users.
-- Multi Cloud Initiative:
-  - Led the Multi Cloud initiative, designing topology, gathering requirements, and deploying solutions based on Apache's Cloudstack IAAS. Implemented DR and Hybrid Cloud Solutions using AWS, Google Cloud, and Azure.
-- Corporate IT Program:
-  - Developed and implemented a program delivering corporate IT services, ensuring smooth operation of mobility (wired, Wi-Fi, BYOD) for users across workplaces and home offices. Improved reliability and security of services through replication/DR systems.
-  
+- **Network** — Developed network-API orchestrating physical and virtual networks — L2/L3, server load balancers (L4-L7), SDN OpenFlow, proxy and firewall rules for IPv4/IPv6 using BGP on Spine-Leaf topology (+2 Tbps throughput). Managed CheckPoint and Palo Alto firewalls.
+- **CDN** — Architected and led creation of one of Brazil's largest private CDNs, connected via BGP to major IXs across Brazil, Portugal and USA, delivering streaming to millions of simultaneous users.
+- **Information Security** — Created and led Information Security team — 2FA, federated identity, API authentication, SSL certificate lifecycle, static analysis, pen-tests, SEC-DEV-OPS awareness programme, hardening, SNOC & CSIRT.
+- **Multi Cloud** — Led initiative designing topology, gathering requirements, deploying Apache CloudStack IaaS with DR/Hybrid Cloud using AWS, Google Cloud and Azure.
+- **Corporate IT** — Delivered corporate IT services — mobility (wired, Wi-Fi, BYOD), VDI, IP telephony, DR/replication.
+- **Merger leadership** — One of the leaders responsible for the merger of the group's major companies, leading network integration, corporate IT and cloud convergence.
+
 #### IT Coordinator
 
 *August 2008 - June 2012*:
 
-- Network and Information Security Leadership:
-  - Led teams in enhancing network capacity and resilience. 
-  - Designed a new Point Of Presence in São Paulo using BGP and anycast for optimal performance;
-- Expansion of Information Security Activities:
-  - Expanded Information Security team activities to include Corporate and Web Application Security. - Lead collaboration between Corporate IT and Development Teams to define and improve best practices and baselines.
-- IPv6 Implementation:
-  - Implemented IPv6 on the corporate network for Infrastructure teams and major websites of Globo.com.
-  - Played a key role in World IPv6 Day (2011), World IPv6 Launch (2012), and IPv6 Week Brasil.
+- Led Network and Information Security teams to increase capacity and resilience.
+- Designed new Point of Presence in São Paulo using BGP and anycast for optimal performance.
+- Expanded Information Security from Network Security to include Corporate and Web Application Security.
+- Implemented IPv6 on corporate network and major websites — key role in World IPv6 Day (2011), World IPv6 Launch (2012), IPv6 Week Brasil.
 
 #### Network Coordinator
 
 *March 2007 - August 2008*:
 
-- Automation and Software Development:
-  - Designed initial steps in automation and software development to provide network services.
-  - Spearhead creation of Information Security Team
+- Designed initial automation and software layer for network services.
+- Spearheaded creation of Information Security team.
 
 #### Network Engineer
 
 *April 2006 - March 2007*:
 
-- DataCentre Support:
-  - Supported DataCentre activities, working in a team of Network and Security.
-  - Utilized best practices in IP routing/switching and security technologies.
-- Infrastructure Services Evaluation:
-  - Defined technologies, designed architecture, and evaluated new hardware and software solutions for infrastructure services, including network and security.
+- Supported DataCentre activities — IP routing/switching and security technologies (TCP/IP, OSPF, BGP, MPLS, IPsec, GRE, L7 switches, firewalls, IDS/IPS, VPN, Solaris, FreeBSD, RedHat/CentOS).
+- Defined technologies, designed architecture, evaluated new hardware/software solutions (RFP, POC, load testing).
 
-### Network administrator, Universo Online (UOL), Sao Paulo - BR
+### Network Administrator, Universo Online (UOL), São Paulo - BR
 
-*September 1999 - March 2006*.
+*September 1999 - March 2006*:
 
-### Business Owner, InfoHelp, Sao Paulo - BR
+- Team leader for Network DataCentre activities — routing/switching (TCP/IP, OSPF, BGP, MPLS, IPsec, GRE, L7 switches), unified communications (SIP, SKINNY, MGCP, H.323), DNS administration (Bind, DJB, CNS).
 
-*April 1996 - September 1999*.
+### Business Owner, InfoHelp, São Paulo - BR
 
-### Datacenter Operations Supervisor, Doribon Distribuidora, Sao Paulo - BR
+*April 1996 - September 1999*:
 
-*May 1995 - May 1996*.
+- Corporate and datacenter network solutions. Development (Delphi, VB/VBA). Commerce of technology products.
+
+### Datacenter Operations Supervisor, Doribon Distribuidora, São Paulo - BR
+
+*May 1995 - May 1996*:
+
+- AIX administration. Shift supervisor of datacenter operations.
 
 ### Consultant, Various, BR
 
-*March 1991 - April 1995*.
+*March 1991 - April 1995*:
 
-### Electronic Technical Assistant, Maxwell, Sao Paulo - BR
+- Datacenter operations supervision. Development (COBOL, dBase, Clipper, VB, VBA).
 
-*February 1990 - February 1991*.
+### Electronic Technical Assistant, Maxwell, São Paulo - BR
+
+*February 1990 - February 1991*:
+
+- Assembly and testing of stabilisers and UPS.
+
+---
 
 ## Education
 
@@ -172,13 +199,13 @@ Provided architecture guidance, troubleshooting and best practices for AWS custo
 
 *October 2020 - August 2023*:
 
-- Professional Diploma, Strategy Development & Innovation: *December 2022 -  June 2023*
+- Professional Diploma, Strategy Development & Innovation: *December 2022 - June 2023*
 - Professional Diploma, Leadership Development: *May 2022 - December 2022*
-- Professionall Diploma, Business & Executive Coaching: *October 2020 - September 2021*
+- Professional Diploma, Business & Executive Coaching: *October 2020 - September 2021*
 
-### San Jose State University
+### San José State University
 
-#### Post Baccalaureate in Advanced Global Leadership, 
+#### Post Baccalaureate in Advanced Global Leadership
 
 *2017 - 2018*:
 
@@ -198,7 +225,9 @@ Provided architecture guidance, troubleshooting and best practices for AWS custo
 
 - Executive MBA
 
-## Licenses and Accreditations
+---
+
+## Licences and Accreditations
 
 ### European Mentoring and Coaching Council (EMCC)
 
@@ -206,79 +235,62 @@ Provided architecture guidance, troubleshooting and best practices for AWS custo
 
 - [Accredited Coach at the Individual Practitioner level](https://www.SmartCertificate.com/SmartCertificate/?1%7c4cdd77c0-a2cc-453b-8e28-5f7c9569f9aa%7c16ce94a3-ffcc-4d8a-bc37-de9b1e08ff69)
 
+### Cisco Networkers Innovation Awards
+
+*2010*:
+
+- Best Project of the Year — Datacenter
+
+---
+
 ## Languages
 
 - Portuguese (Native)
 - English (Bilingual)
 - Spanish (Basic - Intermediate)
 
+---
+
 ## Skills
 
-- Relationship Building
-- Team Leadership
-- Positive Attitude
-- Communicative
-- Creative
-- Flexible
-- Charismatic
-- Empathetic
-- Problems Solver
-- Coach
-- Mentor
-- Team Empowerment
-- Team Diversity
-- Content Distribution Networks
-- Helm Charts
-- Snowflake
-- GraphQL
-- Shell Scripting
-- Teamwork
-- Analytical Skills
-- Strategic Planning
-- Technical Leadership
-- Diverse Groups
-- Coaching & Mentoring
-- Business Strategy
-- Serverless Computing (SAM)
-- Kubernetes
-- Prometheus & Grafana
-- Software Development Life Cycle (SDLC)
-- Agile Methodologies
-- Python, TypeScript (Programming Language)
-- Continuous Integration and Continuous Delivery (CI/CD)
-- DevOps
-- Amazon Web Services (AWS)
-- IT Management
-- Global Leadership
-- Project Management
-- IT Service Management
-- High Availability
-- Information Security
-- Cloud Computing
-- Data Center
-- TCP/IP
-- DNS
-- Security
-- Virtualization
-- Disaster Recovery
-- Performance Management
-- Linux
-- Leadership
-- Cross-functional Team Leadership
-- Team Leadership
-- Hybrid Cloud
-- Network Design
-- Network Administration
-- Firewalls
-- VPN
-- BGP
-- IPv6
-- ITIL
-- Sonarqube
-- Github Enterprise Cloud
-- LaunchDarkly
-- Service-now
-- MySQL
-- Jenkins
-- DynamoDB
-- IAC (CDK, CDK8s, Terraform, CDKTF, CloudFormation)
+### Cloud & Infrastructure
+AWS, EKS, RDS, MSK, ECS, CloudFront, Route53, WAF, Shield, Firewall Manager, Lambda, Step Functions, API Gateway, S3, SQS, VPC, Direct Connect, Athena, Azure, Google Cloud, Apache CloudStack, High Availability, Disaster Recovery, Data Center
+
+### Infrastructure as Code
+Terraform, Terragrunt, AWS CDK (TypeScript), CDK8s, CDKTF, CloudFormation, AWS SAM
+
+### Containers & Orchestration
+Kubernetes, EKS, Docker, Docker Compose, ECS, Helm Charts, ArgoCD
+
+### CI/CD & SDLC
+GitLab CI, Jenkins, GitHub Actions, CodeBuild, CodePipeline, uDeploy, SonarQube, LaunchDarkly, ServiceNow, Jira, GitHub Enterprise Cloud
+
+### Security & Compliance
+WAF, Shield Advanced, Firewall Manager, Checkov, Trivy, tfsec, OPA, CrowdStrike Falcon, DNSSEC, Information Security, DevSecOps, Pen Testing, Federated Identity, SSL/TLS Lifecycle
+
+### Observability & Monitoring
+Grafana, Loki, Prometheus, Elastic SIEM, OpenSearch, Kibana, CloudWatch, Checkmk, Athena
+
+### Networking
+BGP, OSPF, MPLS, IPsec VPN, DNS, IPv6, SDN/OpenFlow, Load Balancing (ALB/NLB, L4-L7), CDN, Direct Connect, anycast, TCP/IP
+
+### Firewalls & Network Security
+CheckPoint, Palo Alto, Cisco, Juniper, Fortinet, AWS Network Firewall
+
+### Programming & Automation
+Python, Go, TypeScript, Shell Scripting
+
+### Databases
+PostgreSQL/RDS, DynamoDB, MySQL, Snowflake
+
+### AI Tooling
+Kiro (custom Powers and steering files), GitLab Duo, Amazon Q
+
+### Operating Systems
+Ubuntu, Amazon Linux, RedHat/CentOS, FreeBSD, Solaris, Linux
+
+### Leadership & Soft Skills
+Team Leadership, Technical Leadership, Cross-functional Collaboration, Coaching & Mentoring, Psychological Safety, Strategic Planning, Business Strategy, Agile Methodologies, ITIL, IT Service Management, Project Management, Team Empowerment, Relationship Building
+
+### Methodologies
+DevOps, SRE, Agile, ITIL, SDLC
