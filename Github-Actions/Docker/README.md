@@ -19,13 +19,13 @@ The [`publish-tg-tf-tofu.yml`](../../.github/workflows/publish-tg-tf-tofu.yml) w
 ```yaml
 # Key components for multi-arch builds
 - name: Set up QEMU
-  uses: docker/setup-qemu-action@v3
+  uses: docker/setup-qemu-action@v4
 
 - name: Set up Docker Buildx  
-  uses: docker/setup-buildx-action@v3
+  uses: docker/setup-buildx-action@v4
 
 - name: Build container
-  uses: docker/build-push-action@v6
+  uses: docker/build-push-action@v7
   with:
     platforms: linux/amd64,linux/arm64  # Multi-arch support
     push: true

@@ -19,13 +19,13 @@ jobs:
         uses: actions/checkout@v6
       # Add your test steps here if needed...
       - name: Login to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY}}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Docker
-        uses: docker/setup-docker-action@v4
+        uses: docker/setup-docker-action@v5
         with:
           daemon-config: |
             {
@@ -36,12 +36,12 @@ jobs:
             }
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.REGISTRY_IMAGE }}
           # tags: type=sha
@@ -53,7 +53,7 @@ jobs:
           flavor: |
             latest=true
       - name: Validate build configuration
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           platforms: linux/amd64,linux/arm64
           file: terragrunt-terraform-tofu.dockerfile
@@ -61,7 +61,7 @@ jobs:
           call: check
       - name: Build container
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           platforms: linux/amd64,linux/arm64
           file: terragrunt-terraform-tofu.dockerfile
@@ -77,7 +77,7 @@ jobs:
     needs: publish
     steps:
       - name: Login to GitHub Container Registry with PAT_TOKEN
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY}}
           username: ${{ github.repository_owner }}
