@@ -4,6 +4,8 @@ networking:
   disableDefaultCNI: true # to install calico
   apiServerAddress: "$MY_PRIVATE_IP"
   apiServerPort: 6443
+  # nftables mode (GA since K8s 1.31) — successor to iptables mode
+  kubeProxyMode: nftables
   # enable dualstack
   ipFamily: ipv4
   podSubnet: "10.244.0.0/16" # IPv4 only

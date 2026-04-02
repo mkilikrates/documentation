@@ -4,41 +4,36 @@ networking:
   disableDefaultCNI: true # to install calico
   apiServerAddress: "$MY_PRIVATE_IP"
   apiServerPort: 6443
-  # enable dualstack
-  ipFamily: dual
+  # nftables mode (GA since K8s 1.31) — successor to iptables mode
+  kubeProxyMode: nftables
+  ipFamily: dual # enable dualstack
+  # Both IPv4 and IPv6 subnets must be specified in dual-stack mode
   podSubnet: "10.244.0.0/16,fd00:10:244::/56" # IPv4 first, then IPv6 for Calico compatibility
   serviceSubnet: "10.96.0.0/12,fd00:10:96::/112" # IPv4 first, then IPv6
 # Add local registry
-# containerdConfigPatches:
-# # patches for local registry
-# - |-
-#   [plugins."io.containerd.grpc.v1.cri".registry]
-#     config_path = "/etc/containerd/certs.d"
-# patches for prometheus
+containerdConfigPatches:
+# patches for local registry
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    config_path = "/etc/containerd/certs.d"
+# Patches for Prometheus scraping (bind metrics endpoints to 0.0.0.0)
+# Using v1beta4 API for K8s 1.31+ (v1beta3 is deprecated)
 kubeadmConfigPatches:
 - |-
   kind: ClusterConfiguration
-  # patches for enable admission puglins
-  apiServer:
-    extraArgs:
-      "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
-  # configure controller-manager bind address
   controllerManager:
     extraArgs:
-      bind-address: 0.0.0.0
-  # configure etcd metrics listen address
+      bind-address: "::"
+  scheduler:
+    extraArgs:
+      bind-address: "::"
   etcd:
     local:
       extraArgs:
-        listen-metrics-urls: http://0.0.0.0:2381
-  # configure scheduler bind address
-  scheduler:
-    extraArgs:
-      bind-address: 0.0.0.0
+        listen-metrics-urls: "http://[::]:2381"
 - |-
   kind: KubeProxyConfiguration
-  # configure proxy metrics bind address
-  metricsBindAddress: 0.0.0.0
+  metricsBindAddress: "::"
 nodes:
   - role: control-plane
     extraPortMappings:
@@ -49,31 +44,5 @@ nodes:
       - containerPort: 31438
         hostPort: 8443
         protocol: TCP
-    # IPv6 configuration for control plane
-    kubeadmConfigPatches:
-    - |
-      kind: InitConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-ip: "::" # Enable IPv6 node IP detection
-    - |
-      kind: ClusterConfiguration
-      networking:
-        podSubnet: "10.244.0.0/16,fd00:10:244::/56"
-        serviceSubnet: "10.96.0.0/12,fd00:10:96::/112"
   - role: worker
-    # IPv6 configuration for worker nodes
-    kubeadmConfigPatches:
-    - |
-      kind: JoinConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-ip: "::" # Enable IPv6 node IP detection
   - role: worker
-    # IPv6 configuration for worker nodes
-    kubeadmConfigPatches:
-    - |
-      kind: JoinConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-ip: "::" # Enable IPv6 node IP detection

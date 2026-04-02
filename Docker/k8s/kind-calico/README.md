@@ -1,6 +1,6 @@
 # Using Open Source Kind with Calico CNI
 
-If you want to test network policies with kind, this will hows how to combine it with calico CNI.
+If you want to test network policies with kind, this shows how to combine it with Calico CNI. Supports IPv4-only and dual-stack (IPv4 + IPv6) configurations, with kube-proxy in nftables mode (GA since K8s 1.31) and metrics endpoints exposed for Prometheus scraping.
 
 ## Table of Contents
 
@@ -8,16 +8,12 @@ If you want to test network policies with kind, this will hows how to combine it
 - [Enable ipv6 on Docker Desktop](#enable-ipv6-on-docker-desktop)
 - [Kind Installation](#kind-installation)
 - [Create cluster](#create-cluster)
+  - [kube-proxy mode: nftables](#kube-proxy-mode-nftables)
+  - [Prometheus metrics bind addresses (dual-stack config)](#prometheus-metrics-bind-addresses-dual-stack-config)
+  - [kube-proxy mode verification](#kube-proxy-mode-verification)
 - [Install Calico](#install-calico)
   - [Ipv4 only](#ipv4-only)
   - [Dual-stack (Recommended for IPv6)](#dual-stack-recommended-for-ipv6)
-    - [Step 1: Download and Configure Calico Manifest](#step-1-download-and-configure-calico-manifest)
-    - [Step 2: Configure IPAM for Dual-stack](#step-2-configure-ipam-for-dual-stack)
-    - [Step 3: Install yq (if not already installed)](#step-3-install-yq-if-not-already-installed)
-    - [Step 4: Configure Calico DaemonSet for IPv6](#step-4-configure-calico-daemonset-for-ipv6)
-    - [Step 5: Apply Calico Configuration](#step-5-apply-calico-configuration)
-    - [Step 6: Wait for Calico to be Ready](#step-6-wait-for-calico-to-be-ready)
-    - [Step 7: Verify Installation](#step-7-verify-installation)
 - [Local Registry](#local-registry)
 - [Delete cluster](#delete-cluster)
 
@@ -91,6 +87,56 @@ sudo mv ./kind /usr/local/bin/kind
 ```
 
 ## Create cluster
+
+### kube-proxy mode: nftables
+
+Both cluster configs use `kubeProxyMode: nftables` under the kind `networking` section. This is the direction Kubernetes is moving — nftables mode went GA in Kubernetes 1.31 as the successor to iptables mode. See [kind documentation](https://kind.sigs.k8s.io/docs/user/configuration/#kube-proxy-mode).
+
+**Why nftables over iptables?**
+- iptables is in maintenance mode in the Linux kernel — nftables is the replacement
+- nftables uses a cleaner rule structure (no more long sequential chains)
+- Better performance at scale (similar to IPVS but without the separate kernel modules)
+- Kubernetes will eventually deprecate iptables mode
+
+**Why not IPVS?**
+- IPVS is still a valid option for large clusters, but nftables is the strategic direction
+- nftables handles both Service routing and NetworkPolicy enforcement in a unified framework
+- Simpler to debug (single tool: `nft list ruleset` vs `iptables-save` + `ipvsadm`)
+
+### Prometheus metrics bind addresses (dual-stack config)
+
+The dual-stack cluster config includes `kubeadmConfigPatches` that bind the controller-manager, scheduler, etcd metrics and kube-proxy metrics to `::` (all interfaces, both IPv4 and IPv6). By default these bind to `127.0.0.1`, which prevents Prometheus from scraping them from a pod.
+
+**Note on kubeadm API versions:** Kind internally generates kubeadm config using `v1beta3`. Although `v1beta4` is available since K8s 1.31, kind patches must use the `v1beta3` format (string map for `extraArgs`) to merge correctly. Using `v1beta4` format (list of `{name, value}`) will be silently ignored.
+
+You can verify the bind addresses after cluster creation:
+
+```bash
+# Controller Manager (should show ::)
+kubectl get pods -n kube-system -l component=kube-controller-manager -o yaml | grep -A1 "bind-address"
+# Scheduler (should show ::)
+kubectl get pods -n kube-system -l component=kube-scheduler -o yaml | grep -A1 "bind-address"
+# Etcd metrics (should show http://[::]:2381)
+kubectl get pods -n kube-system -l component=etcd -o yaml | grep "listen-metrics-urls"
+# Kube-proxy (should show ::)
+kubectl get configmap kube-proxy -n kube-system -o yaml | grep metricsBindAddress
+```
+
+You can also confirm they're listening on all interfaces (both IPv4 and IPv6):
+
+```bash
+docker exec kind-control-plane ss -tlnp | grep -E "2381|10257|10259"
+# Output should show *:port (meaning all interfaces)
+```
+
+### kube-proxy mode verification
+
+```bash
+# Check kube-proxy mode
+kubectl get configmap kube-proxy -n kube-system -o yaml | grep mode
+# Verify nftables rules are being created
+docker exec kind-control-plane nft list ruleset | head -30
+```
 
 To create cluster you can just run
 
