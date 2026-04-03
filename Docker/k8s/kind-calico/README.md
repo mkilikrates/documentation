@@ -194,16 +194,7 @@ export calicoversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.
 curl -Lo calico.yaml "https://raw.githubusercontent.com/projectcalico/calico/v${calicoversion}/manifests/calico.yaml"
 ```
 
-#### Step 2: Configure IPAM for Dual-stack
-
-Update the IPAM configuration in the calico.yaml file:
-
-```bash
-# Update IPAM configuration for dual-stack
-sed -i '/"ipam": {/,/}/c\          "ipam": {\n              "type": "calico-ipam",\n              "assign_ipv4": "true",\n              "assign_ipv6": "true"\n          },' calico.yaml
-```
-
-#### Step 3: Install yq (if not already installed)
+#### Step 2: Install yq (if not already installed)
 
 ```bash
 export yqversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/mikefarah/yq/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
@@ -213,6 +204,15 @@ export yqversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/
 [ $(uname -m) = x86_64 ] && curl -Lo ./yq "https://github.com/mikefarah/yq/releases/download/v${yqversion}/yq_linux_amd64"
 chmod +x ./yq
 sudo mv ./yq /usr/local/bin/yq
+```
+
+#### Step 3: Configure IPAM for Dual-stack
+
+The IPAM config is embedded as a JSON string inside a YAML field (`cni_network_config`), so `yq` can't modify it directly. We use `sed` for this one change:
+
+```bash
+# Update IPAM configuration for dual-stack
+sed -i '/"ipam": {/,/}/c\          "ipam": {\n              "type": "calico-ipam",\n              "assign_ipv4": "true",\n              "assign_ipv6": "true"\n          },' calico.yaml
 ```
 
 #### Step 4: Configure Calico DaemonSet for IPv6
