@@ -1,75 +1,116 @@
-# NGINX FABRIC
+# NGINX Gateway Fabric
 
-For this example, I'm using the [single_cluster.yaml](../kind-cluster/single_cluster.yaml) file. To use other option you may need add some steps to deploy gateway using nodeselector. It is not my focus on that.
+Deploy [NGINX Gateway Fabric](https://github.com/nginx/nginx-gateway-fabric) as a Gateway API implementation on kind.
+
+## Prerequisites
+
+- A running kind cluster with `extraPortMappings` on the control-plane node (ports 31437 and 31438)
+- [cert-manager](../cert-manager/) installed (for TLS support)
+- Control-plane taint removed if using a multi-node cluster:
+
+```bash
+kubectl taint nodes kind-control-plane node-role.kubernetes.io/control-plane:NoSchedule-
+```
 
 ## Install Gateway API CRDs
 
-First, install the Gateway API Custom Resource Definitions:
-
 ```bash
-export gatewayapiversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/nginx/nginx-gateway-fabric/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
-kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${gatewayapiversion}" | kubectl apply -f -
+export gatewayapiversion=$(curl -Ls -o /dev/null -w %{url_effective} \
+  https://github.com/nginx/nginx-gateway-fabric/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
+kubectl kustomize \
+  "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${gatewayapiversion}" \
+  | kubectl apply -f -
 ```
 
-## Install NGINX Gateway using Helm
+## Install NGINX Gateway Fabric using Helm
 
 ```bash
-helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --create-namespace -n nginx-gateway --set nginx.service.type=NodePort --set-json 'nginx.service.nodePorts=[{"name":"http","port":31437,"listenerPort":80},{"name":"https","port":31438,"listenerPort":443}]'
+helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
+  --create-namespace -n nginx-gateway \
+  --set nginx.service.type=NodePort \
+  --set-json 'nginx.service.nodePorts=[{"name":"http","port":31437,"listenerPort":80},{"name":"https","port":31438,"listenerPort":443}]' \
+  --set-json 'nginxGateway.nodeSelector={"kubernetes.io/hostname":"kind-control-plane"}'
 ```
 
-**Note:** The gateway service is set to Nodeport listen on port 31437 and 31438
+The gateway service uses NodePort on ports 31437 (HTTP → 8080 on host) and 31438 (HTTPS → 8443 on host).
+The controller is pinned to the control-plane node via `nodeSelector`.
 
-check deployment
+Check deployment:
 
 ```bash
 kubectl wait --timeout=5m -n nginx-gateway deployment/ngf-nginx-gateway-fabric --for=condition=Available
-kubectl -n nginx-gateway get pods
+kubectl -n nginx-gateway get pods -o wide
 ```
+
+## Pin the data plane to the control-plane node
+
+NGINX Gateway Fabric creates a separate data plane deployment when you create a Gateway resource. By default it can schedule on any node, but in kind only the control-plane has Docker port mappings to the host. The data plane must run there.
+
+NGINX Gateway Fabric also sets `externalTrafficPolicy: Local` on the gateway service (and reconciles it back if you change it), which means kube-proxy only forwards NodePort traffic to pods on the same node.
+
+Pin the data plane via the `NginxProxy` resource:
+
+```bash
+kubectl -n nginx-gateway patch nginxproxy ngf-proxy-config --type=merge \
+  -p '{"spec":{"kubernetes":{"deployment":{"pod":{"nodeSelector":{"kubernetes.io/hostname":"kind-control-plane"}}}}}}'
+```
+
+> **Note:** This is a kind-specific constraint. In a real cluster with a LoadBalancer service, traffic would reach any node and `externalTrafficPolicy: Local` would work correctly.
 
 ## Create a shared gateway
 
-```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < shared-gateway.yaml | kubectl apply -f -
-```
-
-if you want to use https/tls, please install [cert-manager](../cert-manager/) first then
+### HTTP only
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < shared-gateway-tls.yaml | kubectl apply -f -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < shared-gateway.yaml | kubectl apply -f -
 ```
 
-check the gateway
+### HTTP + HTTPS/TLS
+
+Install [cert-manager](../cert-manager/) first, then:
+
+```bash
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < shared-gateway-tls.yaml | kubectl apply -f -
+```
+
+### Verify the gateway
 
 ```bash
 kubectl -n nginx-gateway get gateway
+kubectl -n nginx-gateway get gateway nginx-shared-gateway -o jsonpath='{.spec.listeners[*].hostname}';echo
 ```
 
-**Note:** The advantage of using this shared gateway is that we now can deploy several different hosts and http routing rules for each of them.
+The shared gateway allows multiple applications to attach HTTPRoutes to it — each with different hostnames and routing rules.
 
-you can see it using
+### Verify pods are on the control-plane
 
 ```bash
-kubectl -n nginx-gateway get gateway nginx-shared-gateway -o jsonpath='{.spec.listeners[].hostname}';echo
+kubectl -n nginx-gateway get pods -o wide
 ```
 
-### install app test
+Both `ngf-nginx-gateway-fabric` and `nginx-shared-gateway-nginx` should be on `kind-control-plane`.
+
+## Deploy test application
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < app.yaml | kubectl apply -f -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < app.yaml | kubectl apply -f -
 ```
 
-### check the app
-
-Note that the gateway service is set to Nodeport listen on port 31437
+### Check the app
 
 ```bash
 kubectl -n red-blue-nginx-fab get pods
 kubectl -n red-blue-nginx-fab get services
 kubectl -n red-blue-nginx-fab describe httproutes
-kubectl -n red-blue-nginx-fab describe gateways
 ```
 
-### test the app
+### Test HTTP
 
 ```bash
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
@@ -78,44 +119,47 @@ curl http://red-blue.$MY_PRIVATE_IP.nip.io:8080/red;echo
 curl http://red-blue.$MY_PRIVATE_IP.nip.io:8080/blue;echo
 ```
 
-using tls
+### Test HTTPS
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$')
-export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
 curl -k https://red-blue.$MY_PRIVATE_IP.nip.io:8443/red;echo
 curl -k https://red-blue.$MY_PRIVATE_IP.nip.io:8443/blue;echo
 ```
 
-### check gateway service as nodeport
+### Check gateway service
 
 ```bash
 kubectl -n nginx-gateway get svc nginx-shared-gateway-nginx
 ```
 
-## clean up
+## Clean up
 
-### uninstall app test
+### Remove test application
 
 ```bash
-export iface=$(route | grep '^default' | grep -o '[^ ]*$');export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"; envsubst < app.yaml | kubectl delete -f -
+export iface=$(route | grep '^default' | grep -o '[^ ]*$')
+export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
+envsubst < app.yaml | kubectl delete -f -
 ```
 
-### remove shared gateway
+### Remove shared gateway
 
 ```bash
 kubectl -n nginx-gateway delete gateway nginx-shared-gateway
 ```
 
-### uninstall nginx fabric
+### Uninstall NGINX Gateway Fabric
 
 ```bash
 helm uninstall ngf -n nginx-gateway
 ```
 
-### uninstall Gateway API CRDs
+### Uninstall Gateway API CRDs
 
 ```bash
-export gatewayapiversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/nginx/nginx-gateway-fabric/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
-kubectl kustomize "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${gatewayapiversion}" | kubectl delete -f -
+export gatewayapiversion=$(curl -Ls -o /dev/null -w %{url_effective} \
+  https://github.com/nginx/nginx-gateway-fabric/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
+kubectl kustomize \
+  "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${gatewayapiversion}" \
+  | kubectl delete -f -
 ```
