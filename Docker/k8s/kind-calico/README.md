@@ -2,6 +2,16 @@
 
 If you want to test network policies with kind, this shows how to combine it with Calico CNI. Supports IPv4-only and dual-stack (IPv4 + IPv6) configurations, with kube-proxy in nftables mode (GA since K8s 1.31) and metrics endpoints exposed for Prometheus scraping.
 
+## Article Series: Kubernetes Networking Demystified
+
+This repo is the companion to a 3-part article series:
+
+| Part | English | Português (BR) |
+|---|---|---|
+| Part 1: Setting Up the Lab | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-demystified-part-1-setting-up-rvj6e) | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-desmistificado-parte-1-montando-hy1ke) |
+| Part 2: Network Policies in Practice | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-demystified-part-2-network-nicolia-dos-anjos--7ltqe) | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-desmistificado-parte-2-network-m7ote) |
+| Part 3: Under the Hood | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-demystified-part-3-under-hood-dopqe) | [LinkedIn](https://www.linkedin.com/pulse/kubernetes-networking-desmistificado-parte-3-por-do-c84ce) |
+
 ## Table of Contents
 
 - [Enable ipv6 on WSL](#enable-ipv6-on-wsl)
