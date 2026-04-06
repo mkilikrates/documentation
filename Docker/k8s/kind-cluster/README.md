@@ -86,6 +86,10 @@ There are 2 examples here:
 - [multinode-cluster](./multinode_cluster.yaml): It will create a cluster with HA (control-plane) and 3 worker nodes;
 - [single-cluster](./single_cluster.yaml): It will create a single node cluster with all the components (all-in-one).
 
+> **WSL2 + nftables + dual-stack limitation:** On WSL2, kube-proxy `nftables` mode doesn't support IPv6 services due to the missing `nft_fib_ipv6` kernel module in the Microsoft-compiled kernel (`6.6.x-microsoft-standard-WSL2`). IPv6 nftables sync will fail with `"Could not process rule: No such file or directory"` on every node. Use `ipvs` or `iptables` mode instead for dual-stack clusters on WSL2. The multinode cluster config uses `ipvs` for this reason.
+
+> **Dual-stack port mappings:** Kind doesn't allow binding the same host port to both IPv4 and IPv6 (duplicate `hostPort + protocol` validation). The multinode cluster config uses separate host ports: IPv4 on 80/443 (`listenAddress: "0.0.0.0"`) and IPv6 on 8080/8443 (`listenAddress: "::"`). Both map to the same container NodePorts (31437/31438). The control-plane taint is removed via `skipPhases` in `kubeadmConfigPatches` so that [NGINX Gateway Fabric](../nginx-fabric/) pods can schedule on the control-plane node where the port mappings are.
+
 To create cluster you can just run
 
 ```bash
@@ -105,6 +109,12 @@ To see the list of admission plugins
 
 ```bash
 kubectl -n kube-system describe pod kube-apiserver-kind-control-plane | grep admission
+```
+
+Checking if removed taints (multinode cluster). Needed to use port mapping in the `kind-control-plane`.
+
+```bash
+kubectl get nodes -o json | jq '.items[].spec.taints'
 ```
 
 If you enabled dual stack, you can check using these:

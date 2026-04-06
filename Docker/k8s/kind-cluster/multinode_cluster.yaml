@@ -6,6 +6,11 @@ networking:
   apiServerPort: 6443
   # enable dualstack
   ipFamily: dual
+  # Both IPv4 and IPv6 subnets must be specified in dual-stack mode
+  podSubnet: "10.244.0.0/16,fd00:10:244::/56" # IPv4 first, then IPv6 for Calico compatibility
+  serviceSubnet: "10.96.0.0/12,fd00:10:96::/112" # IPv4 first, then IPv6
+  # ipvs mode
+  kubeProxyMode: ipvs
 # Add local registry
 containerdConfigPatches:
 # patches for local registry
@@ -23,39 +28,54 @@ kubeadmConfigPatches:
   # configure controller-manager bind address
   controllerManager:
     extraArgs:
-      bind-address: 0.0.0.0
+      bind-address: "::"
   # configure etcd metrics listen address
   etcd:
     local:
       extraArgs:
-        listen-metrics-urls: http://0.0.0.0:2381
+        listen-metrics-urls: "http://[::]:2381"
   # configure scheduler bind address
   scheduler:
     extraArgs:
-      bind-address: 0.0.0.0
+      bind-address: "::"
 - |-
   kind: KubeProxyConfiguration
   # configure proxy metrics bind address
-  metricsBindAddress: 0.0.0.0
+  metricsBindAddress: "::"
 # nodes configuration and ingress port mapping
 nodes:
 - role: control-plane
-  kubeadmConfigPatches:
-    - |
-      kind: InitConfiguration
-      nodeRegistration:
-        kubeletExtraArgs:
-          node-labels: "ingress-ready=true"
   extraPortMappings:
+  # IPv4
   - containerPort: 31437
     hostPort: 80
-    listenAddress: "0.0.0.0"
     protocol: TCP
+    listenAddress: "0.0.0.0"
   - containerPort: 31438
     hostPort: 443
-    listenAddress: "0.0.0.0"
     protocol: TCP
+    listenAddress: "0.0.0.0"
+  # IPv6
+  - containerPort: 31437
+    hostPort: 8080
+    protocol: TCP
+    listenAddress: "::"
+  - containerPort: 31438
+    hostPort: 8443
+    protocol: TCP
+    listenAddress: "::"
+  # Remove default control-plane taint so gateway pods can schedule here
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    skipPhases:
+      - mark-control-plane
 - role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: JoinConfiguration
+    skipPhases:
+      - control-plane-join/mark-control-plane
 - role: worker
 - role: worker
 - role: worker
