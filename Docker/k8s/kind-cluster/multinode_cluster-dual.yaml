@@ -1,9 +1,14 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
-  # bind specific ip addresses to allow reach it from other containers.
+  # bind specific ip addresses to allow reach it from other containeres.
   apiServerAddress: "$MY_PRIVATE_IP"
   apiServerPort: 6443
+  # enable dualstack
+  ipFamily: dual
+  # Both IPv4 and IPv6 subnets must be specified in dual-stack mode
+  podSubnet: "10.244.0.0/16,fd00:10:244::/56" # IPv4 first, then IPv6 for Calico compatibility
+  serviceSubnet: "10.96.0.0/12,fd00:10:96::/112" # IPv4 first, then IPv6
   # ipvs mode
   kubeProxyMode: ipvs
 # Add local registry
@@ -16,31 +21,32 @@ containerdConfigPatches:
 kubeadmConfigPatches:
 - |-
   kind: ClusterConfiguration
-  # patches for enable admission plugins
+  # patches for enable admission puglins
   apiServer:
     extraArgs:
       "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
   # configure controller-manager bind address
   controllerManager:
     extraArgs:
-      bind-address: "0.0.0.0"
+      bind-address: "::"
   # configure etcd metrics listen address
   etcd:
     local:
       extraArgs:
-        listen-metrics-urls: "http://0.0.0.0:2381"
+        listen-metrics-urls: "http://[::]:2381"
   # configure scheduler bind address
   scheduler:
     extraArgs:
-      bind-address: "0.0.0.0"
+      bind-address: "::"
 - |-
   kind: KubeProxyConfiguration
   # configure proxy metrics bind address
-  metricsBindAddress: "0.0.0.0"
+  metricsBindAddress: "::"
 # nodes configuration and ingress port mapping
 nodes:
 - role: control-plane
   extraPortMappings:
+  # IPv4
   - containerPort: 31437
     hostPort: 80
     protocol: TCP
@@ -49,6 +55,15 @@ nodes:
     hostPort: 443
     protocol: TCP
     listenAddress: "0.0.0.0"
+  # IPv6
+  - containerPort: 31437
+    hostPort: 8080
+    protocol: TCP
+    listenAddress: "::"
+  - containerPort: 31438
+    hostPort: 8443
+    protocol: TCP
+    listenAddress: "::"
   # Remove default control-plane taint so gateway pods can schedule here
   kubeadmConfigPatches:
   - |
