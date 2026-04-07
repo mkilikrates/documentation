@@ -21,6 +21,13 @@ helm upgrade --install --namespace kube-system \
  --set args[0]=--kubelet-insecure-tls
 ```
 
+Dual-stack: patch the metrics-server service (helm chart doesn't expose `ipFamilyPolicy`):
+
+```bash
+kubectl -n kube-system patch svc metrics-server --type=merge \
+  -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
+```
+
 Verify:
 
 ```bash
@@ -161,6 +168,32 @@ kubectl -n monitoring get pods -l app.kubernetes.io/name=alloy
 kubectl -n monitoring get svc -o jsonpath='{range .items[*]}{.metadata.name}: {.spec.clusterIPs}{"\n"}{end}'
 ```
 
+## NGINX Gateway Fabric metrics
+
+[NGINX Gateway Fabric](../nginx-fabric/) exposes Prometheus metrics on port 9113 from both components ([docs](https://docs.nginx.com/nginx-gateway-fabric/monitoring/prometheus/)):
+- **Control plane** (`ngf-nginx-gateway-fabric`): controller-runtime metrics + NGF-specific metrics (e.g., `nginx_gateway_fabric_event_batch_processing_milliseconds`)
+- **Data plane** (`nginx-shared-gateway-nginx`): NGINX metrics (e.g., `nginx_http_connection_count_connections`, `nginx_http_requests_total`)
+
+Since kube-prometheus-stack uses the Prometheus Operator (ServiceMonitor/PodMonitor CRDs) rather than annotation-based discovery, we need PodMonitors to scrape both components.
+
+> **Why PodMonitors?** The NGF helm chart doesn't create Services that expose the metrics port (9113). The metrics are only available on the pods directly.
+
+```bash
+kubectl apply -f nginx-gateway-fabric-podmonitor.yaml
+```
+
+> **Note:** The PodMonitor selector uses `app.kubernetes.io/instance: ngf` which is the helm release name and matches both control plane and data plane pods. If you installed NGF with a different release name, update the selector accordingly.
+
+Verify Prometheus is scraping both:
+
+```bash
+kubectl -n monitoring get podmonitor nginx-gateway-fabric
+```
+
+> **Note:** The `PodMonitor` label `release: prometheus-stack` must match the Prometheus Operator's `podMonitorSelector`. The kube-prometheus-stack helm release name `prometheus-stack` (used in the install commands above) sets this automatically. If you used a different release name, update the label accordingly.
+
+Then you can download and [import](https://grafana.com/docs/grafana/latest/visualizations/dashboards/build-dashboards/import-dashboards/) the [dashboard](https://docs.nginx.com/ngf/grafana-dashboard.json) shared in same [doc](https://docs.nginx.com/nginx-gateway-fabric/monitoring/prometheus/)
+
 ## Verify the Full Stack
 
 ### Check all pods
@@ -238,6 +271,7 @@ kubectl -n monitoring run otel-test --image=curlimages/curl --rm -it --restart=N
 ## Clean up
 
 ```bash
+kubectl -n monitoring delete podmonitor nginx-gateway-fabric
 helm -n monitoring uninstall alloy
 helm -n monitoring uninstall tempo
 helm -n monitoring uninstall loki

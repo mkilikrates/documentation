@@ -8,6 +8,8 @@ cert-manager can obtain certificates from a variety of certificate authorities, 
 
 ## Installation using helm
 
+### IPv4 only
+
 ```bash
 export certmanversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/cert-manager/cert-manager/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
 helm install \
@@ -19,6 +21,31 @@ helm install \
   --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
   --set config.kind="ControllerConfiguration" \
   --set config.enableGatewayAPI=true
+```
+
+### Dual-stack (IPv4 + IPv6)
+
+The cert-manager chart supports `serviceIPFamilyPolicy` for the controller and webhook services. The cainjector service doesn't have this option in the chart, so we patch it after install.
+
+```bash
+export certmanversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/cert-manager/cert-manager/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
+helm install \
+  cert-manager oci://quay.io/jetstack/charts/cert-manager \
+  --version v${certmanversion} \
+  --namespace cert-manager \
+  --create-namespace \
+  --set crds.enabled=true \
+  --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
+  --set config.kind="ControllerConfiguration" \
+  --set config.enableGatewayAPI=true \
+  --set serviceIPFamilyPolicy=PreferDualStack \
+  --set 'serviceIPFamilies={IPv4,IPv6}' \
+  --set webhook.serviceIPFamilyPolicy=PreferDualStack \
+  --set 'webhook.serviceIPFamilies={IPv4,IPv6}'
+
+# cainjector service doesn't support ipFamilyPolicy in the chart — patch after install
+kubectl -n cert-manager patch svc cert-manager-cainjector --type=merge \
+  -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
 ```
 
 ## Create a self signed issuer

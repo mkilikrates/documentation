@@ -1,0 +1,26 @@
+# PodMonitor for NGINX Gateway Fabric metrics (control plane + data plane)
+# Ref: https://docs.nginx.com/nginx-gateway-fabric/monitoring/prometheus/
+#
+# Both NGF components expose Prometheus metrics on port 9113:
+# - Control plane (ngf-nginx-gateway-fabric): controller-runtime + NGF metrics
+# - Data plane (nginx-shared-gateway-nginx): NGINX metrics (connections, requests, etc.)
+#
+# We use app.kubernetes.io/instance=ngf to match both pods (the helm release name).
+# If you installed NGF with a different release name, update the selector accordingly.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: nginx-gateway-fabric
+  namespace: monitoring
+  labels:
+    release: prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - nginx-gateway
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ngf
+  podMetricsEndpoints:
+    - port: metrics
+      interval: 30s

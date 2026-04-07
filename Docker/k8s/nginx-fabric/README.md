@@ -52,6 +52,15 @@ kubectl wait --timeout=5m -n nginx-gateway deployment/ngf-nginx-gateway-fabric -
 kubectl -n nginx-gateway get pods -o wide
 ```
 
+### Dual-stack: patch the controller service
+
+The NGF helm chart doesn't expose `ipFamilyPolicy` for the controller service. On a dual-stack cluster, patch it after install:
+
+```bash
+kubectl -n nginx-gateway patch svc ngf-nginx-gateway-fabric --type=merge \
+  -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
+```
+
 ## Pin the data plane to the control-plane node
 
 NGINX Gateway Fabric creates a separate data plane deployment when you create a Gateway resource. By default it can schedule on any node, but in kind only the control-plane has Docker port mappings to the host. The data plane must run there.
