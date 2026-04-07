@@ -1,0 +1,70 @@
+# Loki — single-binary mode for kind lab (dual-stack)
+# Uses filesystem storage (no S3/MinIO needed)
+#
+# Note: Loki Helm chart doesn't support ipFamilyPolicy natively.
+# After install, patch services with:
+#   kubectl -n monitoring get svc -l app.kubernetes.io/name=loki -o name | \
+#     xargs -I{} kubectl -n monitoring patch {} --type=merge \
+#     -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
+#
+# IPv6/dual-stack config based on: https://github.com/grafana/loki/issues/16921
+deploymentMode: SingleBinary
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+    ring:
+      kvstore:
+        store: "memberlist"
+      instance_enable_ipv6: true
+  memberlist:
+    bind_addr:
+      - "::"
+  distributor:
+    ring:
+      instance_enable_ipv6: true
+  ingester:
+    lifecycler:
+      enable_inet6: true
+  compactor:
+    compactor_ring:
+      instance_enable_ipv6: true
+  ruler:
+    ring:
+      instance_enable_ipv6: true
+  index_gateway:
+    ring:
+      instance_enable_ipv6: true
+  query_scheduler:
+    scheduler_ring:
+      instance_enable_ipv6: true
+  schemaConfig:
+    configs:
+    - from: "2024-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: loki_index_
+        period: 24h
+  storage:
+    type: filesystem
+  limits_config:
+    retention_period: 72h
+singleBinary:
+  replicas: 1
+  persistence:
+    size: 5Gi
+# Disable components not needed in single-binary mode
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+gateway:
+  enabled: false
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false

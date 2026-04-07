@@ -1,0 +1,38 @@
+# Loki — single-binary mode for kind lab
+# Uses filesystem storage (no S3/MinIO needed)
+deploymentMode: SingleBinary
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  schemaConfig:
+    configs:
+    - from: "2024-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: loki_index_
+        period: 24h
+  storage:
+    type: filesystem
+  limits_config:
+    retention_period: 72h
+singleBinary:
+  replicas: 1
+  persistence:
+    size: 5Gi
+# Disable components not needed in single-binary mode
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+gateway:
+  enabled: false
+# Collect logs from pods
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false

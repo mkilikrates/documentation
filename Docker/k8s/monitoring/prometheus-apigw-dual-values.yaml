@@ -1,9 +1,15 @@
 prometheus:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
   route:
     main:
       enabled: true
       hostnames: 
       - "prometheus.$MY_PRIVATE_IP.nip.io"
+      - "prometheus.$MY_GLOBAL_IP6.nip.io"
       parentRefs:
       - name: nginx-shared-gateway
         namespace: nginx-gateway
@@ -18,6 +24,7 @@ alertmanager:
       enabled: true
       hostnames: 
       - "alertmanager.$MY_PRIVATE_IP.nip.io"
+      - "alertmanager.$MY_GLOBAL_IP6.nip.io"
       parentRefs:
       - name: nginx-shared-gateway
         namespace: nginx-gateway
@@ -26,6 +33,11 @@ alertmanager:
         - path:
             type: PathPrefix
             value: /
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
 
 grafana:
   route:
@@ -33,6 +45,7 @@ grafana:
       enabled: true
       hostnames: 
       - "grafana.$MY_PRIVATE_IP.nip.io"
+      - "grafana.$MY_GLOBAL_IP6.nip.io"
       parentRefs:
       - name: nginx-shared-gateway
         namespace: nginx-gateway
@@ -41,6 +54,11 @@ grafana:
         - path:
             type: PathPrefix
             value: /
+  service:
+    ipFamilyPolicy: "PreferDualStack"
+    ipFamilies:
+    - IPv4
+    - IPv6
   grafana.ini:
     server:
       domain: grafana.monitoring
@@ -77,3 +95,43 @@ grafana:
 kubeEtcd:
   service:
     targetPort: 2381
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+coreDns:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kubeScheduler:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kubeProxy:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+prometheus-node-exporter:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+prometheusOperator:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"
+kube-state-metrics:
+  service:
+    ipDualStack:
+      enabled: true
+      ipFamilies: ["IPv6", "IPv4"]
+      ipFamilyPolicy: "PreferDualStack"

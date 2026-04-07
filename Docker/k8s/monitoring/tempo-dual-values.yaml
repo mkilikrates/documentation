@@ -1,0 +1,46 @@
+# Tempo — monolithic mode for kind lab (dual-stack)
+# Chart: oci://ghcr.io/grafana-community/helm-charts/tempo
+# Uses local filesystem storage (no S3/MinIO needed)
+# IPv6 config ref: https://grafana.com/docs/tempo/latest/configuration/network/ipv6/
+tempo:
+  metricsGenerator:
+    enabled: true
+    remoteWriteUrl: "http://prometheus-stack-kube-prom-prometheus.monitoring:9090/api/v1/write"
+    ring:
+      enable_inet6: true
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "[::]:4317"
+        http:
+          endpoint: "[::]:4318"
+  # IPv6/dual-stack: bind gRPC and HTTP servers to all interfaces (IPv4+IPv6)
+  server:
+    grpc_listen_address: "::0"
+    http_listen_address: "::0"
+  memberlist:
+    bind_addr:
+      - "::"
+  ingester:
+    lifecycler:
+      enable_inet6: true
+  compactor:
+    ring:
+      kvstore:
+        store: memberlist
+      enable_inet6: true
+persistence:
+  enabled: true
+  size: 5Gi
+# Note: Tempo monolithic chart doesn't have native ipFamilyPolicy.
+# After install, patch the service:
+#   kubectl -n monitoring patch svc tempo --type=merge \
+#     -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
