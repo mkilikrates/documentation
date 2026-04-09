@@ -49,7 +49,7 @@ There are 2 versions:
 kubectl apply -f namespaces.yaml
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
-envsubst < prometheus-apigw-values.yaml | helm upgrade --install --wait --timeout 15m \
+envsubst '${MY_PRIVATE_IP}' < prometheus-apigw-values.yaml | helm upgrade --install --wait --timeout 15m \
   --namespace monitoring \
   --repo https://prometheus-community.github.io/helm-charts \
   prometheus-stack kube-prometheus-stack -f -
@@ -61,7 +61,7 @@ envsubst < prometheus-apigw-values.yaml | helm upgrade --install --wait --timeou
 kubectl apply -f namespaces.yaml
 export iface=$(route | grep '^default' | grep -o '[^ ]*$')
 export MY_PRIVATE_IP="$(ip addr show $iface | grep -oP '(?<=inet\s)\d+(\.\d+){3}')"
-envsubst < prometheus-apigw-dual-values.yaml | helm upgrade --install --wait --timeout 15m \
+envsubst '${MY_PRIVATE_IP} ${MY_GLOBAL_IP6}' < prometheus-apigw-dual-values.yaml | helm upgrade --install --wait --timeout 15m \
   --namespace monitoring \
   --repo https://prometheus-community.github.io/helm-charts \
   prometheus-stack kube-prometheus-stack -f -
@@ -165,8 +165,10 @@ Verify:
 
 ```bash
 kubectl -n monitoring get pods -l app.kubernetes.io/name=alloy
-kubectl -n monitoring get svc -o jsonpath='{range .items[*]}{.metadata.name}: {.spec.clusterIPs}{"\n"}{end}'
+kubectl -n monitoring get svc alloy
 ```
+
+The Alloy service should expose three ports: `4317` (OTLP gRPC), `4318` (OTLP HTTP), and `12345` (metrics). The OTLP ports are configured via `extraPorts` in the values file — without them, instrumented applications in other namespaces can't send traces to `alloy.monitoring:4317`.
 
 ## NGINX Gateway Fabric metrics
 
@@ -267,6 +269,10 @@ kubectl -n monitoring run otel-test --image=curlimages/curl --rm -it --restart=N
 ```
 
 > The `curlimages/curl` image (Alpine/BusyBox) doesn't support `date +%s%N`, so we use `date +%s` (epoch seconds) and append `000000000` to build nanosecond timestamps. The span gets a 1-second duration with timestamps from the moment the command runs.
+
+## Trace Demo Application
+
+To test distributed tracing with a real multi-tier application (Frontend → Backend → Redis) instrumented with OpenTelemetry auto-instrumentation, see the [trace-demo app](../app-examples/trace-demo/).
 
 ## Clean up
 

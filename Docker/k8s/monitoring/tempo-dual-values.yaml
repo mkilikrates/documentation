@@ -6,8 +6,23 @@ tempo:
   metricsGenerator:
     enabled: true
     remoteWriteUrl: "http://prometheus-stack-kube-prom-prometheus.monitoring:9090/api/v1/write"
+    processor:
+      service_graphs:
+        dimensions:
+          - service.namespace
+      span_metrics:
+        dimensions:
+          - service.namespace
+          - http.method
+          - http.status_code
     ring:
       enable_inet6: true
+  overrides:
+    defaults:
+      metrics_generator:
+        processors:
+          - service-graphs
+          - span-metrics
   storage:
     trace:
       backend: local

@@ -2,6 +2,16 @@
 # Replaces Promtail as the recommended collector
 # Ref: https://grafana.com/docs/alloy/latest/collect/logs-in-kubernetes/
 alloy:
+  # Expose OTLP ports so instrumented apps can send traces to alloy.monitoring:4317/4318
+  extraPorts:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+    protocol: TCP
   configMap:
     content: |
       // ============================================================

@@ -1,0 +1,397 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trace-demo
+  labels:
+    shared-gateway-access: "true"
+---
+# =============================================================
+# Frontend — Flask app that calls the backend
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-code
+  namespace: trace-demo
+data:
+  app.py: |
+    import os, logging, requests
+    from flask import Flask, request, jsonify
+
+    app = Flask(__name__)
+    # Do NOT call logging.basicConfig() here — opentelemetry-instrument
+    # calls it for us when OTEL_PYTHON_LOG_CORRELATION=true, using the
+    # format from OTEL_PYTHON_LOG_FORMAT. Calling it here would prevent
+    # OTel from setting its format (only the first call takes effect).
+    logger = logging.getLogger(__name__)
+
+    BACKEND_URL = os.environ.get("BACKEND_URL", "http://backend:8081")
+
+    @app.route("/")
+    def index():
+        logger.info("Frontend received request on /")
+        return jsonify({"service": "frontend", "status": "ok"})
+
+    @app.route("/items", methods=["GET"])
+    def get_items():
+        logger.info("Frontend fetching items from backend")
+        resp = requests.get(f"{BACKEND_URL}/items")
+        return jsonify({"source": "frontend", "backend_response": resp.json()})
+
+    @app.route("/items", methods=["POST"])
+    def create_item():
+        data = request.get_json()
+        logger.info("Frontend creating item via backend, data=%s", data)
+        resp = requests.post(f"{BACKEND_URL}/items", json=data)
+        return jsonify({"source": "frontend", "backend_response": resp.json()}), 201
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: trace-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        app.kubernetes.io/name: frontend
+    spec:
+      initContainers:
+      - name: install-deps
+        image: python:3.12-slim
+        command: ["pip", "install", "--target=/otel-packages",
+                  "opentelemetry-distro", "opentelemetry-exporter-otlp",
+                  "opentelemetry-instrumentation-flask",
+                  "opentelemetry-instrumentation-requests",
+                  "opentelemetry-instrumentation-logging",
+                  "flask", "requests"]
+        volumeMounts:
+        - name: otel-packages
+          mountPath: /otel-packages
+      containers:
+      - name: frontend
+        image: python:3.12-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          export PYTHONPATH=/otel-packages:${PYTHONPATH}
+          export PATH=/otel-packages/bin:${PATH}
+          opentelemetry-instrument python /app/app.py
+        env:
+        - name: BACKEND_URL
+          value: "http://backend:8081"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://alloy.monitoring:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "frontend"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.namespace=trace-demo,deployment.environment=lab"
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
+        - name: OTEL_METRICS_EXPORTER
+          value: "none"
+        - name: OTEL_LOGS_EXPORTER
+          value: "none"
+        - name: OTEL_PYTHON_LOG_CORRELATION
+          value: "true"
+        - name: OTEL_PYTHON_LOG_FORMAT
+          value: "%(asctime)s %(levelname)s [%(name)s] traceID=%(otelTraceID)s spanID=%(otelSpanID)s - %(message)s"
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: otel-packages
+          mountPath: /otel-packages
+        - name: app-code
+          mountPath: /app
+      volumes:
+      - name: otel-packages
+        emptyDir: {}
+      - name: app-code
+        configMap:
+          name: frontend-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: trace-demo
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+# =============================================================
+# Backend — Flask app that talks to Redis
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-code
+  namespace: trace-demo
+data:
+  app.py: |
+    import os, logging, json
+    from flask import Flask, request, jsonify
+    import redis
+
+    app = Flask(__name__)
+    # Do NOT call logging.basicConfig() here — opentelemetry-instrument
+    # calls it for us when OTEL_PYTHON_LOG_CORRELATION=true, using the
+    # format from OTEL_PYTHON_LOG_FORMAT.
+    logger = logging.getLogger(__name__)
+
+    REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
+    REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+    r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+    @app.route("/items", methods=["GET"])
+    def get_items():
+        logger.info("Backend fetching all items from Redis")
+        keys = r.keys("item:*")
+        items = []
+        for key in keys:
+            val = r.get(key)
+            if val:
+                items.append(json.loads(val))
+        logger.info("Backend returning %d items", len(items))
+        return jsonify({"items": items, "count": len(items)})
+
+    @app.route("/items", methods=["POST"])
+    def create_item():
+        data = request.get_json()
+        item_name = data.get("name", "unknown")
+        item_id = f"item:{item_name}"
+        logger.info("Backend storing item %s in Redis", item_id)
+        r.set(item_id, json.dumps(data))
+        logger.info("Backend stored item %s successfully", item_id)
+        return jsonify({"stored": item_id, "data": data}), 201
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8081)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: trace-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        app.kubernetes.io/name: backend
+    spec:
+      initContainers:
+      - name: install-deps
+        image: python:3.12-slim
+        command: ["pip", "install", "--target=/otel-packages",
+                  "opentelemetry-distro", "opentelemetry-exporter-otlp",
+                  "opentelemetry-instrumentation-flask",
+                  "opentelemetry-instrumentation-redis",
+                  "opentelemetry-instrumentation-logging",
+                  "flask", "redis"]
+        volumeMounts:
+        - name: otel-packages
+          mountPath: /otel-packages
+      containers:
+      - name: backend
+        image: python:3.12-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          export PYTHONPATH=/otel-packages:${PYTHONPATH}
+          export PATH=/otel-packages/bin:${PATH}
+          opentelemetry-instrument python /app/app.py
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://alloy.monitoring:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "backend"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.namespace=trace-demo,deployment.environment=lab"
+        - name: OTEL_TRACES_EXPORTER
+          value: "otlp"
+        - name: OTEL_METRICS_EXPORTER
+          value: "none"
+        - name: OTEL_LOGS_EXPORTER
+          value: "none"
+        - name: OTEL_PYTHON_LOG_CORRELATION
+          value: "true"
+        - name: OTEL_PYTHON_LOG_FORMAT
+          value: "%(asctime)s %(levelname)s [%(name)s] traceID=%(otelTraceID)s spanID=%(otelSpanID)s - %(message)s"
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        volumeMounts:
+        - name: otel-packages
+          mountPath: /otel-packages
+        - name: app-code
+          mountPath: /app
+      volumes:
+      - name: otel-packages
+        emptyDir: {}
+      - name: app-code
+        configMap:
+          name: backend-code
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: trace-demo
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8081
+    targetPort: 8081
+---
+# =============================================================
+# Redis — database tier
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: trace-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+        app.kubernetes.io/name: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: trace-demo
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+# =============================================================
+# HTTPRoute — expose frontend via Gateway API
+# =============================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: trace-demo
+  namespace: trace-demo
+spec:
+  parentRefs:
+  - name: nginx-shared-gateway
+    namespace: nginx-gateway
+  hostnames:
+  - "trace-demo.$MY_PRIVATE_IP.nip.io"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: frontend
+      port: 8080
+---
+# =============================================================
+# Traffic generator — sends requests to create traces
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic-generator
+  namespace: trace-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traffic-generator
+  template:
+    metadata:
+      labels:
+        app: traffic-generator
+    spec:
+      containers:
+      - name: generator
+        image: curlimages/curl
+        command: ["sh", "-c"]
+        args:
+        - |
+          echo "Waiting for frontend to be ready..."
+          sleep 30
+          echo "Starting traffic generation"
+          while true; do
+            # GET items
+            curl -s http://frontend:8080/items > /dev/null
+            echo "[$(date)] GET /items"
+            sleep 3
+            # POST a new item
+            ITEM="item-$(date +%s)"
+            curl -s -X POST http://frontend:8080/items \
+              -H "Content-Type: application/json" \
+              -d "{\"name\":\"$ITEM\",\"value\":\"$(shuf -i 1-100 -n 1)\"}" > /dev/null
+            echo "[$(date)] POST /items name=$ITEM"
+            sleep 3
+            # GET root
+            curl -s http://frontend:8080/ > /dev/null
+            echo "[$(date)] GET /"
+            sleep 4
+          done
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"

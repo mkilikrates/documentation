@@ -1,4 +1,6 @@
 prometheus:
+  prometheusSpec:
+    enableRemoteWriteReceiver: true
   route:
     main:
       enabled: true
@@ -49,6 +51,7 @@ grafana:
   additionalDataSources:
   - name: Loki
     type: loki
+    uid: loki
     url: http://loki.monitoring:3100
     access: proxy
     isDefault: false
@@ -57,7 +60,7 @@ grafana:
       - datasourceUid: tempo
         matcherRegex: "traceID=(\\w+)"
         name: TraceID
-        url: "${__value.raw}"
+        url: "$${__value.raw}"
   - name: Tempo
     type: tempo
     uid: tempo
@@ -67,11 +70,21 @@ grafana:
     jsonData:
       tracesToLogsV2:
         datasourceUid: loki
+        spanStartTimeShift: "-1h"
+        spanEndTimeShift: "1h"
         filterByTraceID: true
+        filterBySpanID: false
+        tags:
+        - key: "service.name"
+          value: "app"
+        customQuery: true
+        query: '{$${__tags}} |= "$${__trace.traceId}"'
       tracesToMetrics:
         datasourceUid: prometheus
       serviceMap:
         datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
       lokiSearch:
         datasourceUid: loki
 kubeEtcd:
