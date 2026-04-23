@@ -36,7 +36,10 @@ Run the following command
 
 ```bash
 export gitcredversion=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/GitCredentialManager/git-credential-manager/releases/latest | awk -F "/" '{print $NF}' | cut -c2-)
-curl -L -o gcm-linux_amd64.deb https://github.com/GitCredentialManager/git-credential-manager/releases/download/v$gitcredversion/gcm-linux_amd64.$gitcredversion.deb
+# if arm64
+curl -L -o gcm-linux.deb https://github.com/git-ecosystem/git-credential-manager/releases/download/v$gitcredversion/gcm-linux-arm64-$gitcredversion.deb
+# if x86_64
+curl -L -o gcm-linu.deb https://github.com/git-ecosystem/git-credential-manager/releases/download/v$gitcredversion/gcm-linux-x64-$gitcredversion.deb
 ```
 
 ## install Git Credential Manager (GCM)
@@ -44,14 +47,14 @@ curl -L -o gcm-linux_amd64.deb https://github.com/GitCredentialManager/git-crede
 You can run the following command to install the package
 
 ```bash
-sudo dpkg -i gcm-linux_amd64.deb
-rm -rf gcm-linux_amd64.deb
+sudo dpkg -i gcm-linux.deb
+rm -rf gcm-linux.deb
 ```
 
 ## Install gpg
 
 ```bash
-sudo apt-get install gnupg
+sudo apt install gnupg
 ```
 
 Add this variable to your environment as default
@@ -116,7 +119,7 @@ If you want to add your [private email address](https://docs.github.com/en/accou
 ## Install passwordstore
 
 ```bash
-sudo apt-get install -y pass
+sudo apt install -y pass
 ```
 
 ## Initiate your passwordstore
@@ -162,7 +165,7 @@ tar -xvzf ps.tgz -C ~/.password-store/
 
 After import you must edit your gpg to trust in this key.
 
-**PS**: You will need the uid of your key, if you have multiple keys you may need to repeat for each of them. If it is just one, you wil see they id in the second line `sec   rsa4096/123456abc 1900-01-01 [SC]`, in this case it is `123456abc`.
+**PS**: You will need the uid of your key, list with `gpg --list-secret-keys --keyid-format LONG`, if you have multiple keys you may need to repeat for each of them. If it is just one, you wil see they id in the second line `sec   rsa4096/123456abc 1900-01-01 [SC]`, in this case it is `123456abc`.
 
 ```bash
 gpg --edit-key '<uid>'
@@ -274,6 +277,6 @@ https://index.docker.io/v1/
 
 [Password Store](https://www.passwordstore.org/)
 
-[Git Credential Manager (GCM)](https://github.com/GitCredentialManager/git-credential-manager)
+[Git Credential Manager (GCM)](https://github.com/git-ecosystem/git-credential-manager)
 
 [Docker Credential Helper](https://github.com/docker/docker-credential-helpers)
