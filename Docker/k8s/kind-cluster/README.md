@@ -41,6 +41,7 @@ wsl --shutdown
 
 ## Enable ipv6 on Docker Desktop
 
+Depends on your Docker Desktop version, you may may just follow their [documentation](https://docs.docker.com/desktop/features/networking/networking-how-tos/#default-networking-mode), in case you are using other version, you can follow steps bellow.
 Similar, you can enable ip6 on your docker desktop by selecting on the top the gear icon (settings) -> Docker Engine then adding updating with this info
 
 ```json
