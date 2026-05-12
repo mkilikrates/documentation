@@ -3,8 +3,6 @@ apiVersion: kind.x-k8s.io/v1alpha4
 networking:
   apiServerAddress: "$MY_PRIVATE_IP"
   apiServerPort: 6443
-  # enable dualstack
-  ipFamily: dual
 # Add local registry
 containerdConfigPatches:
 # patches for local registry

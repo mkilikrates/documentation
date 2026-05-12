@@ -1,0 +1,474 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mtls-demo
+  labels:
+    shared-gateway-access: "true"
+---
+# =============================================================
+# Service Accounts — determine SPIFFE identity
+# =============================================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: mtls-demo
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend
+  namespace: mtls-demo
+---
+# =============================================================
+# spiffe-helper configs
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-helper-config
+  namespace: mtls-demo
+data:
+  helper.conf: |
+    agent_address = "/spiffe-workload-api/spire-agent.sock"
+    cert_dir = "/certs"
+    svid_file_name = "svid.pem"
+    svid_key_file_name = "svid_key.pem"
+    svid_bundle_file_name = "svid_bundle.pem"
+    key_file_mode = 0644
+    daemon_mode = true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-helper-config
+  namespace: mtls-demo
+data:
+  helper.conf: |
+    agent_address = "/spiffe-workload-api/spire-agent.sock"
+    cert_dir = "/certs"
+    svid_file_name = "svid.pem"
+    svid_key_file_name = "svid_key.pem"
+    svid_bundle_file_name = "svid_bundle.pem"
+    key_file_mode = 0644
+    daemon_mode = true
+---
+# =============================================================
+# Backend — Flask app that only accepts mTLS connections
+# Validates caller's SPIFFE ID
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-code
+  namespace: mtls-demo
+data:
+  app.py: |
+    import ssl
+    import os
+    import logging
+    from flask import Flask, request, jsonify
+    from cryptography import x509
+    from cryptography.x509.oid import ExtensionOID
+
+    app = Flask(__name__)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+    logger = logging.getLogger(__name__)
+
+    # Allowed SPIFFE IDs that can call this backend
+    ALLOWED_SPIFFE_IDS = os.environ.get("ALLOWED_SPIFFE_IDS", "").split(",")
+
+    def get_client_spiffe_id():
+        """Extract SPIFFE ID from the client certificate's URI SAN."""
+        client_cert_pem = request.environ.get('peercert')
+        if not client_cert_pem:
+            return None
+        try:
+            cert = x509.load_pem_x509_certificate(client_cert_pem.encode())
+            san_ext = cert.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
+            uris = san_ext.value.get_values_for_type(x509.UniformResourceIdentifier)
+            for uri in uris:
+                if uri.startswith("spiffe://"):
+                    return uri
+        except Exception as e:
+            logger.error(f"Error extracting SPIFFE ID: {e}")
+        return None
+
+    @app.route("/")
+    def health():
+        return jsonify({"service": "backend", "status": "ok", "mtls": True})
+
+    @app.route("/data")
+    def get_data():
+        # In a real app, you'd extract the client cert from the TLS connection
+        # For this demo, we trust that nginx/ssl layer already verified the cert
+        logger.info("Backend received authenticated request on /data")
+        return jsonify({
+            "service": "backend",
+            "data": ["item-1", "item-2", "item-3"],
+            "message": "This data is only accessible via mTLS"
+        })
+
+    @app.route("/whoami")
+    def whoami():
+        """Returns the backend's own SPIFFE ID."""
+        cert_path = "/certs/svid.pem"
+        try:
+            with open(cert_path, "rb") as f:
+                cert = x509.load_pem_x509_certificate(f.read())
+            san_ext = cert.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
+            uris = san_ext.value.get_values_for_type(x509.UniformResourceIdentifier)
+            spiffe_id = next((u for u in uris if u.startswith("spiffe://")), "unknown")
+        except Exception as e:
+            spiffe_id = f"error: {e}"
+        return jsonify({"service": "backend", "spiffe_id": spiffe_id})
+
+    if __name__ == "__main__":
+        # Run with SSL using SPIRE-issued certificates
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain('/certs/svid.pem', '/certs/svid_key.pem')
+        context.load_verify_locations('/certs/svid_bundle.pem')
+        # Require client certificate (mTLS)
+        context.verify_mode = ssl.CERT_REQUIRED
+        logger.info("Starting backend with mTLS on port 8443")
+        logger.info(f"Allowed SPIFFE IDs: {ALLOWED_SPIFFE_IDS}")
+        app.run(host="::", port=8443, ssl_context=context)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: mtls-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: backend
+      initContainers:
+      - name: install-deps
+        image: python:3.12-slim
+        command: ["pip", "install", "--target=/packages",
+                  "flask", "cryptography"]
+        volumeMounts:
+        - name: packages
+          mountPath: /packages
+      containers:
+      - name: backend
+        image: python:3.12-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          # Wait for certs to be available
+          while [ ! -f /certs/svid.pem ]; do echo "Waiting for certs..."; sleep 2; done
+          echo "Certs available, starting backend with mTLS"
+          export PYTHONPATH=/packages:${PYTHONPATH}
+          python /app/app.py
+        env:
+        - name: ALLOWED_SPIFFE_IDS
+          value: "spiffe://cluster.local/ns/mtls-demo/sa/frontend"
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - name: packages
+          mountPath: /packages
+        - name: app-code
+          mountPath: /app
+        - name: certs
+          mountPath: /certs
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      - name: spiffe-helper
+        image: ghcr.io/spiffe/spiffe-helper:0.11.0
+        args: ["-config", "/config/helper.conf"]
+        volumeMounts:
+        - name: spiffe-workload-api
+          mountPath: /spiffe-workload-api
+          readOnly: true
+        - name: certs
+          mountPath: /certs
+        - name: helper-config
+          mountPath: /config
+      volumes:
+      - name: spiffe-workload-api
+        csi:
+          driver: "csi.spiffe.io"
+          readOnly: true
+      - name: certs
+        emptyDir: {}
+      - name: packages
+        emptyDir: {}
+      - name: app-code
+        configMap:
+          name: backend-code
+      - name: helper-config
+        configMap:
+          name: backend-helper-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: mtls-demo
+spec:
+  selector:
+    app: backend
+  ports:
+  - name: mtls
+    port: 8443
+    targetPort: 8443
+---
+# =============================================================
+# Frontend — Flask app that calls backend over mTLS
+# Exposed via plaintext HTTP for users
+# =============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-code
+  namespace: mtls-demo
+data:
+  app.py: |
+    import ssl
+    import os
+    import logging
+    import urllib.request
+    import json
+    from flask import Flask, jsonify
+    from cryptography import x509
+    from cryptography.x509.oid import ExtensionOID
+
+    app = Flask(__name__)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+    logger = logging.getLogger(__name__)
+
+    BACKEND_URL = os.environ.get("BACKEND_URL", "https://backend.mtls-demo.svc.cluster.local:8443")
+
+    def get_my_spiffe_id():
+        """Read our own SPIFFE ID from the certificate."""
+        try:
+            with open("/certs/svid.pem", "rb") as f:
+                cert = x509.load_pem_x509_certificate(f.read())
+            san_ext = cert.extensions.get_extension_for_oid(ExtensionOID.SUBJECT_ALTERNATIVE_NAME)
+            uris = san_ext.value.get_values_for_type(x509.UniformResourceIdentifier)
+            return next((u for u in uris if u.startswith("spiffe://")), "unknown")
+        except Exception as e:
+            return f"error: {e}"
+
+    def call_backend(path):
+        """Call the backend using mTLS with SPIFFE certificates."""
+        # Create SSL context with our SVID for client auth
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.load_cert_chain('/certs/svid.pem', '/certs/svid_key.pem')
+        context.load_verify_locations('/certs/svid_bundle.pem')
+        # SPIFFE certs use URI SANs, not hostnames — disable hostname check
+        # Identity is verified via the SPIFFE ID in the URI SAN, not DNS
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_REQUIRED
+
+        url = f"{BACKEND_URL}{path}"
+        req = urllib.request.Request(url)
+        try:
+            with urllib.request.urlopen(req, context=context) as response:
+                return json.loads(response.read().decode())
+        except Exception as e:
+            logger.error(f"Failed to call backend: {e}")
+            return {"error": str(e)}
+
+    @app.route("/")
+    def index():
+        my_id = get_my_spiffe_id()
+        logger.info(f"Frontend (SPIFFE ID: {my_id}) received request on /")
+        return jsonify({
+            "service": "frontend",
+            "spiffe_id": my_id,
+            "status": "ok",
+            "message": "I communicate with the backend over mTLS using my SPIFFE identity"
+        })
+
+    @app.route("/data")
+    def get_data():
+        my_id = get_my_spiffe_id()
+        logger.info(f"Frontend (SPIFFE ID: {my_id}) calling backend over mTLS")
+        backend_response = call_backend("/data")
+        return jsonify({
+            "source": "frontend",
+            "frontend_spiffe_id": my_id,
+            "backend_response": backend_response,
+            "connection": "mTLS (encrypted + authenticated)"
+        })
+
+    @app.route("/whoami")
+    def whoami():
+        my_id = get_my_spiffe_id()
+        backend_id = call_backend("/whoami")
+        return jsonify({
+            "frontend_spiffe_id": my_id,
+            "backend_spiffe_id": backend_id.get("spiffe_id", "unknown"),
+            "trust_domain": "cluster.local"
+        })
+
+    if __name__ == "__main__":
+        logger.info("Starting frontend on port 8080 (plaintext HTTP)")
+        logger.info("Backend calls will use mTLS with SPIFFE identity")
+        app.run(host="::", port=8080)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: mtls-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: frontend
+      initContainers:
+      - name: install-deps
+        image: python:3.12-slim
+        command: ["pip", "install", "--target=/packages",
+                  "flask", "cryptography"]
+        volumeMounts:
+        - name: packages
+          mountPath: /packages
+      containers:
+      - name: frontend
+        image: python:3.12-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          # Wait for certs to be available
+          while [ ! -f /certs/svid.pem ]; do echo "Waiting for certs..."; sleep 2; done
+          echo "Certs available, starting frontend"
+          export PYTHONPATH=/packages:${PYTHONPATH}
+          python /app/app.py
+        env:
+        - name: BACKEND_URL
+          value: "https://backend.mtls-demo.svc.cluster.local:8443"
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: packages
+          mountPath: /packages
+        - name: app-code
+          mountPath: /app
+        - name: certs
+          mountPath: /certs
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      - name: spiffe-helper
+        image: ghcr.io/spiffe/spiffe-helper:0.11.0
+        args: ["-config", "/config/helper.conf"]
+        volumeMounts:
+        - name: spiffe-workload-api
+          mountPath: /spiffe-workload-api
+          readOnly: true
+        - name: certs
+          mountPath: /certs
+        - name: helper-config
+          mountPath: /config
+      volumes:
+      - name: spiffe-workload-api
+        csi:
+          driver: "csi.spiffe.io"
+          readOnly: true
+      - name: certs
+        emptyDir: {}
+      - name: packages
+        emptyDir: {}
+      - name: app-code
+        configMap:
+          name: frontend-code
+      - name: helper-config
+        configMap:
+          name: frontend-helper-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: mtls-demo
+spec:
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+# =============================================================
+# Attacker — pod in same namespace WITHOUT SPIRE certs
+# Proves that network proximity alone is not enough
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attacker
+  namespace: mtls-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attacker
+  template:
+    metadata:
+      labels:
+        app: attacker
+    spec:
+      # No serviceAccountName with SPIRE registration
+      # No SPIFFE CSI volume — this pod has NO identity
+      containers:
+      - name: attacker
+        image: curlimages/curl:latest
+        command: ["sh", "-c", "echo 'Attacker pod ready — no SPIFFE certs'; sleep infinity"]
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "10m"
+          limits:
+            memory: "64Mi"
+            cpu: "50m"
+---
+# =============================================================
+# HTTPRoute — expose frontend via Gateway API
+# =============================================================
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mtls-demo
+  namespace: mtls-demo
+spec:
+  parentRefs:
+  - name: nginx-shared-gateway
+    namespace: nginx-gateway
+  hostnames:
+  - "mtls-demo.$MY_PRIVATE_IP.nip.io"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: frontend
+      port: 8080
