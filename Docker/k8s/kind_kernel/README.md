@@ -42,6 +42,35 @@ After reviewing the [default config-wsl for the 6.18 branch](https://github.com/
 
 ---
 
+## Kubernetes 1.35 Compatibility Check
+
+Kubernetes 1.35 ("Timbernetes") introduces breaking changes. Here's the validation against WSL2 6.18:
+
+| K8s 1.35 Requirement | WSL2 6.18 | Status |
+|---|---|---|
+| **Cgroups v2 ONLY** (v1 support removed — kubelet refuses to start on v1) | `# CONFIG_MEMCG_V1 is not set` | ✅ Already cgroups v2 only |
+| **Kernel ≥ 4.19** | 6.18 | ✅ |
+| **nftables proxy mode** (recommended, replaces IPVS) | `NF_TABLES=y` built-in, kernel ≥ 5.13 | ✅ |
+| **IPVS proxy** (deprecated in 1.35, will be removed) | `IP_VS=m`, all schedulers | ✅ Still usable |
+| **Namespaced net sysctls** (tcp_keepalive_time, tcp_fin_timeout, etc.) | Kernel ≥ 4.5/4.6/4.15 | ✅ All supported |
+| **net.ipv4.tcp_rmem / tcp_wmem** (since K8s 1.32) | Kernel ≥ 4.15 | ✅ |
+| **Recursive read-only mounts** (GA in 1.35) | Kernel ≥ 5.12 | ✅ |
+| **Swap support with noswap** (if using swap) | Kernel ≥ 6.3 | ✅ |
+| **User namespaces for pods** | `USER_NS=y` | ✅ |
+| **Seccomp** | `SECCOMP=y`, `SECCOMP_FILTER=y` | ✅ |
+| **AppArmor** | In LSM list | ✅ |
+| **PSI metrics** (Pressure Stall Information) | `CONFIG_PSI=y` | ✅ |
+
+### Important Notes for K8s 1.35:
+
+1. **IPVS is deprecated** — nftables is the recommended proxy mode going forward. Plan to migrate.
+2. **containerd 1.x reaches end of life** — ensure you're running containerd 2.x.
+3. **cgroup v1 will cause kubelet startup failure** — our kernel has v1 disabled, so we're safe.
+
+> **Verdict**: The WSL2 6.18 kernel is fully compatible with Kubernetes 1.35. No additional kernel options needed beyond our Tetragon additions.
+
+---
+
 ## Custom Build Required for Full Tetragon
 
 To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcement), you need to build a custom kernel. The good news is only **3 changes** are needed on top of the default config.
