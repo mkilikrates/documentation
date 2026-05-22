@@ -32,52 +32,28 @@ After reviewing the [default config-wsl for the 6.18 branch](https://github.com/
 | **Wireguard** | ✅ | `WIREGUARD=m` |
 | **Security/LSM** | ✅ | SELinux, AppArmor, Landlock, Yama, BPF LSM |
 
-### Only minor gaps (not needed for your use case):
+### What's MISSING for full Tetragon support (requires custom build):
 
 | Feature | Status | Impact |
 |---|---|---|
-| `FPROBE` | ❌ Not set | Only needed for some newer Tetragon features, not kprobes |
-| `BPF_STREAM_PARSER` | ❌ Not set | Socket-level BPF, not needed for kprobe policies |
+| `CONFIG_FPROBE` | ❌ Not set | Required for multi-kprobe and fentry/fexit hooks (more efficient than kprobes on 6.x+) |
+| `CONFIG_BPF_STREAM_PARSER` | ❌ Not set | Required for sockmap/sockhash BPF programs (socket-level monitoring) |
+| `CONFIG_LSM` with `bpf` | ⚠️ Missing `bpf` | Default LSM list does not include `bpf` — needed for BPF LSM enforcement (override/sigkill via LSM hooks) |
 
 ---
 
-## Do I Need a Custom Build?
+## Custom Build Required for Full Tetragon
 
-**No**, if you use the WSL2 6.18 kernel. Just ensure you're on the latest kernel:
+To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcement), you need to build a custom kernel. The good news is only **3 changes** are needed on top of the default config.
 
-```powershell
-# Check your current WSL kernel version
-wsl uname -r
-# Should show 6.18.x-microsoft-standard-WSL2
+### Quick Summary of Changes:
+
+```diff
++ CONFIG_FPROBE=y
++ CONFIG_BPF_STREAM_PARSER=y
+- CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,tomoyo"
++ CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,bpf"
 ```
-
-If you're on an older kernel (5.15 or 6.1), you have two options:
-1. **Update WSL** (recommended): `wsl --update` in PowerShell
-2. **Build a custom kernel** using the fragment below (only if stuck on older WSL)
-
----
-
-## Option A: Just Update WSL (Recommended)
-
-```powershell
-# Update WSL to get the latest kernel
-wsl --update
-
-# Restart WSL
-wsl --shutdown
-wsl
-
-# Verify
-wsl uname -r
-```
-
-If you're on Windows 11 with recent updates, WSL should ship with kernel 6.6+ or 6.18.
-
----
-
-## Option B: Build Custom Kernel (Only if on Older WSL)
-
-If you cannot update and are stuck on kernel 5.15.x, follow these steps:
 
 ---
 
@@ -98,19 +74,19 @@ If you cannot update and are stuck on kernel 5.15.x, follow these steps:
 
 ---
 
-## Step 1 — Clone the WSL2 Kernel Source
+## Build Steps
+
+### Step 1 — Clone the WSL2 Kernel Source
 
 ```bash
-# Use the 6.6 LTS branch (good balance of features and stability)
-git clone --depth 1 -b linux-msft-wsl-6.6.y https://github.com/microsoft/WSL2-Linux-Kernel.git
+# Use the 6.18 branch (latest, has most features already)
+git clone --depth 1 -b linux-msft-wsl-6.18.y https://github.com/microsoft/WSL2-Linux-Kernel.git
 cd WSL2-Linux-Kernel
 ```
 
-> **Note**: Kernel 6.6+ is recommended. nftables proxy mode requires ≥ 5.13, and Tetragon BTF support works best on 5.8+. The 6.6 LTS branch gives you all of these.
-
 ---
 
-## Step 2 — Start with the Default WSL2 Config
+### Step 2 — Start with the Default WSL2 Config
 
 ```bash
 cp arch/x86/configs/config-wsl .config
@@ -118,241 +94,17 @@ cp arch/x86/configs/config-wsl .config
 
 ---
 
-## Step 3 — Apply the Kind + IPVS + nftables + Tetragon Fragment
+### Step 3 — Apply the Full Tetragon Fragment
 
-Create `kind-tetragon.config` with the contents from the section below, then merge:
+The `kind-tetragon.config` file in this directory adds `FPROBE`, `BPF_STREAM_PARSER`, and `bpf` to the LSM list:
 
 ```bash
-./scripts/kconfig/merge_config.sh .config kind-tetragon.config
+./scripts/kconfig/merge_config.sh .config /path/to/kind-tetragon.config
 ```
 
 ---
 
-## Kernel Config Fragment: `kind-tetragon.config`
-
-```ini
-###############################################################################
-# KIND / DOCKER BASICS
-###############################################################################
-
-# Overlay filesystem (container image layers)
-CONFIG_OVERLAY_FS=m
-
-# Namespaces (container isolation)
-CONFIG_NAMESPACES=y
-CONFIG_USER_NS=y
-CONFIG_NET_NS=y
-CONFIG_PID_NS=y
-CONFIG_IPC_NS=y
-CONFIG_UTS_NS=y
-CONFIG_CGROUP_NS=y
-
-# Cgroups v2 (Kind requires cgroups v2 with unified hierarchy)
-CONFIG_CGROUPS=y
-CONFIG_CGROUP_FREEZER=y
-CONFIG_CGROUP_PIDS=y
-CONFIG_CGROUP_DEVICE=y
-CONFIG_CPUSETS=y
-CONFIG_CGROUP_CPUACCT=y
-CONFIG_MEMCG=y
-CONFIG_CGROUP_SCHED=y
-CONFIG_CGROUP_BPF=y
-CONFIG_CGROUP_MISC=y
-
-# Virtual ethernet (pod-to-pod and container networking)
-CONFIG_VETH=m
-CONFIG_BRIDGE=m
-CONFIG_VXLAN=m
-CONFIG_GENEVE=m
-CONFIG_IPVLAN=m
-CONFIG_MACVLAN=m
-CONFIG_DUMMY=m
-CONFIG_TUN=m
-CONFIG_WIREGUARD=m
-
-###############################################################################
-# KUBE-PROXY MODE: IPTABLES
-###############################################################################
-
-CONFIG_NETFILTER=y
-CONFIG_NF_CONNTRACK=m
-CONFIG_NETFILTER_XTABLES=m
-CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
-CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m
-CONFIG_NETFILTER_XT_MATCH_STATISTIC=m
-CONFIG_NETFILTER_XT_MATCH_COMMENT=m
-CONFIG_NETFILTER_XT_MATCH_RECENT=m
-CONFIG_NETFILTER_XT_MATCH_MARK=m
-CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=m
-CONFIG_NETFILTER_XT_TARGET_MARK=m
-CONFIG_NETFILTER_XT_TARGET_REDIRECT=m
-CONFIG_NETFILTER_XT_TARGET_MASQUERADE=m
-CONFIG_NF_NAT=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_RAW=m
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_RAW=m
-CONFIG_IP6_NF_NAT=m
-CONFIG_BRIDGE_NETFILTER=m
-
-###############################################################################
-# KUBE-PROXY MODE: IPVS
-###############################################################################
-
-CONFIG_IP_VS=m
-CONFIG_IP_VS_PROTO_TCP=y
-CONFIG_IP_VS_PROTO_UDP=y
-CONFIG_IP_VS_PROTO_SCTP=y
-CONFIG_IP_VS_RR=m
-CONFIG_IP_VS_WRR=m
-CONFIG_IP_VS_SH=m
-CONFIG_IP_VS_LC=m
-CONFIG_IP_VS_DH=m
-CONFIG_IP_VS_LBLC=m
-CONFIG_IP_VS_LBLCR=m
-CONFIG_IP_VS_SED=m
-CONFIG_IP_VS_NQ=m
-CONFIG_IP_VS_MH=m
-CONFIG_IP_VS_NFCT=y
-CONFIG_IP_VS_FTP=m
-
-###############################################################################
-# KUBE-PROXY MODE: NFTABLES (requires kernel >= 5.13)
-###############################################################################
-
-CONFIG_NF_TABLES=m
-CONFIG_NF_TABLES_INET=y
-CONFIG_NF_TABLES_NETDEV=y
-CONFIG_NFT_CT=m
-CONFIG_NFT_COUNTER=m
-CONFIG_NFT_LOG=m
-CONFIG_NFT_LIMIT=m
-CONFIG_NFT_MASQ=m
-CONFIG_NFT_REDIR=m
-CONFIG_NFT_NAT=m
-CONFIG_NFT_REJECT=m
-CONFIG_NFT_COMPAT=m
-CONFIG_NFT_HASH=m
-CONFIG_NFT_FIB=m
-CONFIG_NFT_FIB_INET=m
-CONFIG_NFT_FIB_IPV4=m
-CONFIG_NFT_FIB_IPV6=m
-CONFIG_NF_TABLES_IPV4=y
-CONFIG_NF_TABLES_IPV6=y
-CONFIG_NFT_CHAIN_NAT=m
-CONFIG_NFT_CHAIN_ROUTE_IPV4=m
-CONFIG_NFT_CHAIN_ROUTE_IPV6=m
-
-###############################################################################
-# TETRAGON: eBPF + KPROBES + BTF
-###############################################################################
-
-# Core BPF
-CONFIG_BPF=y
-CONFIG_BPF_SYSCALL=y
-CONFIG_BPF_JIT=y
-CONFIG_BPF_JIT_ALWAYS_ON=y
-CONFIG_BPF_STREAM_PARSER=y
-CONFIG_BPF_LSM=y
-CONFIG_BPF_UNPRIV_DEFAULT_OFF=y
-
-# BTF (required for Tetragon CO-RE and kprobe argument parsing)
-CONFIG_DEBUG_INFO=y
-CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
-CONFIG_DEBUG_INFO_BTF=y
-CONFIG_DEBUG_INFO_BTF_MODULES=y
-CONFIG_PAHOLE_HAS_SPLIT_BTF=y
-
-# Kprobes (required for Tetragon kprobe-based policies)
-CONFIG_KPROBES=y
-CONFIG_KPROBE_EVENTS=y
-CONFIG_KRETPROBES=y
-CONFIG_HAVE_KPROBES=y
-CONFIG_HAVE_KRETPROBES=y
-
-# Tracepoints (for Tetragon tracepoint policies)
-CONFIG_TRACEPOINTS=y
-CONFIG_TRACING=y
-CONFIG_FTRACE=y
-CONFIG_FTRACE_SYSCALLS=y
-CONFIG_FUNCTION_TRACER=y
-CONFIG_DYNAMIC_FTRACE=y
-CONFIG_FPROBE=y
-
-# Perf events (BPF perf buffer)
-CONFIG_PERF_EVENTS=y
-
-# BPF ring buffer (preferred over perf buffer in newer kernels)
-CONFIG_BPF_EVENTS=y
-
-# Uprobe support (for Tetragon uprobe policies)
-CONFIG_UPROBES=y
-CONFIG_UPROBE_EVENTS=y
-
-# LSM BPF (for Tetragon LSM enforcement hooks)
-CONFIG_SECURITY=y
-CONFIG_SECURITYFS=y
-CONFIG_LSM="lockdown,yama,loadpin,safesetid,integrity,bpf"
-
-# Cgroup BPF (for container-aware filtering)
-CONFIG_CGROUP_BPF=y
-
-###############################################################################
-# SECCOMP (Pod Security Standards)
-###############################################################################
-
-CONFIG_SECCOMP=y
-CONFIG_SECCOMP_FILTER=y
-
-###############################################################################
-# STORAGE (for Kind persistent volumes and testing)
-###############################################################################
-
-CONFIG_EXT4_FS=y
-CONFIG_XFS_FS=m
-CONFIG_FUSE_FS=m
-CONFIG_TMPFS=y
-CONFIG_TMPFS_POSIX_ACL=y
-
-###############################################################################
-# MISC NETWORKING
-###############################################################################
-
-CONFIG_IP_MULTICAST=y
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_CLS_BPF=m
-CONFIG_NET_CLS_ACT=y
-CONFIG_NET_ACT_BPF=m
-CONFIG_NET_ACT_MIRRED=m
-CONFIG_INET_ESP=m
-CONFIG_XFRM_USER=m
-CONFIG_XFRM_ALGO=m
-
-###############################################################################
-# AUDIT (for observability / Tetragon audit events)
-###############################################################################
-
-CONFIG_AUDIT=y
-CONFIG_AUDITSYSCALL=y
-
-###############################################################################
-# KERNEL MODULE LOADING (for runtime module loading in Kind nodes)
-###############################################################################
-
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-```
-
----
-
-## Step 4 — Build
+### Step 4 — Build
 
 ```bash
 # Install build dependencies (Ubuntu/Debian in WSL)
@@ -376,7 +128,7 @@ make -j$(nproc) modules
 
 ---
 
-## Step 5 — Install the Custom Kernel
+### Step 5 — Install the Custom Kernel
 
 Copy the built kernel to a Windows-accessible path:
 
@@ -401,7 +153,7 @@ wsl
 
 ---
 
-## Step 6 — Verify
+### Step 6 — Verify
 
 ```bash
 # Check kernel version
@@ -439,7 +191,7 @@ sudo iptables -L -n
 
 ---
 
-## Step 7 — Test with Kind
+### Step 7 — Test with Kind
 
 ### Create a Kind cluster with iptables proxy mode (default)
 
@@ -491,7 +243,7 @@ kind create cluster --name nftables-test --config kind-nftables.yaml
 
 ---
 
-## Step 8 — Test Tetragon with kprobe Policies
+### Step 8 — Test Tetragon with kprobe Policies
 
 ### Install Tetragon via Helm
 

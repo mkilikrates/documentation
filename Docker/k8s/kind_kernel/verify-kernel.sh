@@ -29,7 +29,7 @@ uname -r
 echo ""
 
 ###############################################################################
-echo "=== BTF Support (Tetragon requirement) ==="
+echo "=== BTF Support (Tetragon) ==="
 if [ -f /sys/kernel/btf/vmlinux ]; then
   ok "BTF available at /sys/kernel/btf/vmlinux ($(wc -c < /sys/kernel/btf/vmlinux) bytes)"
 else
@@ -137,6 +137,66 @@ if modprobe nf_conntrack 2>/dev/null; then
   fi
 else
   fail "nf_conntrack"
+fi
+echo ""
+
+###############################################################################
+echo "=== Full Tetragon Support ==="
+
+# Check FPROBE
+if [ -f /proc/config.gz ]; then
+  if zgrep -q "CONFIG_FPROBE=y" /proc/config.gz 2>/dev/null; then
+    ok "FPROBE enabled (multi-kprobe / fentry/fexit support)"
+  else
+    fail "FPROBE not enabled — multi-kprobe and fentry/fexit hooks unavailable"
+  fi
+elif [ -f /boot/config-$(uname -r) ]; then
+  if grep -q "CONFIG_FPROBE=y" /boot/config-$(uname -r) 2>/dev/null; then
+    ok "FPROBE enabled (multi-kprobe / fentry/fexit support)"
+  else
+    fail "FPROBE not enabled — multi-kprobe and fentry/fexit hooks unavailable"
+  fi
+else
+  warn "Cannot check FPROBE (no /proc/config.gz or /boot/config-*)"
+fi
+
+# Check BPF_STREAM_PARSER
+if [ -f /proc/config.gz ]; then
+  if zgrep -q "CONFIG_BPF_STREAM_PARSER=y" /proc/config.gz 2>/dev/null; then
+    ok "BPF_STREAM_PARSER enabled (sockmap/sockhash support)"
+  else
+    fail "BPF_STREAM_PARSER not enabled — socket-level BPF monitoring unavailable"
+  fi
+elif [ -f /boot/config-$(uname -r) ]; then
+  if grep -q "CONFIG_BPF_STREAM_PARSER=y" /boot/config-$(uname -r) 2>/dev/null; then
+    ok "BPF_STREAM_PARSER enabled (sockmap/sockhash support)"
+  else
+    fail "BPF_STREAM_PARSER not enabled — socket-level BPF monitoring unavailable"
+  fi
+else
+  warn "Cannot check BPF_STREAM_PARSER"
+fi
+
+# Check BPF in LSM list
+if [ -f /sys/kernel/security/lsm ]; then
+  LSM_LIST=$(cat /sys/kernel/security/lsm 2>/dev/null)
+  if echo "$LSM_LIST" | grep -q "bpf"; then
+    ok "BPF LSM enabled (enforcement via LSM hooks): $LSM_LIST"
+  else
+    fail "BPF not in LSM list: $LSM_LIST — Tetragon LSM enforcement unavailable"
+  fi
+else
+  warn "Cannot read /sys/kernel/security/lsm"
+fi
+echo ""
+
+###############################################################################
+echo "=== Tetragon Probe (if installed) ==="
+if command -v tetra &>/dev/null; then
+  echo "Running 'tetra probe config'..."
+  tetra probe config 2>&1 || warn "tetra probe config failed (may need root)"
+else
+  warn "tetra CLI not installed — install with: helm install tetragon cilium/tetragon"
 fi
 echo ""
 
