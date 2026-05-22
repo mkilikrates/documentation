@@ -38,6 +38,8 @@ After reviewing the [default config-wsl for the 6.18 branch](https://github.com/
 |---|---|---|
 | `CONFIG_FPROBE` | ❌ Not set | Required for multi-kprobe and fentry/fexit hooks (more efficient than kprobes on 6.x+) |
 | `CONFIG_BPF_STREAM_PARSER` | ❌ Not set | Required for sockmap/sockhash BPF programs (socket-level monitoring) |
+| `CONFIG_BPF_KPROBE_OVERRIDE` | ❌ Not set | **CRITICAL for enforcement** — enables `override_return` action in TracingPolicy (block syscalls/functions) |
+| `CONFIG_FUNCTION_ERROR_INJECTION` | ❌ Not set | Dependency of `BPF_KPROBE_OVERRIDE` |
 | `CONFIG_LSM` with `bpf` | ⚠️ Missing `bpf` | Default LSM list does not include `bpf` — needed for BPF LSM enforcement (override/sigkill via LSM hooks) |
 
 ---
@@ -80,6 +82,8 @@ To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcem
 ```diff
 + CONFIG_FPROBE=y
 + CONFIG_BPF_STREAM_PARSER=y
++ CONFIG_FUNCTION_ERROR_INJECTION=y
++ CONFIG_BPF_KPROBE_OVERRIDE=y
 - CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,tomoyo"
 + CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,bpf"
 ```
