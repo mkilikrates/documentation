@@ -1,22 +1,83 @@
-# Custom WSL2 Kernel for Kind + All Proxy Modes + Tetragon (kprobes)
+# WSL2 Kernel for Kind + All Proxy Modes + Tetragon (kprobes)
 
-Build a custom WSL2 kernel that supports:
-- **Kind clusters** running on Docker
-- **All kube-proxy modes**: iptables, IPVS, and nftables
-- **Tetragon** with kprobe-based tracing policies
+Run Kind clusters on Docker with all kube-proxy modes (iptables, IPVS, nftables) and Tetragon with kprobe-based tracing policies.
 
 ---
 
-## Why a Custom Kernel?
+## Good News: WSL2 Kernel 6.18 Has Everything You Need!
 
-The default WSL2 kernel (`microsoft-standard-WSL2`) is missing several modules/configs needed for:
+After reviewing the [default config-wsl for the 6.18 branch](https://github.com/microsoft/WSL2-Linux-Kernel/blob/linux-msft-wsl-6.18.y/arch/x86/configs/config-wsl), **no custom kernel build is required** if you're running the 6.18 kernel.
 
-| Feature | What's Missing |
-|---|---|
-| **IPVS proxy mode** | `ip_vs`, `ip_vs_rr`, `ip_vs_wrr`, `ip_vs_sh`, `ip_vs_conntrack` |
-| **nftables proxy mode** | Full `nf_tables` subsystem, kernel ≥ 5.13 (we'll use 6.6) |
-| **Tetragon kprobes** | `CONFIG_KPROBES`, `CONFIG_KPROBE_EVENTS`, `CONFIG_DEBUG_INFO_BTF`, BPF LSM |
-| **eBPF advanced** | `CONFIG_BPF_LSM`, `CONFIG_BPF_JIT_ALWAYS_ON`, ring buffer, etc. |
+### What's already enabled in `linux-msft-wsl-6.18.y`:
+
+| Feature | Status | Key Config Options |
+|---|---|---|
+| **iptables proxy** | ✅ | `IP_NF_IPTABLES=m`, `IP_NF_NAT=m`, `IP_NF_FILTER=m`, full xt matches |
+| **IPVS proxy** | ✅ | `IP_VS=m`, `IP_VS_RR/WRR/SH/MH/LC/DH/SED/NQ=m`, `IP_VS_NFCT=y` |
+| **nftables proxy** | ✅ | `NF_TABLES=y` (built-in!), `NFT_NAT=y`, `NFT_MASQ=y`, `NFT_CT=m` |
+| **Overlay FS** | ✅ | `OVERLAY_FS=y` (built-in) |
+| **Container networking** | ✅ | `VETH=y`, `BRIDGE=m`, `VXLAN=y`, `GENEVE=m`, `IPVLAN=m`, `MACVLAN=m`, `DUMMY=m` |
+| **Namespaces** | ✅ | `NET_NS=y`, `PID_NS=y`, `USER_NS=y`, `IPC_NS=y`, `UTS_NS=y` |
+| **Cgroups v2** | ✅ | Full unified hierarchy, `MEMCG=y`, `CGROUP_BPF=y`, `CGROUP_PIDS=y` |
+| **BPF/eBPF** | ✅ | `BPF=y`, `BPF_SYSCALL=y`, `BPF_JIT=y`, `BPF_JIT_ALWAYS_ON=y`, `BPF_LSM=y` |
+| **BTF (Tetragon)** | ✅ | `DEBUG_INFO_BTF=y`, `DEBUG_INFO_BTF_MODULES=y` |
+| **Kprobes (Tetragon)** | ✅ | `KPROBES=y`, `KRETPROBES=y`, `KPROBE_EVENTS=y`, `OPTPROBES=y` |
+| **Uprobes (Tetragon)** | ✅ | `UPROBES=y`, `UPROBE_EVENTS=y` |
+| **Ftrace/Tracing** | ✅ | `FTRACE=y`, `FTRACE_SYSCALLS=y`, `DYNAMIC_FTRACE=y`, `TRACEPOINTS=y` |
+| **Perf + BPF events** | ✅ | `PERF_EVENTS=y`, `BPF_EVENTS=y` |
+| **Seccomp** | ✅ | `SECCOMP=y`, `SECCOMP_FILTER=y` |
+| **Audit** | ✅ | `AUDIT=y`, `AUDITSYSCALL=y` |
+| **Conntrack** | ✅ | `NF_CONNTRACK=y` (built-in), full protocol support |
+| **IP Sets** | ✅ | `IP_SET=m` with all hash/bitmap types |
+| **Wireguard** | ✅ | `WIREGUARD=m` |
+| **Security/LSM** | ✅ | SELinux, AppArmor, Landlock, Yama, BPF LSM |
+
+### Only minor gaps (not needed for your use case):
+
+| Feature | Status | Impact |
+|---|---|---|
+| `FPROBE` | ❌ Not set | Only needed for some newer Tetragon features, not kprobes |
+| `BPF_STREAM_PARSER` | ❌ Not set | Socket-level BPF, not needed for kprobe policies |
+
+---
+
+## Do I Need a Custom Build?
+
+**No**, if you use the WSL2 6.18 kernel. Just ensure you're on the latest kernel:
+
+```powershell
+# Check your current WSL kernel version
+wsl uname -r
+# Should show 6.18.x-microsoft-standard-WSL2
+```
+
+If you're on an older kernel (5.15 or 6.1), you have two options:
+1. **Update WSL** (recommended): `wsl --update` in PowerShell
+2. **Build a custom kernel** using the fragment below (only if stuck on older WSL)
+
+---
+
+## Option A: Just Update WSL (Recommended)
+
+```powershell
+# Update WSL to get the latest kernel
+wsl --update
+
+# Restart WSL
+wsl --shutdown
+wsl
+
+# Verify
+wsl uname -r
+```
+
+If you're on Windows 11 with recent updates, WSL should ship with kernel 6.6+ or 6.18.
+
+---
+
+## Option B: Build Custom Kernel (Only if on Older WSL)
+
+If you cannot update and are stuck on kernel 5.15.x, follow these steps:
 
 ---
 
