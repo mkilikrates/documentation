@@ -94,7 +94,7 @@ echo ""
 
 ###############################################################################
 echo "=== nftables Modules (kube-proxy nftables mode) ==="
-nft_modules=(nf_tables nft_ct nft_counter nft_nat nft_masq nft_reject nft_compat nft_fib_inet)
+nft_modules=(nf_tables nft_ct nft_nat nft_masq nft_reject nft_compat nft_fib_inet)
 for mod in "${nft_modules[@]}"; do
   if modprobe "$mod" 2>/dev/null; then
     ok "NFT:  $mod"
@@ -102,6 +102,14 @@ for mod in "${nft_modules[@]}"; do
     fail "NFT:  $mod"
   fi
 done
+# nft_counter may be built into nf_tables in kernel 6.x+ (not a separate module)
+if modprobe nft_counter 2>/dev/null; then
+  ok "NFT:  nft_counter (module)"
+elif [ -d /proc/sys/net/netfilter ] && nft list counters 2>/dev/null; then
+  ok "NFT:  nft_counter (built into nf_tables)"
+else
+  warn "NFT:  nft_counter (may be built into nf_tables core in 6.18+)"
+fi
 echo ""
 
 ###############################################################################
@@ -175,6 +183,23 @@ elif [ -f /boot/config-$(uname -r) ]; then
   fi
 else
   warn "Cannot check BPF_STREAM_PARSER"
+fi
+
+# Check BPF_KPROBE_OVERRIDE (critical for enforcement)
+if [ -f /proc/config.gz ]; then
+  if zgrep -q "CONFIG_BPF_KPROBE_OVERRIDE=y" /proc/config.gz 2>/dev/null; then
+    ok "BPF_KPROBE_OVERRIDE enabled (override_return enforcement)"
+  else
+    fail "BPF_KPROBE_OVERRIDE not enabled — Tetragon CANNOT enforce/block (override_return won't work)"
+  fi
+elif [ -f /boot/config-$(uname -r) ]; then
+  if grep -q "CONFIG_BPF_KPROBE_OVERRIDE=y" /boot/config-$(uname -r) 2>/dev/null; then
+    ok "BPF_KPROBE_OVERRIDE enabled (override_return enforcement)"
+  else
+    fail "BPF_KPROBE_OVERRIDE not enabled — Tetragon CANNOT enforce/block"
+  fi
+else
+  warn "Cannot check BPF_KPROBE_OVERRIDE"
 fi
 
 # Check BPF in LSM list
