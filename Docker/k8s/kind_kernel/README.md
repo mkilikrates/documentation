@@ -129,10 +129,21 @@ cp arch/x86/configs/config-wsl .config
 
 ### Step 3 — Apply the Full Tetragon Fragment
 
-The `kind-tetragon.config` file in this directory adds `FPROBE`, `BPF_STREAM_PARSER`, and `bpf` to the LSM list:
+The `kind-tetragon.config` file in this directory adds `FPROBE`, `BPF_STREAM_PARSER`, `BPF_KPROBE_OVERRIDE`, and `bpf` to the LSM list:
 
 ```bash
 ./scripts/kconfig/merge_config.sh .config /path/to/kind-tetragon.config
+
+# IMPORTANT: merge_config.sh may fail to override "# CONFIG_X is not set" lines.
+# Manually ensure the critical enforcement options are set:
+sed -i 's/# CONFIG_FUNCTION_ERROR_INJECTION is not set/CONFIG_FUNCTION_ERROR_INJECTION=y/' .config
+sed -i 's/# CONFIG_BPF_KPROBE_OVERRIDE is not set/CONFIG_BPF_KPROBE_OVERRIDE=y/' .config
+
+# Verify they are set before building:
+grep -E "FUNCTION_ERROR_INJECTION|BPF_KPROBE_OVERRIDE" .config
+# Expected output:
+#   CONFIG_FUNCTION_ERROR_INJECTION=y
+#   CONFIG_BPF_KPROBE_OVERRIDE=y
 ```
 
 ---
@@ -147,8 +158,12 @@ sudo apt update && sudo apt install -y \
   bc dwarves pkg-config \
   python3 pahole
 
-# Resolve new config symbols
+# Resolve new config symbols (should keep FUNCTION_ERROR_INJECTION and BPF_KPROBE_OVERRIDE)
 make olddefconfig
+
+# Double-check it survived olddefconfig:
+grep "BPF_KPROBE_OVERRIDE" .config
+# Must show: CONFIG_BPF_KPROBE_OVERRIDE=y
 
 # Build the kernel image
 make -j$(nproc) bzImage
