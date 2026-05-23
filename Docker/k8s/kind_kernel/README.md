@@ -134,12 +134,15 @@ The `kind-tetragon.config` file in this directory adds `FPROBE`, `BPF_STREAM_PAR
 ```bash
 ./scripts/kconfig/merge_config.sh .config /path/to/kind-tetragon.config
 
-# IMPORTANT: merge_config.sh may fail to override "# CONFIG_X is not set" lines.
-# Manually ensure the critical enforcement options are set:
+# IMPORTANT: Force ALL netfilter/iptables modules from =m to =y (built-in)
+# WSL2 doesn't auto-load modules — this prevents Docker/iptables failures
+sed -i -E 's/^(CONFIG_(IP_NF|IP6_NF|NF_|NETFILTER_XT|NFT_).*)=m$/\1=y/' .config
+
+# Force enforcement options that merge_config.sh fails to override
 sed -i 's/# CONFIG_FUNCTION_ERROR_INJECTION is not set/CONFIG_FUNCTION_ERROR_INJECTION=y/' .config
 sed -i 's/# CONFIG_BPF_KPROBE_OVERRIDE is not set/CONFIG_BPF_KPROBE_OVERRIDE=y/' .config
 
-# Verify they are set before building:
+# Verify critical options:
 grep -E "FUNCTION_ERROR_INJECTION|BPF_KPROBE_OVERRIDE" .config
 # Expected output:
 #   CONFIG_FUNCTION_ERROR_INJECTION=y
@@ -165,15 +168,8 @@ make olddefconfig
 grep "BPF_KPROBE_OVERRIDE" .config
 # Must show: CONFIG_BPF_KPROBE_OVERRIDE=y
 
-# Build the kernel image
+# Build the kernel image (no modules_install needed — everything is built-in!)
 make -j$(nproc) bzImage
-
-# Build and install modules (required for IPVS, nftables, bridge, etc.)
-make -j$(nproc) modules
-sudo make modules_install
-
-# Optional: install headers (needed if you plan to build out-of-tree modules later)
-# sudo make headers_install
 ```
 
 > **Important**: `dwarves` (which provides `pahole`) is required for `CONFIG_DEBUG_INFO_BTF=y`. Without it the build will fail.

@@ -66,6 +66,11 @@ if [ $# -ge 2 ]; then
   # Step 2: Force-enable options that merge_config.sh fails to override
   echo "=== Step 2: Applying sed fixes for enforcement options ==="
 
+  # Convert ALL netfilter/iptables/nftables modules from =m to =y
+  # This prevents module loading failures in WSL2 (Docker, iptables, ip6tables)
+  sed -i -E 's/^(CONFIG_(IP_NF|IP6_NF|NF_|NETFILTER_XT|NFT_).*)=m$/\1=y/' .config
+  ok "All netfilter/iptables/nftables modules forced to =y (built-in)"
+
   sed -i 's/# CONFIG_FUNCTION_ERROR_INJECTION is not set/CONFIG_FUNCTION_ERROR_INJECTION=y/' .config
   sed -i 's/# CONFIG_BPF_KPROBE_OVERRIDE is not set/CONFIG_BPF_KPROBE_OVERRIDE=y/' .config
 
