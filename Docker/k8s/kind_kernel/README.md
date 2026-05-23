@@ -168,8 +168,12 @@ grep "BPF_KPROBE_OVERRIDE" .config
 # Build the kernel image
 make -j$(nproc) bzImage
 
-# Optional: build modules if you want loadable modules
+# Build and install modules (required for IPVS, nftables, bridge, etc.)
 make -j$(nproc) modules
+sudo make modules_install
+
+# Optional: install headers (needed if you plan to build out-of-tree modules later)
+# sudo make headers_install
 ```
 
 > **Important**: `dwarves` (which provides `pahole`) is required for `CONFIG_DEBUG_INFO_BTF=y`. Without it the build will fail.
