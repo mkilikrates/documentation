@@ -74,6 +74,18 @@ if [ $# -ge 2 ]; then
   sed -i 's/# CONFIG_FUNCTION_ERROR_INJECTION is not set/CONFIG_FUNCTION_ERROR_INJECTION=y/' .config
   sed -i 's/# CONFIG_BPF_KPROBE_OVERRIDE is not set/CONFIG_BPF_KPROBE_OVERRIDE=y/' .config
 
+  # Disable ACPI hardware modules (malformed BTF crashes Tetragon CO-RE under WSL2)
+  sed -i 's/CONFIG_ACPI_AC=m/# CONFIG_ACPI_AC is not set/' .config
+  sed -i 's/CONFIG_ACPI_BATTERY=m/# CONFIG_ACPI_BATTERY is not set/' .config
+  sed -i 's/CONFIG_ACPI_FAN=m/# CONFIG_ACPI_FAN is not set/' .config
+  sed -i 's/CONFIG_ACPI_VIDEO=m/# CONFIG_ACPI_VIDEO is not set/' .config
+  sed -i 's/CONFIG_ACPI_BUTTON=m/# CONFIG_ACPI_BUTTON is not set/' .config
+  ok "ACPI hardware modules disabled to prevent split BTF malformation"
+
+  # Disable split BTF for modules (Tetragon has all required drivers as built-in)
+  sed -i 's/CONFIG_DEBUG_INFO_BTF_MODULES=y/# CONFIG_DEBUG_INFO_BTF_MODULES is not set/' .config
+  ok "CONFIG_DEBUG_INFO_BTF_MODULES disabled"
+
   # Also ensure BPF LSM is in the LSM list
   if grep -q 'CONFIG_LSM=".*tomoyo"' .config; then
     sed -i 's/CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,tomoyo"/CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,bpf"/' .config

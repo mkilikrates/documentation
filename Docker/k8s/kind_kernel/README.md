@@ -20,7 +20,7 @@ After reviewing the [default config-wsl for the 6.18 branch](https://github.com/
 | **Namespaces** | ✅ | `NET_NS=y`, `PID_NS=y`, `USER_NS=y`, `IPC_NS=y`, `UTS_NS=y` |
 | **Cgroups v2** | ✅ | Full unified hierarchy, `MEMCG=y`, `CGROUP_BPF=y`, `CGROUP_PIDS=y` |
 | **BPF/eBPF** | ✅ | `BPF=y`, `BPF_SYSCALL=y`, `BPF_JIT=y`, `BPF_JIT_ALWAYS_ON=y`, `BPF_LSM=y` |
-| **BTF (Tetragon)** | ✅ | `DEBUG_INFO_BTF=y`, `DEBUG_INFO_BTF_MODULES=y` |
+| **BTF (Tetragon)** | ✅ | `DEBUG_INFO_BTF=y` (Required. Note: `DEBUG_INFO_BTF_MODULES` should be disabled under WSL2 to avoid module split BTF issues) |
 | **Kprobes (Tetragon)** | ✅ | `KPROBES=y`, `KRETPROBES=y`, `KPROBE_EVENTS=y`, `OPTPROBES=y` |
 | **Uprobes (Tetragon)** | ✅ | `UPROBES=y`, `UPROBE_EVENTS=y` |
 | **Ftrace/Tracing** | ✅ | `FTRACE=y`, `FTRACE_SYSCALLS=y`, `DYNAMIC_FTRACE=y`, `TRACEPOINTS=y` |
@@ -75,7 +75,7 @@ Kubernetes 1.35 ("Timbernetes") introduces breaking changes. Here's the validati
 
 ## Custom Build Required for Full Tetragon
 
-To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcement), you need to build a custom kernel. The good news is only **3 changes** are needed on top of the default config.
+To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcement), you need to build a custom kernel. The good news is only a few changes are needed on top of the default config.
 
 ### Quick Summary of Changes:
 
@@ -86,6 +86,9 @@ To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcem
 + CONFIG_BPF_KPROBE_OVERRIDE=y
 - CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,tomoyo"
 + CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,apparmor,bpf"
+- CONFIG_DEBUG_INFO_BTF_MODULES=y
++ # CONFIG_DEBUG_INFO_BTF_MODULES is not set
++ # (Disable split BTF for modules to prevent WSL2 kmod BTF parsing errors in Tetragon)
 ```
 
 ---
@@ -142,11 +145,22 @@ sed -i -E 's/^(CONFIG_(IP_NF|IP6_NF|NF_|NETFILTER_XT|NFT_).*)=m$/\1=y/' .config
 sed -i 's/# CONFIG_FUNCTION_ERROR_INJECTION is not set/CONFIG_FUNCTION_ERROR_INJECTION=y/' .config
 sed -i 's/# CONFIG_BPF_KPROBE_OVERRIDE is not set/CONFIG_BPF_KPROBE_OVERRIDE=y/' .config
 
+# Disable ACPI hardware modules (malformed BTF crashes Tetragon CO-RE under WSL2)
+sed -i 's/CONFIG_ACPI_AC=m/# CONFIG_ACPI_AC is not set/' .config
+sed -i 's/CONFIG_ACPI_BATTERY=m/# CONFIG_ACPI_BATTERY is not set/' .config
+sed -i 's/CONFIG_ACPI_FAN=m/# CONFIG_ACPI_FAN is not set/' .config
+sed -i 's/CONFIG_ACPI_VIDEO=m/# CONFIG_ACPI_VIDEO is not set/' .config
+sed -i 's/CONFIG_ACPI_BUTTON=m/# CONFIG_ACPI_BUTTON is not set/' .config
+
+# Disable split BTF for modules (Tetragon has all required drivers as built-in)
+sed -i 's/CONFIG_DEBUG_INFO_BTF_MODULES=y/# CONFIG_DEBUG_INFO_BTF_MODULES is not set/' .config
+
 # Verify critical options:
-grep -E "FUNCTION_ERROR_INJECTION|BPF_KPROBE_OVERRIDE" .config
+grep -E "FUNCTION_ERROR_INJECTION|BPF_KPROBE_OVERRIDE|DEBUG_INFO_BTF_MODULES" .config
 # Expected output:
 #   CONFIG_FUNCTION_ERROR_INJECTION=y
 #   CONFIG_BPF_KPROBE_OVERRIDE=y
+#   # CONFIG_DEBUG_INFO_BTF_MODULES is not set
 ```
 
 ---
@@ -444,6 +458,7 @@ fi
 | Kind: `cpu.weight: no such file or directory` | Ensure cgroups v2 unified hierarchy is enabled (default in WSL2 6.x) |
 | Tetragon: kprobe attach fails | Verify `/sys/kernel/debug/kprobes/enabled` = 1 |
 | Build fails at BTF generation | Install `dwarves` ≥ 1.24 and `pahole` |
+| Tetragon error: `offset ... is not the beginning of a string` | Malformed split BTF for ACPI hardware modules (`ac`, `button`, etc.) in WSL2. Ensure `CONFIG_DEBUG_INFO_BTF_MODULES` is disabled (or removed) and ACPI modules are disabled via `.config` changes. |
 
 ---
 
