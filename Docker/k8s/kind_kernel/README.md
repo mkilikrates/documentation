@@ -98,14 +98,13 @@ To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcem
 | Resource | URL |
 |---|---|
 | WSL2 Kernel Source | https://github.com/microsoft/WSL2-Linux-Kernel |
-| WSL2 config-wsl (6.6.y) | https://github.com/microsoft/WSL2-Linux-Kernel/blob/linux-msft-wsl-6.6.y/arch/x86/configs/config-wsl |
+| WSL2 config-wsl (6.18.y) | https://github.com/microsoft/WSL2-Linux-Kernel/blob/linux-msft-wsl-6.18.y/arch/x86/configs/config-wsl |
 | Tetragon FAQ (kernel reqs) | https://tetragon.io/docs/installation/faq/ |
 | Tetragon kprobe hooks | https://tetragon.cilium.io/docs/concepts/tracing-policy/hooks/ |
 | K8s IPVS proxy README | https://github.com/kubernetes/kubernetes/blob/master/pkg/proxy/ipvs/README.md |
 | K8s nftables KEP | https://github.com/kubernetes/enhancements/blob/master/keps/sig-network/3866-nftables-proxy/README.md |
 | EKS IPVS best practices | https://docs.aws.amazon.com/eks/latest/best-practices/ipvs.html |
 | BCC kernel config reference | https://github.com/iovisor/bcc/blob/master/docs/kernel_config.md |
-| Enable eBPF on WSL2 (gist) | https://gist.github.com/MarioHewardt/5759641727aae880b29c8f715ba4d30f |
 | awslabs/amazon-eks-ami | https://github.com/awslabs/amazon-eks-ami |
 
 ---
@@ -116,7 +115,7 @@ To enable **all** Tetragon features (fprobe, BPF stream parser, BPF LSM enforcem
 
 ```bash
 # Use the 6.18 branch (latest, has most features already)
-git clone --depth 1 -b linux-msft-wsl-6.18.y https://github.com/microsoft/WSL2-Linux-Kernel.git
+git clone --depth 1 https://github.com/microsoft/WSL2-Linux-Kernel.git
 cd WSL2-Linux-Kernel
 ```
 
@@ -228,24 +227,8 @@ ls /sys/kernel/btf/vmlinux
 cat /sys/kernel/debug/kprobes/enabled
 # Should output "1"
 
-# Load IPVS modules
-sudo modprobe ip_vs
-sudo modprobe ip_vs_rr
-sudo modprobe ip_vs_wrr
-sudo modprobe ip_vs_sh
-
-# Verify IPVS
-sudo lsmod | grep ip_vs
-
-# Load nftables
-sudo modprobe nf_tables
-
 # Verify nftables
 nft list ruleset
-
-# Load iptables
-sudo modprobe ip_tables
-sudo modprobe iptable_nat
 
 # Verify iptables
 sudo iptables -L -n
