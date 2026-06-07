@@ -154,4 +154,4 @@ You can follow my article series on LinkedIn to learn more about how to use this
 - [Parte 1](https://www.linkedin.com/pulse/kubernetes-security-da-rede-ao-workload-parte-1-mtls-m0sxe/)
 - [Parte 2](https://www.linkedin.com/pulse/kubernetes-security-da-rede-ao-workload-parte-2-com-5uzee/)
 - [Parte 3](https://www.linkedin.com/pulse/kubernetes-security-da-rede-ao-workload-parte-3-chain-onxne/)
-- Parte 4 (upcoming)
+- [Parte 4](https://www.linkedin.com/pulse/kubernetes-security-da-rede-ao-workload-parte-4-em-de-bcrie/)
