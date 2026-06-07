@@ -147,7 +147,7 @@ You can follow my article series on LinkedIn to learn more about how to use this
 - [Part 1](https://www.linkedin.com/pulse/kubernetes-security-from-network-workload-part-1-mtls-4bz6e/)
 - [Part 2](https://www.linkedin.com/pulse/kubernetes-security-from-network-workload-part-2-nicolia-dos-anjos--veiue/)
 - [Part 3](https://www.linkedin.com/pulse/kubernetes-security-from-network-workload-part-3-nicolia-dos-anjos--ce7ee/)
-- Part 4 (upcoming)
+- [Part 4](https://www.linkedin.com/pulse/kubernetes-security-from-network-workload-part-4-wsl2-dx3ne/)
 
 #### pt-br
 
