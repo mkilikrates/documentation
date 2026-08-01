@@ -11,6 +11,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   REGISTRY_IMAGE: ${{ github.repository_owner }}/terragrunt-terraform-tofu
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 jobs:
   publish:
     runs-on: ubuntu-latest
