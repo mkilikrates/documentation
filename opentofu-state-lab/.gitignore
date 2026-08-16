@@ -1,0 +1,15 @@
+# OpenTofu / Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+**/.terraform.lock.hcl
+
+# Terragrunt
+**/.terragrunt-cache/
+**/.tfstate/
+
+# Generated provider/backend files from Terragrunt
+05-terragrunt-migration/local/**/provider.tf
+05-terragrunt-migration/local/**/versions.tf
+05-terragrunt-migration/local/**/backend.tf

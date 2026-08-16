@@ -1,0 +1,42 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  apiServerAddress: "$MY_PRIVATE_IP"
+  apiServerPort: 6443
+containerdConfigPatches:
+- |-
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    config_path = "/etc/containerd/certs.d"
+kubeadmConfigPatches:
+- |-
+  kind: ClusterConfiguration
+  apiServer:
+    extraArgs:
+      "enable-admission-plugins": "NamespaceLifecycle,LimitRanger,ServiceAccount,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,PersistentVolumeClaimResize,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota,NodeRestriction"
+  controllerManager:
+    extraArgs:
+      bind-address: 0.0.0.0
+  etcd:
+    local:
+      extraArgs:
+        listen-metrics-urls: http://0.0.0.0:2381
+  scheduler:
+    extraArgs:
+      bind-address: 0.0.0.0
+- |-
+  kind: KubeProxyConfiguration
+  metricsBindAddress: 0.0.0.0
+  mode: iptables
+nodes:
+- role: control-plane
+  extraPortMappings:
+  # HTTP
+  - containerPort: 31437
+    hostPort: 80
+    protocol: TCP
+    listenAddress: "0.0.0.0"
+  # HTTPS
+  - containerPort: 31438
+    hostPort: 443
+    protocol: TCP
+    listenAddress: "0.0.0.0"
