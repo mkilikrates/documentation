@@ -235,6 +235,40 @@ After `refresh-only`, your state matches reality but your `.tf` files don't. You
 2. Update `.tf` files to match the new reality
 3. `tofu plan` — confirm "No changes"
 
+## Why You Can't Just Update the Code
+
+A tempting shortcut: "I see drift on the version. I'll just change my `.tf` to match live and run `apply` — skip the `refresh-only` step."
+
+For simple attribute updates, this often works because `tofu plan` auto-refreshes state from live before comparing. But the state file isn't just a cache — it's the **management boundary**. It defines what OpenTofu thinks it owns.
+
+Consider what happens with force-replacement attributes:
+
+1. You have a deployment with `name = "blue-app"` in code, state, and live
+2. Someone deletes it and creates `name = "blue-app-v2"` in the cluster
+3. You just change your code to `name = "blue-app-v2"` and apply
+4. OpenTofu refreshes, can't find `blue-app` (gone), plans to **create** `blue-app-v2` — but it already exists. Apply fails or creates a conflict.
+
+The same pattern hits with:
+- **Immutable fields** (like `selector` on a Deployment) — provider plans destroy + create
+- **Resources recreated externally** — they exist in live but state doesn't track them
+- **Namespace changes** — the resource gets recreated rather than moved
+
+**The rule:** If reality changed, update state first (`refresh-only`), then update code. Skipping the state update means the decision-maker (state) has stale information.
+
+```
+Safe workflow:
+  1. Detect drift        → tofu plan -refresh-only
+  2. Accept into state   → tofu apply -refresh-only
+  3. Update code         → edit .tf files to match
+  4. Verify              → tofu plan ("No changes")
+
+Risky shortcut:
+  1. See drift
+  2. Just update code and apply
+  3. Hope the provider handles it
+     → Works sometimes, fails dangerously on force-new attributes
+```
+
 ## Beyond This Lab: Lifecycle Rules
 
 OpenTofu provides `lifecycle` blocks to control how resources are managed. While we don't exercise these here, they're worth knowing:
