@@ -11,3 +11,4 @@ This is a simple list of examples where you can use kind to study and test.
 * [HTTP Route with Gateway API](./httproute/)
 * [Terraform Nginx Deploy](./terraform-nginx-deploy/)
 * [OpenTofu Nginx Deploy](./opentofu-nginx-deploy/)
+* [Credentials Management Lab](./credentials-lab/)

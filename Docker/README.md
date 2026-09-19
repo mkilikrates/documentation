@@ -39,6 +39,7 @@ This is a simple list of examples where you can use docker to make tests without
     * [HTTP Route](./k8s/app-examples/httproute/)
     * [Terraform Nginx Deploy](./k8s/app-examples/terraform-nginx-deploy/)
     * [OpenTofu Nginx Deploy](./k8s/app-examples/opentofu-nginx-deploy/)
+    * [Credentials Management Lab](./k8s/app-examples/credentials-lab/) - Zero-standing-access with OpenBao: SPIFFE mTLS, JIT database credentials, Gitea CI/CD OIDC, Keycloak human SSO, and leak detection (OpenTofu/Terragrunt)
   * **DevOps & CI/CD**
     * [Argo CD](./k8s/argo-cd/) - GitOps continuous delivery
     * [Gitea](./k8s/gitea/) - Self-hosted Git service
