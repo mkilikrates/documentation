@@ -25,3 +25,11 @@ Using [Password Store](./GCM/README.md) to avoid keep secrets in clear text or j
 
 * Git Credential Manager (GCM)
 * Docker Credential Helper
+
+## Agent Best Practices
+
+A reusable, tool-agnostic [template](./Agent-Best-Practices/README.md) for making AI coding agents
+(Kiro, Claude Code, Cursor, Codex, Copilot, Gemini) produce high-quality, resilient, well-documented,
+reuse-first code — a single `AGENTS.md` source of truth, a `.agent/` living spec and standards
+(resilience, observability, security, dependency currency, documentation, per-language), and CI
+guardrails. Copy it to a new project root and run `scripts/bootstrap.sh`.

@@ -23,3 +23,6 @@ appropriate section (Added / Changed / Fixed / Removed / Security). On release, 
 - Code documentation standard (`.agent/standards/documentation.md`): per-language docstring/doc-comment
   conventions (Google-style, TSDoc/JSDoc, Go doc comments, Javadoc, Rustdoc), doc-comment contract,
   and doc-coverage linting; wired into `AGENTS.md` §7 and the Python/TypeScript/Go standards.
+- `scripts/bootstrap.sh` — idempotent setup script that self-heals the pointer symlinks
+  (`.kiro/specs/main`, `.kiro/skills`) after copying the template, so adoption works regardless of
+  the copy method (including ZIP downloads). Referenced from the adoption steps in the README.

@@ -49,24 +49,35 @@ CHANGELOG.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md LICENSE .gitignore
 
 ## Using this template in a new project
 
-1. Copy this repo's contents into your project (or use it as a GitHub template).
-2. **Fill in the `<FILL IN>` placeholders** — search for them:
+1. **Copy the template to your new project's root** (so the dot-folders and `AGENTS.md` sit at the
+   repo root, where tools look for them). Use a symlink-preserving copy:
+   ```bash
+   cp -a Agent-Best-Practices/. /path/to/your/project/    # or: rsync -a, or git clone
+   ```
+   Avoid copying via a GitHub **ZIP download** — it turns the two symlinks into plain text files.
+   If you do, step 2 repairs them.
+2. **Run bootstrap** from your project root once. It self-heals the pointer symlinks (idempotent)
+   and prints the remaining setup steps:
+   ```bash
+   bash scripts/bootstrap.sh
+   ```
+3. **Fill in the `<FILL IN>` placeholders** — search for them:
    ```bash
    grep -rn "<FILL IN>" .
    ```
    They cover: license holder/year, security contact, coverage floor, backoff numbers, toolchain
    commands, and CI steps.
-3. Keep the language standards you use (`.agent/standards/python.md`, `typescript.md`, …), add
+4. Keep the language standards you use (`.agent/standards/python.md`, `typescript.md`, …), add
    others from `_template.md`, and delete the rest.
-4. Seed `.agent/spec/` with your real requirements/design/tasks, and start the capabilities
+5. Seed `.agent/spec/` with your real requirements/design/tasks, and start the capabilities
    inventory as you build.
-5. Wire CI: fill in `.github/workflows/ci.yml` with your real build/test/lint commands; the
-   guardrails workflow works as-is (tune the globs in `scripts/agent-guardrails.sh`).
-6. If the symlinks didn't survive copying (some zip/Windows flows drop them), recreate them:
-   ```bash
-   ln -s ../../.agent/spec .kiro/specs/main
-   ln -s ../.agent/skills  .kiro/skills
-   ```
+6. Wire CI: fill in `.github/workflows/ci.yml` with your real build/test/lint commands; the
+   guardrails workflow works as-is (tune the globs in `scripts/agent-guardrails.sh`). Enable **one**
+   of `.github/dependabot.yml` or `renovate.json` for automated dependency updates.
+
+> Symlinks: `git clone`, `cp -a`, and `rsync -a` preserve them, so step 2 is just a safety net.
+> `scripts/bootstrap.sh` recreates `.kiro/specs/main -> ../../.agent/spec` and
+> `.kiro/skills -> ../.agent/skills` if a copy method dropped them.
 
 ## Option A vs B (spec home)
 
