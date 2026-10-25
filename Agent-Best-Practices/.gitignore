@@ -1,0 +1,43 @@
+# Secrets & credentials — never commit (AGENTS.md §6)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*_rsa
+*_ed25519
+credentials.json
+secrets.*
+.aws/
+.netrc
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+target/
+vendor/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Coverage & test artifacts
+coverage/
+.coverage
+.nyc_output/
+htmlcov/
+.pytest_cache/
+
+# Local agent scratch — intentionally ignored (AGENTS.md: don't commit real inputs)
+.agent/raw/
+.agent/scratch/
+
+# Editor / OS
+.DS_Store
+.idea/
+*.swp

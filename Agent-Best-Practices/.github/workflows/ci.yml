@@ -1,0 +1,45 @@
+name: CI
+
+# Template CI pipeline. Fill in the language-specific setup/build/test steps for your repo.
+# Keep lint, typecheck, test, and coverage as required checks.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- FILL IN: toolchain setup for your language ---
+      # Example (Node):
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: '22', cache: 'npm' }
+      # - run: npm ci
+      # Example (Python):
+      # - uses: actions/setup-python@v5
+      #   with: { python-version: '3.12' }
+      # - run: pip install -e '.[dev]'
+
+      - name: Lint
+        run: echo "FILL IN lint command (e.g. ruff check / eslint)"
+
+      - name: Typecheck
+        run: echo "FILL IN typecheck command (e.g. mypy / tsc --noEmit)"
+
+      - name: Test with coverage
+        run: echo "FILL IN test command enforcing the coverage floor"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency / vulnerability scan
+        run: echo "FILL IN dependency audit (e.g. npm audit --audit-level=high / pip-audit / govulncheck)"
+      - name: Lockfile matches manifest
+        run: echo "FILL IN lockfile-consistency check (e.g. npm ci --dry-run / pip-compile --check / go mod verify)"
+      # Consider adding a secret scanner (gitleaks/trufflehog) and SAST here.
+      # Dependency currency is automated via .github/dependabot.yml (see .agent/standards/dependencies.md).

@@ -1,0 +1,36 @@
+# Automated dependency updates (GitHub-native). Backs .agent/standards/dependencies.md.
+# Enable the ecosystems your repo actually uses and delete the rest.
+# Renovate is a drop-in alternative with more grouping control — pick one, not both.
+version: 2
+updates:
+  # GitHub Actions used by the workflows in this repo.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # --- Enable the ones you use (examples) ---
+
+  # - package-ecosystem: "npm"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }
+  #   groups:
+  #     dev-minor-patch:
+  #       dependency-type: "development"
+  #       update-types: ["minor", "patch"]
+  #   # Majors come as separate PRs automatically (not grouped) for individual review.
+
+  # - package-ecosystem: "pip"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }
+
+  # - package-ecosystem: "gomod"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }
+
+  # - package-ecosystem: "docker"
+  #   directory: "/"
+  #   schedule: { interval: "weekly" }

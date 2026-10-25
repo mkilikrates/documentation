@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Doc & Living-Document Sync Reminder",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "A spec task just completed. Before considering it done, verify the living documents are in sync per AGENTS.md §7 and §10: update .agent/spec (integrate in place, don't append), .agent/capabilities.md if a shared capability changed, .agent/learnings.md if a non-obvious decision/lesson came up, human+developer docs, CHANGELOG.md, and the version if releasable. If any could not be updated, flag it to the user rather than silently skipping."
+      }
+    }
+  ]
+}

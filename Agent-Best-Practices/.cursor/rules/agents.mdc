@@ -1,0 +1,14 @@
+---
+description: Repository agent rules — source of truth is AGENTS.md
+alwaysApply: true
+---
+
+The single source of truth for how to work in this repository is **`AGENTS.md`** at the repo root.
+Read it first and follow it for every task. This rule does not restate or override it.
+
+See also:
+- `@AGENTS.md`
+- Living spec: `.agent/spec/` (one living spec — do not create a folder per feature)
+- Reuse inventory: `.agent/capabilities.md`
+- Learning log: `.agent/learnings.md`
+- Standards: `.agent/standards/` (apply a language standard only to that language's files)

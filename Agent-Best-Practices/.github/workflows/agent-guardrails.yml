@@ -1,0 +1,17 @@
+name: Agent Guardrails
+
+# Enforces the non-negotiable process rules from AGENTS.md mechanically, so they don't rely on an
+# agent (or human) remembering them. Runs on pull requests against the base branch.
+
+on:
+  pull_request:
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run guardrail checks
+        run: bash scripts/agent-guardrails.sh "origin/${{ github.base_ref }}"
