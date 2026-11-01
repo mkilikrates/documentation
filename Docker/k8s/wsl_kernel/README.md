@@ -13,7 +13,9 @@ The [wsl-tetragon.config](./wsl-tetragon.config) fragment contains only the opti
 - [Build the kernel](#build-the-kernel)
 - [Deploy the kernel to WSL2](#deploy-the-kernel-to-wsl2)
 - [Mount bpffs and securityfs](#mount-bpffs-and-securityfs)
+- [Enable nested virtualization (KVM)](#enable-nested-virtualization-kvm)
 - [Restart WSL2](#restart-wsl2)
+- [Using /dev/kvm from kind](#using-devkvm-from-kind)
 - [Related articles](#related-articles)
 
 ## Why a custom kernel?
@@ -24,6 +26,7 @@ The stock WSL2 kernel doesn't ship with the features needed for full eBPF toolin
 - **BPF LSM** in the active LSM list for LSM-based enforcement
 - **All three kube-proxy modes** (iptables, IPVS, nftables) so you can test any of them, regardless of distro
 - **Virtual network devices** (bridge, veth, dummy, vxlan, geneve, wireguard, etc.) for cluster networking and CNIs
+- **KVM built in** so `/dev/kvm` exists for microVM runtimes like [Firecracker](https://firecracker-microvm.github.io/) and [Kata Containers](https://katacontainers.io/). The stock config builds KVM as modules, which WSL2 never loads
 
 It also **disables** a handful of ACPI hardware modules. WSL2 has no physical hardware, and these modules ship malformed BTF that breaks Tetragon's CO-RE relocations (`apply CO-RE relocations: load BTF for kmod ac: ...`). This is fixed upstream but not yet in stable Tetragon, so we turn them off for now.
 
@@ -41,6 +44,7 @@ The fragment is grouped into sections so it's easy to scan:
 | iptables / nftables / IPVS modes | All three kube-proxy modes built-in |
 | BPF networking | `cls_bpf`, `act_bpf`, schedulers for tc/eBPF |
 | XFRM / IPsec + crypto | Encrypted pod-to-pod traffic (WireGuard, ESP) |
+| KVM / nested virtualization | KVM (Intel + AMD) for `/dev/kvm`; vhost-net/vhost-vsock for Kata |
 
 > **Target kernel:** `linux-msft-wsl-6.18.y` (WSL2 kernel 6.18).
 
@@ -54,7 +58,13 @@ git clone --depth 1 -b linux-msft-wsl-6.18.y https://github.com/microsoft/WSL2-L
 cd WSL2-Linux-Kernel
 ```
 
-Start from the default WSL config:
+Copy the fragment into the kernel tree:
+
+```bash
+cp /path/to/wsl_kernel/wsl-tetragon.config .
+```
+
+Start from the default WSL config (also when rebuilding):
 
 ```bash
 cp arch/x86/configs/config-wsl .config
@@ -78,6 +88,12 @@ Re-apply the fragment once more. `make olddefconfig` may re-enable some of the A
 ./scripts/kconfig/merge_config.sh .config wsl-tetragon.config
 ```
 
+Confirm KVM is built in (all four should be `=y`):
+
+```bash
+grep -E '^CONFIG_(KVM_X86|KVM|KVM_INTEL|KVM_AMD)=' .config
+```
+
 Build the kernel image. No `modules_install` is needed since everything critical is built-in:
 
 ```bash
@@ -86,9 +102,10 @@ make -j$(nproc) bzImage
 
 ## Deploy the kernel to WSL2
 
-Copy the built image to a location your Windows host can read, then point your `.wslconfig` at it.
+Copy the built image to a location your Windows host can read (keep the old one in case the new kernel doesn't boot), then point your `.wslconfig` at it.
 
 ```bash
+cp /mnt/c/Users/<YourUser>/wsl-kernel/bzImage /mnt/c/Users/<YourUser>/wsl-kernel/bzImage.prev
 cp arch/x86/boot/bzImage /mnt/c/Users/<YourUser>/wsl-kernel/bzImage
 ```
 
@@ -108,6 +125,27 @@ echo "bpffs /sys/fs/bpf bpf defaults 0 0" | sudo tee -a /etc/fstab
 echo "securityfs /sys/kernel/security securityfs defaults 0 0" | sudo tee -a /etc/fstab
 ```
 
+## Enable nested virtualization (KVM)
+
+To run microVMs inside WSL2, add these to the `[wsl2]` section of `.wslconfig` (keep any `kernelCommandLine` parameters you already use):
+
+```ini
+[wsl2]
+nestedVirtualization=true
+kernelCommandLine=lsm=bpf,apparmor kvm_intel.nested=1   # AMD: kvm_amd.nested=1
+```
+
+Without systemd there's no udev, so `/dev/kvm` is created root-only. Fix the permissions at boot in `/etc/wsl.conf` and add your user to the `kvm` group:
+
+```ini
+[boot]
+command = "chgrp kvm /dev/kvm && chmod 0660 /dev/kvm"
+```
+
+```bash
+sudo usermod -aG kvm $USER
+```
+
 ## Restart WSL2
 
 From powershell, shut everything down so WSL picks up the new kernel:
@@ -116,11 +154,35 @@ From powershell, shut everything down so WSL picks up the new kernel:
 wsl --shutdown
 ```
 
-Then start a new WSL session and confirm you're on the new kernel:
+Then start a new WSL session and confirm you're on the new kernel and KVM is available:
 
 ```bash
 uname -r
+ls -l /dev/kvm                                  # crw-rw---- 1 root kvm ...
+cat /sys/module/kvm_intel/parameters/nested     # Y
 ```
+
+If WSL doesn't start, copy `bzImage.prev` back over `bzImage` from Windows and run `wsl --shutdown` again.
+
+## Using /dev/kvm from kind
+
+Mount `/dev/kvm` into a labeled worker so microVM workloads can be scheduled there:
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
+    labels:
+      microvm: "true"
+    extraMounts:
+      - hostPath: /dev/kvm
+        containerPath: /dev/kvm
+```
+
+Pods don't get `/dev/kvm` by default, and mounting it with a `hostPath` volume isn't enough in an unprivileged pod (`open()` fails with `Operation not permitted`). Use a KVM device plugin (e.g. KubeVirt's `devices.kubevirt.io/kvm`) to grant it to just the microVM pods, or `privileged: true` for a quick test only.
 
 ## Related articles
 
