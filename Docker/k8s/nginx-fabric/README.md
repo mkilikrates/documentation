@@ -38,12 +38,14 @@ kubectl kustomize \
 helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric \
   --create-namespace -n nginx-gateway \
   --set nginx.service.type=NodePort \
-  --set-json 'nginx.service.nodePorts=[{"name":"http","port":31437,"listenerPort":80},{"name":"https","port":31438,"listenerPort":443}]' \
+  --set-json 'nginx.service.nodePorts=[{"port":31437,"listenerPort":80},{"port":31438,"listenerPort":443}]' \
   --set-json 'nginxGateway.nodeSelector={"kubernetes.io/hostname":"kind-control-plane"}'
 ```
 
 The gateway service uses NodePort on ports 31437 (HTTP) and 31438 (HTTPS), mapped to host ports 80/443 (IPv4) and 8080/8443 (IPv6).
 The controller is pinned to the control-plane node via `nodeSelector`.
+
+> **Note:** On NGF 2.8.1 the `NginxProxy` CRD (`v1alpha2`) only accepts `port` and `listenerPort` on each `nodePorts` entry. Adding `name` fails with `field not declared in schema`.
 
 Check deployment:
 
@@ -61,6 +63,8 @@ kubectl -n nginx-gateway patch svc ngf-nginx-gateway-fabric --type=merge \
   -p '{"spec":{"ipFamilyPolicy":"PreferDualStack","ipFamilies":["IPv4","IPv6"]}}'
 ```
 
+> **Note:** Still needed on NGF 2.8.1, the chart renders this service without `ipFamilyPolicy`. The `NginxProxy` `spec.ipFamily` option (`ipv4`, `ipv6` or `dual`) only controls how NGINX listens and resolves, it doesn't change the service.
+
 ## Pin the data plane to the control-plane node
 
 NGINX Gateway Fabric creates a separate data plane deployment when you create a Gateway resource. By default it can schedule on any node, but in kind only the control-plane has Docker port mappings to the host. The data plane must run there.
@@ -77,6 +81,8 @@ kubectl -n nginx-gateway patch nginxproxy ngf-proxy-config --type=merge \
 > **Note:** This is a kind-specific constraint. In a real cluster with a LoadBalancer service, traffic would reach any node and `externalTrafficPolicy: Local` would work correctly.
 
 ## Create a shared gateway
+
+> **Note:** the HTTPS listeners below use a wildcard (`*.$MY_PRIVATE_IP.nip.io`). NGINX Gateway Fabric does not accept two listeners on the same port whose hostnames overlap (`HostnameConflict`), and a wildcard covers every name below it. So you cannot add a TLS **passthrough** listener (for example Kafka, `*.kafka.$MY_PRIVATE_IP.nip.io`, one TLSRoute per broker) on port 443 next to it. If you need that, list the HTTPS hostnames one by one (`kafka-ui.$MY_PRIVATE_IP.nip.io`, ...; the same wildcard certificate or cert-manager's Gateway shim can serve them) and add the passthrough listener. A complete example is `gateway-lab.yaml` in [kafka_lab/kafka_kind](https://github.com/mkilikrates/kafka_lab).
 
 ### IPv4 only — HTTP
 
